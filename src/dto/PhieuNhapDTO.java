@@ -11,18 +11,21 @@ import java.time.LocalDate;
 public class PhieuNhapDTO {
     private String soPN;
     private String maNV;
-    private int trangThai;
     private String maNXB;
+    private String maKho;
     private LocalDate ngayNhap;
     private int tongTien;
+    private int trangThai;
+
 
     public PhieuNhapDTO() {
     
     }
 
-    public PhieuNhapDTO(String soPN, String maNV, int trangThai, String maNXB, LocalDate ngayNhap, int tongTien) {
+    public PhieuNhapDTO(String soPN, String maNV,  String maNXB,String maKho, LocalDate ngayNhap, int tongTien, int trangThai) {
         this.soPN = soPN;
         this.maNV = maNV;
+        this.maKho = maKho;
         this.trangThai = trangThai;
         this.maNXB = maNXB;
         this.ngayNhap = ngayNhap;
@@ -36,6 +39,15 @@ public class PhieuNhapDTO {
     public void setSoPN(String soPN) {
         this.soPN = soPN;
     }
+
+    public String getMaKho() {
+        return maKho;
+    }
+
+    public void setMaKho(String maKho) {
+        this.maKho = maKho;
+    }
+    
 
     public String getMaNV() {
         return maNV;

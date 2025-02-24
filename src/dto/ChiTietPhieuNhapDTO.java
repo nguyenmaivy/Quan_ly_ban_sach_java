@@ -13,16 +13,18 @@ public class ChiTietPhieuNhapDTO {
     private String soPN;
     private int soLuongNhap;
     private int giaNhap;
+    private int trangThai;
 
     public ChiTietPhieuNhapDTO() {
     
     }
 
-    public ChiTietPhieuNhapDTO(String maSach, String soPN, int soLuongNhap, int giaNhap) {
+    public ChiTietPhieuNhapDTO(String maSach, String soPN, int soLuongNhap, int giaNhap, int trangThai) {
         this.maSach = maSach;
         this.soPN = soPN;
         this.soLuongNhap = soLuongNhap;
         this.giaNhap = giaNhap;
+        this.trangThai = trangThai;
     }
 
     public String getMaSach() {

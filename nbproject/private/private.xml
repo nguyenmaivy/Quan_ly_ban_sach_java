@@ -3,11 +3,7 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach/src/dto/nhomQuyenDTO.java</file>
-            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach/src/dto/SachDTO.java</file>
-            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach/src/Config/Constant.java</file>
-            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach/src/dto/HoaDonDTO.java</file>
-            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach/src/dto/NhanVienDTO.java</file>
+            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach/src/dao/ChiTietPhieuNhapDAO.java</file>
             <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach/src/dao/SachDAO.java</file>
         </group>
     </open-files>

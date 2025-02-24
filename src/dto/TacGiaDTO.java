@@ -12,15 +12,17 @@ public class TacGiaDTO {
     private String maTG;
     private String tenTG;
     private String lienLac;
+    private int trangThai;
 
     public TacGiaDTO() {
     
     }
 
-    public TacGiaDTO(String maTG, String tenTG, String lienLac) {
+    public TacGiaDTO(String maTG, String tenTG, String lienLac, int trangThai) {
         this.maTG = maTG;
         this.tenTG = tenTG;
         this.lienLac = lienLac;
+        this.trangThai = trangThai;
     }
 
     public String getMaTG() {
@@ -45,6 +47,14 @@ public class TacGiaDTO {
 
     public void setLienLac(String lienLac) {
         this.lienLac = lienLac;
+    }
+
+    public int getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(int trangThai) {
+        this.trangThai = trangThai;
     }
     
     
