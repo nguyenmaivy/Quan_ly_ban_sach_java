@@ -232,4 +232,38 @@ public class TacGiaDAO implements DAOInterface<TacGiaDTO> {
         }
         return arr; 
     }
+    
+    public TacGiaDTO getByName(String tenTG) {
+        TacGiaDTO tacgia = null;
+        
+        try{
+            
+            //B1
+            jdbc.openConnection();
+            
+            //B2
+            String query = "SELECT maTG, tenTG, lienLac FROM TacGia WHERE tenTG like ?";
+            
+            //B3
+            PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
+            ps.setString(1, "%" + tenTG + "%");
+            
+            //B4
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()){
+                String maTG = rs.getString(1);
+                String tenTacGia =rs.getString(2);
+                String lienLac = rs.getString(3);
+                
+                tacgia = new TacGiaDTO(maTG, tenTacGia, lienLac, 1);
+            }
+            
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            jdbc.closeConnection();
+        }
+        return tacgia;
+    }
+
 }
