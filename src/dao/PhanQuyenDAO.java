@@ -6,6 +6,7 @@ package dao;
 
 import Config.Constant;
 import dto.nhomQuyenDTO;
+//import java.beans.Statement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -37,11 +38,6 @@ public class PhanQuyenDAO implements DAOInterface<nhomQuyenDTO> {
             //b4: Xử lý kết quả
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-//                nhomQuyenDTO nhomquyen = new nhomQuyenDTO(
-//                        rs.getInt("maNhomQuyen"),
-//                        rs.getString("tenNhomQuyen"),
-//                        rs.getInt("trangThai")
-//                );
                 nhomQuyenDTO quyen = new nhomQuyenDTO();
                 quyen.setMaNhomQuyen(rs.getInt(1)); // Sửa thành setter
                 quyen.setTenNhomQuyen(rs.getString(2)); // Nếu có thêm cột, hãy gán giá trị
@@ -72,7 +68,7 @@ public class PhanQuyenDAO implements DAOInterface<nhomQuyenDTO> {
 
             //b3
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
-            ps.setString(1, maNhomQuyen);
+            ps.setString(1, String.valueOf(maNhomQuyen));
 
             //b4
             ResultSet rs = ps.executeQuery();
@@ -95,17 +91,22 @@ public class PhanQuyenDAO implements DAOInterface<nhomQuyenDTO> {
             jdbc.openConnection();
 
             //b2
-            String queryInsert = "INSERT INTO nhomQuyen VALUES(?,?,?)";
+            String queryInsert = "INSERT INTO nhomQuyen (tenNhomQuyen, trangThai) VALUES(?,?)";
 
             //B3
-            PreparedStatement ps = jdbc.getConnection().prepareStatement(queryInsert);
-            ps.setInt(1, nq.getMaNhomQuyen());
-            ps.setString(2, nq.getTenNhomQuyen());
-            ps.setInt(3, 1);
+            PreparedStatement ps = jdbc.getConnection().prepareStatement(queryInsert, PreparedStatement.RETURN_GENERATED_KEYS);
+//            ps.setInt(1, nq.getMaNhomQuyen());
+            ps.setString(1, nq.getTenNhomQuyen());
+            ps.setInt(2, 1);
 
             //b4
             if (ps.executeUpdate() > 0) {
-                return true;
+                ResultSet generatedKeys = ps.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    int newId = generatedKeys.getInt(1);
+                    nq.setMaNhomQuyen(newId); // Cập nhật ID mới vào đối tượng DTO
+                }
+                result = true;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -124,7 +125,7 @@ public class PhanQuyenDAO implements DAOInterface<nhomQuyenDTO> {
             jdbc.openConnection();
             String query = "UPDATE nhomQuyen SET trangThai = 0 WHERE maNhomQuyen = ?";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
-            ps.setString(1, maNhomQuyen);
+            ps.setString(1, String.valueOf(maNhomQuyen));
             if (ps.executeUpdate() > 0) {
                 result = true;
             }

@@ -218,7 +218,7 @@ public class PhieuNhapDAO implements DAOInterface<PhieuNhapDTO> {
         return arr;
     }
 
-    public ArrayList<PhieuNhapDTO> getByTongTien(String data, String condition) {
+    public ArrayList<PhieuNhapDTO> getByGia(String data, String condition) {
         ArrayList<PhieuNhapDTO> arr = new ArrayList<PhieuNhapDTO>();
 
         try {

@@ -48,6 +48,40 @@ public class ChiTietPhieuNhapDAO implements DAOInterface<ChiTietPhieuNhapDTO> {
         return arr;
     }
 
+    public ArrayList<ChiTietPhieuNhapDTO> getAllByID(String sopn) {
+        ArrayList<ChiTietPhieuNhapDTO> arr = new ArrayList<>();
+
+        try {
+
+            //B1
+            jdbc.openConnection();
+
+            //B2
+            String query = "select * from ChiTietPhieuNhap where soPN=? and trangThai = 1";
+
+            //B3
+            PreparedStatement ps = jdbc.getConnection().prepareStatement(sopn);
+
+            //B4
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String soPN = rs.getString(1);
+                String maSach = rs.getString(2);
+                int soLuongNhap = rs.getInt(3);
+                int giaNhap = rs.getInt(4);
+                arr.add(new ChiTietPhieuNhapDTO(maSach, soPN, soLuongNhap, giaNhap, 1));
+//
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            jdbc.closeConnection();
+        }
+        return arr;
+
+    }
+
     @Override
     public boolean has(String D) {
         return false;
@@ -86,6 +120,38 @@ public class ChiTietPhieuNhapDAO implements DAOInterface<ChiTietPhieuNhapDTO> {
 
     }
 
+    public ArrayList<ChiTietPhieuNhapDTO> getByCondition(String data, String condition, String ma) {
+        ArrayList<ChiTietPhieuNhapDTO> arr = new ArrayList<ChiTietPhieuNhapDTO>();
+
+        try {
+            //B1
+            jdbc.openConnection();
+
+            //B2
+            String query = "select soPN, maSach, soLuongNhap, giaNhap from ChiTietPhieuNhap where " + condition + " like ? and soPN = ?";
+
+            //B3
+            PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
+            ps.setString(1, "%" + data + "%");
+            ps.setString(2, ma);
+
+            //B4
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String soPN = rs.getString(1);
+                String maSach = rs.getString(2);
+                int soLuongNhap = rs.getInt(3);
+                int giaNhap = rs.getInt(4);
+                arr.add(new ChiTietPhieuNhapDTO(maSach, soPN, soLuongNhap, giaNhap, 1));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            jdbc.closeConnection();
+        }
+        return arr;
+    }
+
     public boolean updateTrangthai(String ma) {
         try {
 
@@ -112,7 +178,7 @@ public class ChiTietPhieuNhapDAO implements DAOInterface<ChiTietPhieuNhapDTO> {
 
         return false;
     }
-    
+
     public ArrayList<ChiTietPhieuNhapDTO> getBySoluong(String data, String condition, String ma) {
         ArrayList<ChiTietPhieuNhapDTO> arr = new ArrayList<ChiTietPhieuNhapDTO>();
         try {
@@ -152,7 +218,7 @@ public class ChiTietPhieuNhapDAO implements DAOInterface<ChiTietPhieuNhapDTO> {
 
         try {
             jdbc.openConnection();
-            
+
             String query = "SELECT soPN, maSach, soLuongNhap, giaNhap from ChiTietPhieuNhap WHERE giaNhap "
                     + condition + " ? AND soPN = ?";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
