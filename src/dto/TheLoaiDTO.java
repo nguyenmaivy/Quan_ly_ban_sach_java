@@ -11,15 +11,26 @@ package dto;
 public class TheLoaiDTO {
     private String maLoai;
     private String tenLoai;
+    private int trangThai;
 
     public TheLoaiDTO() {
     
     }
 
-    public TheLoaiDTO(String maLoai, String tenLoai) {
+    public TheLoaiDTO(String maLoai, String tenLoai, int trangThai) {
         this.maLoai = maLoai;
         this.tenLoai = tenLoai;
+        this.trangThai = trangThai;
     }
+
+    public int getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(int trangThai) {
+        this.trangThai = trangThai;
+    }
+    
 
     public String getMaLoai() {
         return maLoai;

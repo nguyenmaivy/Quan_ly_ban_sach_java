@@ -9,20 +9,31 @@ package dto;
  * @author MZI
  */
 public class KhoSachDTO {
+
     private String maKho;
     private String tenKho;
     private String diaChi;
     private String loai;
-    
-    public KhoSachDTO(){
-    
+    private int trangThai;
+
+    public KhoSachDTO() {
+
     }
 
-    public KhoSachDTO(String maKho, String tenKho, String diaChi, String loai) {
+    public KhoSachDTO(String maKho, String tenKho, String diaChi, String loai, int trangThai) {
         this.maKho = maKho;
         this.tenKho = tenKho;
         this.diaChi = diaChi;
         this.loai = loai;
+        this.trangThai = trangThai;
+    }
+
+    public int getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(int trangThai) {
+        this.trangThai = trangThai;
     }
 
     public String getMaKho() {
@@ -57,7 +68,4 @@ public class KhoSachDTO {
         this.loai = loai;
     }
 
-    
-    
-    
 }

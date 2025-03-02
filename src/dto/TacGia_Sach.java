@@ -9,12 +9,27 @@ package dto;
  * @author MZI
  */
 public class TacGia_Sach {
+
     private String maTG;
     private String maSach;
+    private String vaitro;
 
-    public TacGia_Sach(String maTG, String maSach) {
+    public TacGia_Sach() {
+
+    }
+
+    public TacGia_Sach(String maTG, String maSach, String vaitro) {
         this.maTG = maTG;
         this.maSach = maSach;
+        this.vaitro = vaitro;
+    }
+
+    public String getVaitro() {
+        return vaitro;
+    }
+
+    public void setVaitro(String vaitro) {
+        this.vaitro = vaitro;
     }
 
     public String getMaTG() {
@@ -32,5 +47,5 @@ public class TacGia_Sach {
     public void setMaSach(String maSach) {
         this.maSach = maSach;
     }
-    
+
 }

@@ -13,24 +13,34 @@ public class NhaXuatBanDTO {
     private String diachiNXB;
     private String sdt;
     private String tenNXB;
+    private int trangThai;
 
     public NhaXuatBanDTO() {
     
     }
 
-    public NhaXuatBanDTO(String maNXB, String diachiNXB, String sdt, String tenNXB) {
+    public NhaXuatBanDTO(String maNXB, String diachiNXB, String sdt, String tenNXB, int trangThai) {
         this.maNXB = maNXB;
         this.diachiNXB = diachiNXB;
         this.sdt = sdt;
         this.tenNXB = tenNXB;
+        this.trangThai = trangThai;
     }
 
-    public String getManxb() {
+    public String getMaNXB() {
         return maNXB;
     }
 
-    public void setManxb(String maNXB) {
+    public void setMaNXB(String maNXB) {
         this.maNXB = maNXB;
+    }
+
+    public int getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(int trangThai) {
+        this.trangThai = trangThai;
     }
 
     public String getDiachiNXB() {
