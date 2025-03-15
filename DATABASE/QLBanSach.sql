@@ -296,6 +296,7 @@ Create table TaiKhoan
 	sdt varchar(11) primary key,
 	matKhau varchar(50),
 	maNV varchar(10),
+	maNhomQuyen int,
 	trangThai int
 );
 
