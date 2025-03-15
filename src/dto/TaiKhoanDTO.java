@@ -13,24 +13,28 @@ public class TaiKhoanDTO {
     private String matKhau;
     private String sdt;
     private String maNV;
-    private String maKH;
+    
+    private int maNhomQuyen;
     private int trangThai;
     
     public TaiKhoanDTO(){
     
     }
 
-    public TaiKhoanDTO(String useName, String matKhau, String sdt, int trangThai) {
+    public TaiKhoanDTO(String useName, String matKhau, String sdt, String maNV, int maNhomQuyen, int trangThai) {
         this.useName = useName;
         this.matKhau = matKhau;
         this.sdt = sdt;
+        this.maNV = maNV;
+        
+        this.maNhomQuyen = maNhomQuyen;
         this.trangThai = trangThai;
     }
 
-    public TaiKhoanDTO(String maNV, String maKH) {
-        this.maNV = maNV;
-        this.maKH = maKH;
-    }
+//    public TaiKhoanDTO(String maNV, String maKH) {
+//        this.maNV = maNV;
+//        this.maKH = maKH;
+//    }
     
 
     public String getUseName() {
@@ -74,13 +78,13 @@ public class TaiKhoanDTO {
         this.maNV = maNV;
     }
 
-    public String getMaKH() {
-        return maKH;
+    
+     public int getMaNhomQuyen() {
+        return maNhomQuyen;
     }
 
-    public void setMaKH(String maKH) {
-        this.maKH = maKH;
+    public void setMaNhomQuyen(int maNhomQuyen) {
+        this.maNhomQuyen = maNhomQuyen;
     }
     
-    
-}
+ }
