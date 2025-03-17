@@ -76,7 +76,7 @@ public class TacGiaSachDAO implements DAOInterface<TacGiaSachDTO> {
             PreparedStatement ps = conn.getConnection().prepareStatement(query);
             ps.setString(1, tgs.getMaTG());
             ps.setString(2, tgs.getMaSach());
-            ps.setString(3, tgs.getVaiTro());
+            ps.setString(3, tgs.getVaitro());
 
             if (ps.executeUpdate() > 0) {
                 result = true;
@@ -123,7 +123,7 @@ public class TacGiaSachDAO implements DAOInterface<TacGiaSachDTO> {
 
             PreparedStatement ps = conn.getConnection().prepareStatement(query);
             ps.setString(1, tgs.getMaSach());
-            ps.setString(2, tgs.getVaiTro());
+            ps.setString(2, tgs.getVaitro());
             ps.setString(3, tgs.getMaTG());
 
             if (ps.executeUpdate() > 0) {

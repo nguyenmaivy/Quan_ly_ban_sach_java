@@ -93,29 +93,29 @@ import dto.TacGiaSachDTO;
 import java.util.ArrayList;
 
 public class testbus {
-    public static void main(String[] args) {
-        TacGiaSachBUS tgsBUS = new TacGiaSachBUS();
-        
-        // 1️⃣ Thêm một tác giả - sách mới
-        TacGiaSachDTO newTGS = new TacGiaSachDTO("TG001", "S001", "Tác giả chính");
-        String resultAdd = tgsBUS.addTacGiaSach(newTGS);
-        System.out.println(resultAdd);
-        
-        // 2️⃣ Hiển thị danh sách tất cả tác giả - sách
-        ArrayList<TacGiaSachDTO> list = tgsBUS.getAllTacGiaSach();
-        System.out.println("Danh sách tác giả - sách:");
-        for (TacGiaSachDTO tgs : list) {
-            System.out.println("Mã TG: " + tgs.getMaTG() + ", Mã sách: " + tgs.getMaSach() + ", Vai trò: " + tgs.getVaiTro());
-        }
-        
-        // 3️⃣ Cập nhật thông tin tác giả - sách
-        TacGiaSachDTO updatedTGS = new TacGiaSachDTO("TG001", "S001", "Đồng tác giả");
-        String resultUpdate = tgsBUS.updateTacGiaSach(updatedTGS);
-        System.out.println(resultUpdate);
-        
-        
-        // 5️⃣ Xóa tác giả - sách
-        String resultDelete = tgsBUS.deleteTacGiaSach("TG001");
-        System.out.println(resultDelete);
-    }
+//    public static void main(String[] args) {
+//        TacGiaSachBUS tgsBUS = new TacGiaSachBUS();
+//        
+//        // 1️⃣ Thêm một tác giả - sách mới
+//        TacGiaSachDTO newTGS = new TacGiaSachDTO("TG001", "S001", "Tác giả chính");
+//        String resultAdd = tgsBUS.addTacGiaSach(newTGS);
+//        System.out.println(resultAdd);
+//        
+//        // 2️⃣ Hiển thị danh sách tất cả tác giả - sách
+//        ArrayList<TacGiaSachDTO> list = tgsBUS.getAllTacGiaSach();
+//        System.out.println("Danh sách tác giả - sách:");
+//        for (TacGiaSachDTO tgs : list) {
+//            System.out.println("Mã TG: " + tgs.getMaTG() + ", Mã sách: " + tgs.getMaSach() + ", Vai trò: " + tgs.getVaiTro());
+//        }
+//        
+//        // 3️⃣ Cập nhật thông tin tác giả - sách
+//        TacGiaSachDTO updatedTGS = new TacGiaSachDTO("TG001", "S001", "Đồng tác giả");
+//        String resultUpdate = tgsBUS.updateTacGiaSach(updatedTGS);
+//        System.out.println(resultUpdate);
+//        
+//        
+//        // 5️⃣ Xóa tác giả - sách
+//        String resultDelete = tgsBUS.deleteTacGiaSach("TG001");
+//        System.out.println(resultDelete);
+//    }
 }

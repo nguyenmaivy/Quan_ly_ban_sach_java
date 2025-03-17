@@ -8,17 +8,17 @@ package dto;
  *
  * @author MZI
  */
-public class TacGia_Sach {
+public class TacGiaSachDTO {
 
     private String maTG;
     private String maSach;
     private String vaitro;
 
-    public TacGia_Sach() {
+    public TacGiaSachDTO() {
 
     }
 
-    public TacGia_Sach(String maTG, String maSach, String vaitro) {
+    public TacGiaSachDTO(String maTG, String maSach, String vaitro) {
         this.maTG = maTG;
         this.maSach = maSach;
         this.vaitro = vaitro;
