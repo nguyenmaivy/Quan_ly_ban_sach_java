@@ -1,7 +1,7 @@
 
 package gui.Componet.Custom;
 import bus.PhanQuyenBUS;
-import java.awt.*;
+import java.awt.Color;
 import java.util.HashMap;
 import javax.swing.*;
 
@@ -10,12 +10,14 @@ public final class MainFunction extends JToolBar {
     public ButtonToolBar btnAdd, btnDelete, btnEdit, btnDetail, btnNhapExcel, btnXuatExcel, btnHuyPhieu;
     public JSeparator separator1;
     public HashMap<String, ButtonToolBar> btn = new HashMap<>();
-    private final PhanQuyenBUS nhomquyenBus = new PhanQuyenBUS();
+    private final PhanQuyenBUS phanQuyenBUS = new PhanQuyenBUS();
+
 
     public MainFunction(int manhomquyen, String chucnang, String[] listBtn) {
         initData();
-//        initComponent(manhomquyen, chucnang, listBtn);
+        initComponent(manhomquyen, chucnang, listBtn);
     }
+
 
     public void initData() {
         btn.put("create", new ButtonToolBar("THÊM", "add.svg", "create"));
@@ -28,16 +30,16 @@ public final class MainFunction extends JToolBar {
         btn.put("phone", new ButtonToolBar("XEM DS", "phone.svg", "view"));
     }
 
-//    private void initComponent(int manhomquyen, String chucnang, String[] listBtn) {
-//        this.setBackground(Color.WHITE);
-//        this.setRollover(true);
-//        initData();
-//        for (String btnn : listBtn) {
-//            this.add(btn.get(btnn));
-//            if (!nhomquyenBus.checkPermisson(manhomquyen, chucnang, btn.get(btnn).getPermisson())) {
-//                btn.get(btnn).setEnabled(false);
-//            }
-//        }
-//    }
+    private void initComponent(int manhomquyen, String chucnang, String[] listBtn) {
+        this.setBackground(Color.WHITE);
+        this.setRollover(true);
+        initData();
+        for (String btnn : listBtn) {
+            this.add(btn.get(btnn));
+            if (!phanQuyenBUS.kiemTraQuyen(manhomquyen, chucnang, btn.get(btnn).getPermisson())) {
+                btn.get(btnn).setEnabled(true); // cho phép chọn button tương ứng
+            }
+        }
+    }
 }
 

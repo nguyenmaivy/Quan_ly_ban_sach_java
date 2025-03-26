@@ -6,13 +6,15 @@ package dao;
 
 import dao.TacGiaDAO;
 import dto.TacGiaDTO;
+import dao.PhanQuyenDAO;
+import dto.nhomQuyenDTO;
 import java.util.ArrayList;
 
 public class TEST {
 
     public static void main(String[] args) {
-//        PhanQuyenDAO dao = new PhanQuyenDAO();
-//          ChiTietPhieuNhapDAO dao = new ChiTietPhieuNhapDAO();
+        PhanQuyenDAO dao = new PhanQuyenDAO();
+//          ChiTietPhieuNhapDAO dao = new ChiTietPhieuNhapDAO();0
         //        newGroup.setTenNhomQuyen("Nhóm Test - Đã sửa");
 //        boolean updateResult = dao.update(newGroup);
 //        System.out.println("\n✏ Cập nhật nhóm quyền: " + (updateResult ? "Thành công!" : "Thất bại!"));
@@ -39,12 +41,12 @@ public class TEST {
 //        PhanQuyenDAO dao = new PhanQuyenDAO();
 //
 //        // 🔹 Test 1: Lấy tất cả nhóm quyền
-//        System.out.println("📌 Danh sách nhóm quyền:");
-//        ArrayList<nhomQuyenDTO> list = dao.getALL();
-//        for (nhomQuyenDTO nq : list) {
-//            System.out.println("ID: " + nq.getMaNhomQuyen() + " | Tên: " + nq.getTenNhomQuyen());
-//        }
-//
+        System.out.println("📌 Danh sách nhóm quyền:");
+        ArrayList<nhomQuyenDTO> list = dao.getALL();
+        for (nhomQuyenDTO nq : list) {
+            System.out.println("ID: " + nq.getMaNhomQuyen() + " | Tên: " + nq.getTenNhomQuyen());
+        }
+
 //        // 🔹 Test 2: Kiểm tra nhóm quyền có tồn tại không
 //        String testID = "4";
 //        System.out.println("\n🔍 Kiểm tra nhóm quyền ID " + testID + ": " + dao.has(testID));

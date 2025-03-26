@@ -1,8 +1,7 @@
 package gui.Componet.Custom;
 
-import com.formdev.flatlaf.extras.FlatSVGIcon;
 import dto.NhanVienDTO;
-import dto.nhomQuyenDTO;
+import dto.TaiKhoanDTO;
 import gui.Main;
 import gui.Panel.*;
 import java.awt.BorderLayout;
@@ -11,7 +10,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -50,28 +48,26 @@ public class MenuTaskbar extends JPanel {
         {"Thống kê", "statistical.svg", "thongke"},
         {"Phân quyền", "permission.svg", "nhomquyen"},
         {"Đăng xuất", "log_out.svg", "dangxuat"}
-
     };
     Main main;
     public itemTaskbar[] listitem;
 
     JLabel lblTenNhomQuyen, lblUsername;
     JScrollPane scrollPane;
-    //tasbarMenu chia thành 3 phần chính là pnlCenter, pnlTop, pnlBottom
-    JPanel pnlCenter, pnlTop, pnlBottom, bar1, bar2, bar3, bar4;
+    JPanel pnlCenter, pnlTop, pnlBottom;
 
     Color FontColor = new Color(96, 125, 139);
     Color DefaultColor = new Color(255, 255, 255);
     Color HowerFontColor = new Color(1, 87, 155);
     Color HowerBackgroundColor = new Color(187, 222, 251);
 
-//    private ArrayList<nhomQuyenDTO> listQuyen;
-//    nhomQuyenDTO nhomQuyenDTO;
     public NhanVienDTO nhanVienDTO;
     JFrame owner = (JFrame) SwingUtilities.getWindowAncestor(this);
-    public MenuTaskbar(Main main) {
+
+    public MenuTaskbar(Main main, TaiKhoanDTO user) {
         this.main = main;
         initComponent();
+        initPanels();  // Khởi tạo các panel ở đây
     }
 
     private void initComponent() {
@@ -93,79 +89,86 @@ public class MenuTaskbar extends JPanel {
             listitem[i] = new itemTaskbar(getStringses[i][1], getStringses[i][0]);
             pnlCenter.add(listitem[i]);
 
-            int index = i; // Lưu trữ chỉ số để dùng trong sự kiện
+            int index = i;
             listitem[i].addMouseListener(new MouseAdapter() {
                 @Override
                 public void mousePressed(MouseEvent evt) {
-                    switch (getStringses[index][2]) {
-                        case "trangchu":
-                            trangChu = new TrangChu();
-                            main.setPanel(trangChu);
-                            break;
-                        case "Sach":
-                            sach = new Sach();
-                            main.setPanel(sach);
-                            break;
-                        case "theloai":
-                            theLoai = new TheLoai();
-                            main.setPanel(theLoai);
-                            break;
-                        case "khosach":
-                            khoSach = new KhoSach();
-                            main.setPanel(khoSach);
-                            break;
-                        case "nhaphang":
-                            phieuNhap = new PhieuNhap(main, nhanVienDTO);
-                            main.setPanel(phieuNhap);
-                            break;
-                        case "xuathang":
-                            hoaDon = new HoaDon();
-                            main.setPanel(hoaDon);
-                            break;
-                        case "khachhang":
-                            kháchHang = new KhachHang();
-                            main.setPanel(kháchHang);
-                            break;
-                        case "nhaxuatban":
-                            nhaXuatBan = new NhaXuatBan();
-                            main.setPanel(nhaXuatBan);
-                            break;
-                        case "tacgia":
-                            tacGia = new TacGia();
-                            main.setPanel(tacGia);
-                            break;
-                        case "nhanvien":
-                            nhanVien = new NhanVien();
-                            main.setPanel(nhanVien);
-                            break;
-                        case "taikhoan":
-                            taiKhoan = new TaiKhoan();
-                            main.setPanel(taiKhoan);
-                            break;
-                        case "thongke":
-                            thongKe = new ThongKe();
-                            main.setPanel(thongKe);
-                            break;
-                        case "nhomquyen":
-                            phanQuyen = new PhanQuyen();
-                            main.setPanel(phanQuyen);
-                            break;
-                        case "dangxuat":
-                            int input = JOptionPane.showConfirmDialog(null,
-                                "Bạn có chắc chắn muốn đăng xuất?", "Đăng xuất",
-                                JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
-//                            if (input == 0) {
-//                                Log_In login = new Log_In();
-//                                main.dispose();
-//                                login.setVisible(true);
-//                            }
-                            break;
-                        default:
-                            break;
-                    }
+                    handleMenuClick(index);
                 }
             });
         }
     }
 
+    private void initPanels() {
+        // Khởi tạo tất cả các panel một lần duy nhất
+        trangChu = new TrangChu();
+        sach = new Sach();
+        theLoai = new TheLoai();
+        khoSach = new KhoSach();
+        phieuNhap = new PhieuNhap(main);
+        hoaDon = new HoaDon();
+        kháchHang = new KhachHang();
+        nhaXuatBan = new NhaXuatBan();
+        tacGia = new TacGia(main);
+        nhanVien = new NhanVien();
+        taiKhoan = new TaiKhoan();
+        thongKe = new ThongKe();
+        phanQuyen = new PhanQuyen(main);
+    }
+
+    private void handleMenuClick(int index) {
+        switch (getStringses[index][2]) {
+            case "trangchu":
+                main.setPanel(trangChu);
+                break;
+            case "Sach":
+                main.setPanel(sach);
+                break;
+            case "theloai":
+                main.setPanel(theLoai);
+                break;
+            case "khosach":
+                main.setPanel(khoSach);
+                break;
+            case "nhaphang":
+                main.setPanel(phieuNhap);
+                break;
+            case "hoadon":
+                main.setPanel(hoaDon);
+                break;
+            case "khachhang":
+                main.setPanel(kháchHang);
+                break;
+            case "nhaxuatban":
+                main.setPanel(nhaXuatBan);
+                break;
+            case "tacgia":
+                main.setPanel(tacGia);
+                break;
+            case "nhanvien":
+                main.setPanel(nhanVien);
+                break;
+            case "taikhoan":
+                main.setPanel(taiKhoan);
+                break;
+            case "thongke":
+                main.setPanel(thongKe);
+                break;
+            case "nhomquyen":
+                main.setPanel(phanQuyen);
+                break;
+            case "dangxuat":
+                int input = JOptionPane.showConfirmDialog(null,
+                        "Bạn có chắc chắn muốn đăng xuất?", "Đăng xuất",
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+//                if (input == JOptionPane.OK_OPTION) {
+//                    Log_In login = new Log_In();
+//                    main.dispose();
+//                    login.setVisible(true);
+//                }
+                break;
+            default:
+                break;
+        }
+    }
 }

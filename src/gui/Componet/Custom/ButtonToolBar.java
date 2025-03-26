@@ -12,11 +12,11 @@ import javax.swing.JButton;
 public class ButtonToolBar extends JButton{
     String permisson;
     
-    public ButtonToolBar(String text, String icon, String permisson) {
+    public ButtonToolBar(String text, String iconn, String permisson) {
         this.permisson = permisson;
         this.setFont(new java.awt.Font(FlatRobotoFont.FAMILY, 1, 14));
         this.setForeground(new Color(1, 88, 155));
-        this.setIcon(new FlatSVGIcon("./icon/"+icon));
+        this.setIcon(new FlatSVGIcon("./icon/"+iconn){{ setColorFilter(null); }});
         this.setText(text);
         this.setFocusable(false);
         this.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);

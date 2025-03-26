@@ -225,5 +225,36 @@ public class PhanQuyenDAO implements DAOInterface<nhomQuyenDTO> {
         }
         return arr;
     }
+    private static PhanQuyenDAO instance;
+
+    public static PhanQuyenDAO getInstance() {
+        if (instance == null) {
+            instance = new PhanQuyenDAO();
+        }
+        return instance;
+    }
+
+    public int getAutoIncrement() {
+        int result = -1;
+        try {
+            jdbc.openConnection();
+            String query = "SELECT `AUTO_INCREMENT` FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'quanlybansach' AND   TABLE_NAME   = 'nhomQuyen'";
+            PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
+            ResultSet rs = ps.executeQuery(query);
+            if (!rs.isBeforeFirst()) {
+                System.out.println("Không có data");
+            } else{
+                while (rs.next()){
+                    result = rs.getInt("AUTO_INCREMENT");
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            jdbc.closeConnection();
+        }
+        return result;
+    }
 
 }

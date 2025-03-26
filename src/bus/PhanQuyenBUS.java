@@ -45,4 +45,44 @@ public class PhanQuyenBUS {
         return pqdao.search(searchContent);
     }
 
+    public boolean kiemTraQuyen(int maNhomQuyen, String chucNang, String hanhDong) {
+        // Admin có tất cả quyền
+        if (maNhomQuyen == 1) {
+            return true;
+        }
+
+        // 💼 Quản lý bán hàng (mã nhóm quyền = 2)
+        if (maNhomQuyen == 2) {
+            // Các chức năng của quản lý bán hàng
+            if ((chucNang.equals("hoadon") || chucNang.equals("khachhang") || chucNang.equals("thongke") || chucNang.equals("duyetdonhang"))
+                    && (hanhDong.equals("view") || hanhDong.equals("update") || hanhDong.equals("delete"))) {
+                return true;
+            }
+        }
+
+        // 🗃️ Quản lý kho (mã nhóm quyền = 3)
+        if (maNhomQuyen == 3) {
+            // Các chức năng của quản lý kho
+            if ((chucNang.equals("phieunhap") || chucNang.equals("sach") || chucNang.equals("theloai") || chucNang.equals("khosach")
+                    || chucNang.equals("tacgia") || chucNang.equals("nhaxuatban") || chucNang.equals("thongke") || chucNang.equals("dangxuat"))
+                    && (hanhDong.equals("view") || hanhDong.equals("update") || hanhDong.equals("delete"))) {
+                return true;
+            }
+        }
+
+        // 👥 Khách hàng (mã nhóm quyền = 4) - Ví dụ
+        if (maNhomQuyen == 4) {
+            if (chucNang.equals("sanpham") && (hanhDong.equals("view") || hanhDong.equals("buy") || hanhDong.equals("pay") || hanhDong.equals("addCart"))) {
+                return true;
+            }
+        }
+
+        // ❌ Mặc định không có quyền
+        return false;
+    }
+
+    public void add(String text, ArrayList<String> ctQuyen) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
 }

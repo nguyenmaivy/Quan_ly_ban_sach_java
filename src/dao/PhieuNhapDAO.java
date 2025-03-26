@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package dao;
 
 import java.util.ArrayList;
@@ -13,10 +10,7 @@ import java.time.LocalDate;
 //import java.util.Date;
 import java.sql.Date;
 
-/**
- *
- * @author MZI
- */
+
 public class PhieuNhapDAO implements DAOInterface<PhieuNhapDTO> {
 
     Constant jdbc = new Constant();

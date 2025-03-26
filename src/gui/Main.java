@@ -28,8 +28,12 @@ public class Main extends JFrame {
         this.setLayout(new BorderLayout(0, 0));
         this.setTitle("Quản lý cửa hàng bán sách");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        menuTaskbar = new MenuTaskbar(this);
+        if (user != null) {
+            menuTaskbar = new MenuTaskbar(this,user);
+        } else{
+            menuTaskbar = new MenuTaskbar(this, user);
+        }
+        menuTaskbar = new MenuTaskbar(this, user);
         menuTaskbar.setPreferredSize(new Dimension(250, 1400));
         this.add(menuTaskbar, BorderLayout.WEST);
 

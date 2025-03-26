@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package Config;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,7 +8,7 @@ import java.sql.DriverManager;
  */
 
 public class Constant {
-    private static final String DB_URL = "jdbc:sqlserver://MAIVYMECHIDEP:1433;databaseName=quanlybansach;encrypt=false;";
+    private static final String DB_URL = "jdbc:sqlserver://MAIVYMECHIDEP\\MSSQLSERVER01:1433;databaseName=quanlybansach;encrypt=false;";
     private static final String USERNAME = "sa";
     private static final String PASSWORD = "26031980";
 

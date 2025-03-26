@@ -1,10 +1,8 @@
-
 package bus;
 
 import dto.*;
 import dao.*;
 import java.util.ArrayList;
-
 
 public class PhieuNhapBUS {
 
@@ -49,4 +47,21 @@ public class PhieuNhapBUS {
     public ArrayList<String> getAllMaKho() {
         return phieuNhapDAO.getAllMaKho();
     }
+
+    public boolean checkCancelPn(String soPN) {
+        ChiTietPhieuNhapDAO chiTietDAO = new ChiTietPhieuNhapDAO();
+        ArrayList<ChiTietPhieuNhapDTO> chiTietList = chiTietDAO.getAllByID(soPN);
+
+        for (ChiTietPhieuNhapDTO chiTiet : chiTietList) {
+            if (chiTiet.getSoLuongNhap() > 0) { // Nếu có sản phẩm đã nhập
+                return false; // Không thể hủy phiếu nhập
+            }
+        }
+        return true; // Có thể hủy phiếu nhập
+    }
+
+    public boolean cancelPhieuNhap(String soPN) {
+        return phieuNhapDAO.delete(soPN); // Xóa phiếu nhập bằng cách cập nhật `trangThai = 0`
+    }
+
 }
