@@ -3,46 +3,38 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package dao;
+
 import Config.Constant;
-import dto.SachDTO;
-import java.sql.Connection;
+import dto.KhoSachDTO;
+import java.util.ArrayList;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import static junit.runner.Version.id;
+import java.sql.Connection;
 
 /**
  *
- * @author MZI
+ * @author leduc
  */
-
-public class SachDAO implements DAOInterface<SachDTO> {
+public class KhoSachDAO implements DAOInterface<KhoSachDTO> {
     Constant jdbc = new Constant();
-
+    
     @Override
-    public ArrayList<SachDTO> getALL() {
+    public ArrayList<KhoSachDTO> getALL() {
         //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-         ArrayList<SachDTO> list = new ArrayList<>();
+        ArrayList<KhoSachDTO> arr = new ArrayList<>();
         try {
             jdbc.openConnection();
-            String query = "SELECT * FROM Sach WHERE trangThai = 1";
+            String query = "SELECT * FROM KhoSach WHERE trangThai = 1";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
             ResultSet rs = ps.executeQuery();
-            
+
             while (rs.next()) {
-                list.add(new SachDTO(
-                        rs.getString("id"),
-                        rs.getString("tenSach"),
-                        rs.getString("theLoai"),
-                        rs.getString("tacGia"),
-                        rs.getString("nhaXuatBan"),
-                        rs.getInt("giaBan"),
-                        rs.getInt("soLuong"),
-                        rs.getInt("trangThai"),
+                arr.add(new KhoSachDTO(
                         rs.getString("maKho"),
-                        rs.getString("hinhAnh")
+                        rs.getString("tenKho"),
+                        rs.getString("diaChi"),
+                        rs.getString("loai"),
+                        rs.getInt("trangThai")
                 ));
             }
         } catch (Exception e) {
@@ -50,18 +42,18 @@ public class SachDAO implements DAOInterface<SachDTO> {
         } finally {
             jdbc.closeConnection();
         }
-        return list;
+        return arr;
     }
 
     @Override
-    public boolean has(String id) {
+    public boolean has(String maKho) {
         //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
         boolean result = false;
         try {
             jdbc.openConnection();
-            String query = "SELECT * FROM Sach WHERE id = ?";
+            String query = "SELECT * FROM KhoSach WHERE maKho = ?";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
-            ps.setString(1, id);
+            ps.setString(1, maKho);
             ResultSet rs = ps.executeQuery();
             result = rs.next();
         } catch (Exception e) {
@@ -73,23 +65,19 @@ public class SachDAO implements DAOInterface<SachDTO> {
     }
 
     @Override
-    public boolean add(SachDTO sach) {
+    public boolean add(KhoSachDTO kho) {
         //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
         boolean result = false;
         try {
             jdbc.openConnection();
-            String query = "INSERT INTO Sach (id, tenSach, theLoai, tacGia, nhaXuatBan, giaBan, soLuong, trangThai, maKho) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO KhoSach (maKho, tenKho, diaChi, loai, trangThai) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
-            ps.setString(1, sach.getId());
-            ps.setString(2, sach.getTenSach());
-            ps.setString(3, sach.getTheLoai());
-            ps.setString(4, sach.getTacGia());
-            ps.setString(5, sach.getNhaXuatBan());
-            ps.setInt(6, sach.getGiaBan());
-            ps.setInt(7, sach.getSoLuong());
-            ps.setInt(8, sach.getTrangThai());
-            ps.setString(9, sach.getMaKho());
-            
+            ps.setString(1, kho.getMaKho());
+            ps.setString(2, kho.getTenKho());
+            ps.setString(3, kho.getDiaChi());
+            ps.setString(4, kho.getLoai());
+            ps.setInt(5, kho.getTrangThai());
+
             if (ps.executeUpdate() > 0) {
                 result = true;
             }
@@ -102,14 +90,14 @@ public class SachDAO implements DAOInterface<SachDTO> {
     }
 
     @Override
-    public boolean delete(String id) {
+    public boolean delete(String maKho) {
         //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
         boolean result = false;
         try {
             jdbc.openConnection();
-            String query = "UPDATE Sach SET trangThai = 0 WHERE id = ?";
+            String query = "UPDATE KhoSach SET trangThai = 0 WHERE maKho = ?";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
-            ps.setString(1, id);
+            ps.setString(1, maKho);
             if (ps.executeUpdate() > 0) {
                 result = true;
             }
@@ -122,22 +110,18 @@ public class SachDAO implements DAOInterface<SachDTO> {
     }
 
     @Override
-    public boolean update(SachDTO sach) {
+    public boolean update(KhoSachDTO kho) {
         //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
         boolean result = false;
         try {
             jdbc.openConnection();
-            String query = "UPDATE Sach SET tenSach = ?, theLoai = ?, tacGia = ?, nhaXuatBan = ?, giaBan = ?, soLuong = ?, maKho = ? WHERE id = ?";
+            String query = "UPDATE KhoSach SET tenKho = ?, diaChi = ?, loai = ? WHERE maKho = ?";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
-            ps.setString(1, sach.getTenSach());
-            ps.setString(2, sach.getTheLoai());
-            ps.setString(3, sach.getTacGia());
-            ps.setString(4, sach.getNhaXuatBan());
-            ps.setInt(5, sach.getGiaBan());
-            ps.setInt(6, sach.getSoLuong());
-            ps.setString(7, sach.getMaKho());
-            ps.setString(8, sach.getId());
-            
+            ps.setString(1, kho.getTenKho());
+            ps.setString(2, kho.getDiaChi());
+            ps.setString(3, kho.getLoai());
+            ps.setString(4, kho.getMaKho());
+
             if (ps.executeUpdate() > 0) {
                 result = true;
             }
@@ -150,27 +134,22 @@ public class SachDAO implements DAOInterface<SachDTO> {
     }
 
     @Override
-    public SachDTO getByID(String id) {
+    public KhoSachDTO getByID(String maKho) {
         //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-        SachDTO sach = null;
+        KhoSachDTO khoSach = null;
         try {
             jdbc.openConnection();
-            String query = "SELECT * FROM Sach WHERE id = ?";
+            String query = "SELECT * FROM KhoSach WHERE maKho = ?";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
-            ps.setString(1, id);
+            ps.setString(1, maKho);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                sach = new SachDTO(
-                        rs.getString("id"),
-                        rs.getString("tenSach"),
-                        rs.getString("theLoai"),
-                        rs.getString("tacGia"),
-                        rs.getString("nhaXuatBan"),
-                        rs.getInt("giaBan"),
-                        rs.getInt("soLuong"),
-                        rs.getInt("trangThai"),
+                khoSach = new KhoSachDTO(
                         rs.getString("maKho"),
-                        rs.getString("hinhAnh")
+                        rs.getString("tenKho"),
+                        rs.getString("diaChi"),
+                        rs.getString("loai"),
+                        rs.getInt("trangThai")
                 );
             }
         } catch (Exception e) {
@@ -178,35 +157,30 @@ public class SachDAO implements DAOInterface<SachDTO> {
         } finally {
             jdbc.closeConnection();
         }
-        return sach;
+        return khoSach;
     }
 
     @Override
-    public ArrayList<SachDTO> search(String searchContent) {
+    public ArrayList<KhoSachDTO> search(String searchContent) {
         //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-        ArrayList<SachDTO> list = new ArrayList<>();
+        ArrayList<KhoSachDTO> arr = new ArrayList<>();
         try {
             jdbc.openConnection();
-            String query = "SELECT * FROM Sach WHERE (id LIKE ? OR tenSach LIKE ? OR theLoai LIKE ? OR tacGia LIKE ?) AND trangThai = 1";
+            String query = "SELECT * FROM KhoSach WHERE (maKho LIKE ? OR tenKho LIKE ? OR diaChi LIKE ? OR loai LIKE ?) AND trangThai = 1";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
             ps.setString(1, "%" + searchContent + "%");
             ps.setString(2, "%" + searchContent + "%");
             ps.setString(3, "%" + searchContent + "%");
             ps.setString(4, "%" + searchContent + "%");
-            
+
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                list.add(new SachDTO(
-                        rs.getString("id"),
-                        rs.getString("tenSach"),
-                        rs.getString("theLoai"),
-                        rs.getString("tacGia"),
-                        rs.getString("nhaXuatBan"),
-                        rs.getInt("giaBan"),
-                        rs.getInt("soLuong"),
-                        rs.getInt("trangThai"),
+                arr.add(new KhoSachDTO(
                         rs.getString("maKho"),
-                        rs.getString("hinhAnh")
+                        rs.getString("tenKho"),
+                        rs.getString("diaChi"),
+                        rs.getString("loai"),
+                        rs.getInt("trangThai")
                 ));
             }
         } catch (Exception e) {
@@ -214,6 +188,7 @@ public class SachDAO implements DAOInterface<SachDTO> {
         } finally {
             jdbc.closeConnection();
         }
-        return list;
+        return arr;
     }
+    
 }
