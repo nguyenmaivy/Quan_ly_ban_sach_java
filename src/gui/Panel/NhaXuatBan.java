@@ -1,14 +1,8 @@
-<<<<<<< HEAD
+
 
 package gui.Panel;
 
 import javax.swing.JPanel;
-
-public class NhaXuatBan extends JPanel{
-    
-=======
-package gui.Panel;
-
 import bus.NhaXuatBanBUS;
 import gui.Componet.Custom.IntegratedSearch;
 import gui.Componet.Custom.MainFunction;
@@ -201,9 +195,9 @@ private void loadDataTable() {
 
     }
 }
-
-
-
-
->>>>>>> a3477ed (giao dien nha xuat ban, tai khoan)
 }
+
+
+
+
+
