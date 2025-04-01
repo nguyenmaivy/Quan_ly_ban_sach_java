@@ -136,11 +136,11 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
 
         contentCenter.add(functionBar, BorderLayout.NORTH);
 
-        box = new PanelBorderRadius();
-        box.setPreferredSize(new Dimension(250, 0));
-        box.setLayout(new GridLayout(6, 1, 10, 0));
-        box.setBorder(new EmptyBorder(0, 5, 150, 5));
-        contentCenter.add(box, BorderLayout.WEST);
+//        box = new PanelBorderRadius();
+//        box.setPreferredSize(new Dimension(250, 0));
+//        box.setLayout(new GridLayout(6, 1, 10, 0));
+//        box.setBorder(new EmptyBorder(0, 5, 150, 5));
+//        contentCenter.add(box, BorderLayout.WEST);
 
         main = new PanelBorderRadius();
         BoxLayout boxly = new BoxLayout(main, BoxLayout.Y_AXIS);

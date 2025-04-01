@@ -60,24 +60,29 @@ public class PhanQuyenDialog extends JDialog implements ActionListener {
         jpTop.add(lbltennhomquyen, BorderLayout.WEST);
         jpTop.add(txttennhomquyen, BorderLayout.CENTER);
 
-        // Hiển thị danh sách nhóm quyền
-        jpLeft = new JPanel(new GridLayout(dsNhomQuyen.size() + 1, 1));
+        // Hiển thị danh sách các chức năng
+        
+        // Hiển thị chức năng CRUD
+        String[] chucnangs = {"hoadon", "khachhang", "thongke", "duyetdonhang",
+            "phieunhap", "sach", "theloai", "khosach",
+            "tacgia", "nhaxuatban", "dangxuat", "sanpham"};
+        jpLeft = new JPanel(new GridLayout(chucnangs.length + 1, 1));
         jpLeft.setBackground(Color.WHITE);
         jpLeft.setBorder(new EmptyBorder(0, 20, 0, 14));
-        JLabel lblDanhMuc = new JLabel("Nhóm quyền");
+        JLabel lblDanhMuc = new JLabel("Các chức năng");
         lblDanhMuc.setFont(new Font(FlatRobotoFont.FAMILY, Font.BOLD, 15));
         jpLeft.add(lblDanhMuc);
 
-        for (nhomQuyenDTO nq : dsNhomQuyen) {
-            JLabel lbltennhomquyen = new JLabel(nq.getTenNhomQuyen());
-            jpLeft.add(lbltennhomquyen);
+        for (String chucnang : chucnangs) {
+            JLabel lblChucNang = new JLabel(chucnang);
+            jpLeft.add(lblChucNang);
         }
 
-        // Hiển thị chức năng CRUD        
-        size1 = dsNhomQuyen.size();
+        size1 = chucnangs.length;
         sizehanhdong = hanhdong.length;
         jpCen = new JPanel(new GridLayout(size1 + 1, sizehanhdong));
         jpCen.setBackground(Color.WHITE);
+
         listcheckbox = new JCheckBox[size1][sizehanhdong];
 
         for (int i = 0; i < sizehanhdong; i++) {
@@ -190,27 +195,36 @@ public class PhanQuyenDialog extends JDialog implements ActionListener {
         Object source = e.getSource();
 
         if (source == btnAddnhomquyen) {
-            // Lấy danh sách quyền từ checkbox (không dùng database)
-            ArrayList<String> ctQuyen = this.getListChiTietQuyen(PhanQuyenDAO.getInstance().getAutoIncrement());
-
-            // Thêm nhóm quyền mới vào BUS
-            phanQuyenBUS.add(txttennhomquyen.getText(), ctQuyen);
+            String tenNhomQuyen = txttennhomquyen.getText().trim();
+            if (tenNhomQuyen.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập tên nhóm quyền!");
+                return;
+            }
+            // Gọi BUS để thêm nhóm quyền
+            phanQuyenBUS.add(tenNhomQuyen, null); // Truyền null cho ctQuyen vì không dùng
 
             // Cập nhật bảng nhóm quyền
-//            this.jpPhanquyen.loadDataTalbe(phanQuyenBUS.getALL());
+            this.jpPhanquyen.loadDataTable(phanQuyenBUS.getALL());
 
             JOptionPane.showMessageDialog(this, "Thêm nhóm quyền thành công!");
             dispose();
-        } else if (source == btnUpdatenhomquyen) {
-            // Lấy danh sách quyền từ checkbox (không dùng database)
-            ArrayList<String> ctQuyen = this.getListChiTietQuyen(this.nhomQuyenDTO.getMaNhomQuyen());
 
+        } else if (source == btnUpdatenhomquyen) {
             // Cập nhật nhóm quyền
-//            nhomQuyenDTO nhomquyen = new nhomQuyenDTO(this.nhomQuyenDTO.getMaNhomQuyen(), txttennhomquyen.getText());
-//            phanQuyenBUS.update(nhomquyen, ctQuyen, index);
+            String tenNhomQuyen = txttennhomquyen.getText().trim();
+            if (tenNhomQuyen.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập tên nhóm quyền!");
+                return;
+            }
+
+            // Tạo DTO mới với thông tin cập nhật
+            nhomQuyenDTO nhomquyen = new nhomQuyenDTO(this.nhomQuyenDTO.getMaNhomQuyen(), tenNhomQuyen, this.nhomQuyenDTO.getTrangThai());
+
+            // Gọi BUS để cập nhật
+            phanQuyenBUS.updatePQ(nhomquyen);
 
             // Cập nhật lại bảng danh sách nhóm quyền
-//            this.jpPhanquyen.loadDataTalbe(phanQuyenBUS.getALL());
+            this.jpPhanquyen.loadDataTable(phanQuyenBUS.getALL());
 
             JOptionPane.showMessageDialog(this, "Cập nhật nhóm quyền thành công!");
             dispose();

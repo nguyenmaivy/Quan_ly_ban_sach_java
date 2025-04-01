@@ -81,8 +81,12 @@ public class PhanQuyenBUS {
         return false;
     }
 
-    public void add(String text, ArrayList<String> ctQuyen) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void add(String tenNhomQuyen, ArrayList<String> ctQuyen) {
+//        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        nhomQuyenDTO nq = new nhomQuyenDTO();
+        nq.setTenNhomQuyen(tenNhomQuyen);
+        nq.setTrangThai(1); // Mặc định trạng thái là 1 (hoạt động)
+        addPQ(nq);
     }
 
 }

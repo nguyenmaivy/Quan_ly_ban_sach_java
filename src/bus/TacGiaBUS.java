@@ -1,23 +1,18 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package bus;
 
 import dao.TacGiaDAO;
 import dto.TacGiaDTO;
 import java.util.ArrayList;
 
-/**
- *
- * @author MZI
- */
 public class TacGiaBUS {
 
     TacGiaDAO tacGiaDAO = new TacGiaDAO();
 
     public ArrayList<TacGiaDTO> getAllTacGia() {
         return tacGiaDAO.getALL();
+    }
+    public boolean has(String maTG){
+        return tacGiaDAO.has(maTG);
     }
 
     public String addTacGia(TacGiaDTO tacgia) {
@@ -48,4 +43,36 @@ public class TacGiaBUS {
         return tacGiaDAO.getByName(tacgia);
     }
 
+    // Thêm phương thức search
+    public ArrayList<TacGiaDTO> search(String txt, String type) {
+        ArrayList<TacGiaDTO> result = new ArrayList<>();
+        txt = txt.toLowerCase();
+
+        switch (type) {
+            case "Tất cả":
+                return tacGiaDAO.search(txt); // Gọi trực tiếp search từ DAO vì tìm trên tất cả cột
+            case "Mã tác giả":
+                for (TacGiaDTO tg : tacGiaDAO.search(txt)) {
+                    if (tg.getMaTG().toLowerCase().contains(txt)) {
+                        result.add(tg);
+                    }
+                }
+                break;
+            case "Tên tác giả":
+                for (TacGiaDTO tg : tacGiaDAO.search(txt)) {
+                    if (tg.getTenTG().toLowerCase().contains(txt)) {
+                        result.add(tg);
+                    }
+                }
+                break;
+            case "Liên lạc":
+                for (TacGiaDTO tg : tacGiaDAO.search(txt)) {
+                    if (tg.getLienLac().toLowerCase().contains(txt)) {
+                        result.add(tg);
+                    }
+                }
+                break;
+        }
+        return result;
+    }
 }

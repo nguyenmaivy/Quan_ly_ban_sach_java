@@ -50,7 +50,7 @@ public class PhanQuyen extends JPanel implements ActionListener {
     public PhanQuyen(Main m) {
         this.m = m;
         initComponent();
-//        loadDataTable(pqdao);
+        loadDataTable(pqdao);
     }
 
     private void initComponent() {
@@ -93,7 +93,7 @@ public class PhanQuyen extends JPanel implements ActionListener {
         tblnhomquyen.setDefaultEditor(Object.class, null);
         scrollTable = new JScrollPane();
         tblModel = new DefaultTableModel();
-        String[] header = new String[]{"Mã nhóm quyền", "Tên nhóm quyền"};
+        String[] header = new String[]{"STT", "Mã nhóm quyền", "Tên nhóm quyền"};
         tblModel.setColumnIdentifiers(header);
         tblnhomquyen.setModel(tblModel);
         scrollTable.setViewportView(tblnhomquyen);
@@ -104,18 +104,22 @@ public class PhanQuyen extends JPanel implements ActionListener {
         columnModel.getColumn(0).setPreferredWidth(2);
         columnModel.getColumn(1).setCellRenderer(cenCellRenderer);
         columnModel.getColumn(1).setPreferredWidth(300);
+        columnModel.getColumn(2).setCellRenderer(cenCellRenderer);
+        columnModel.getColumn(2).setPreferredWidth(500);
         tblnhomquyen.setFocusable(false);
         main.add(scrollTable);
     }
 
-//    public void loadDataTable(ArrayList<nhomQuyenDTO> result){
-//        tblModel.setRowCount(0);
-//        for(nhomQuyenDTO nqDTO: result){
-//            tblModel.addRow(new Object[]{
-//                nqDTO.getMaNhomQuyen(), nqDTO.getTenNhomQuyen()
-//            });
-//        }
-//    }
+    public void loadDataTable(ArrayList<nhomQuyenDTO> result) {
+        tblModel.setRowCount(0);
+        int stt = 1;
+        for (nhomQuyenDTO nqDTO : result) {
+            tblModel.addRow(new Object[]{
+                stt++, nqDTO.getMaNhomQuyen(), nqDTO.getTenNhomQuyen()
+            });
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
@@ -154,7 +158,7 @@ public class PhanQuyen extends JPanel implements ActionListener {
                 if (input == JOptionPane.OK_OPTION) {
                     PhanQuyenBUS.deletePQ(String.valueOf(pqdao.get(index).getMaNhomQuyen())); // Sử dụng deletePQ từ BUS
                     JOptionPane.showMessageDialog(null, "Nhóm quyền đã được xóa!");
-//                    loadDataTalbe(PhanQuyenBUS.getALL()); // Cập nhật lại bảng dữ liệu
+                    loadDataTable(PhanQuyenBUS.getALL()); // Cập nhật lại bảng dữ liệu
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "Vui lòng chọn một nhóm quyền để xóa!");
@@ -168,7 +172,7 @@ public class PhanQuyen extends JPanel implements ActionListener {
                 JOptionPane.showMessageDialog(null, "Lỗi khi xuất Excel!");
             }
         } else if (source == this.search.btnReset) {
-//            loadDataTalbe(PhanQuyenBUS.getALL()); // Reset lại bảng danh sách nhóm quyền
+            loadDataTable(PhanQuyenBUS.getALL()); // Reset lại bảng danh sách nhóm quyền
         }
 
     }

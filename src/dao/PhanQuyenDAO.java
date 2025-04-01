@@ -94,20 +94,21 @@ public class PhanQuyenDAO implements DAOInterface<nhomQuyenDTO> {
             String queryInsert = "INSERT INTO nhomQuyen (tenNhomQuyen, trangThai) VALUES(?,?)";
 
             //B3
-            PreparedStatement ps = jdbc.getConnection().prepareStatement(queryInsert, PreparedStatement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = jdbc.getConnection().prepareStatement(queryInsert);
 //            ps.setInt(1, nq.getMaNhomQuyen());
             ps.setString(1, nq.getTenNhomQuyen());
             ps.setInt(2, 1);
 
             //b4
-            if (ps.executeUpdate() > 0) {
-                ResultSet generatedKeys = ps.getGeneratedKeys();
-                if (generatedKeys.next()) {
-                    int newId = generatedKeys.getInt(1);
-                    nq.setMaNhomQuyen(newId); // Cập nhật ID mới vào đối tượng DTO
-                }
-                result = true;
-            }
+            result = ps.executeUpdate() > 0;
+//            if (ps.executeUpdate() > 0) {
+//                ResultSet generatedKeys = ps.getGeneratedKeys();
+//                if (generatedKeys.next()) {
+//                    int newId = generatedKeys.getInt(1);
+//                    nq.setMaNhomQuyen(newId); // Cập nhật ID mới vào đối tượng DTO
+//                }
+//                result = true;
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
