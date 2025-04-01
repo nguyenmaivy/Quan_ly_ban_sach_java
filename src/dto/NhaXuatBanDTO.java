@@ -19,8 +19,13 @@ public class NhaXuatBanDTO {
     
     }
 
+<<<<<<< HEAD
     public NhaXuatBanDTO(String maNXB, String diachiNXB, String sdt, String tenNXB, int trangThai) {
         this.maNXB = maNXB;
+=======
+    public NhaXuatBanDTO( String diachiNXB, String sdt, String tenNXB, int trangThai) {
+        //this.maNXB = maNXB;
+>>>>>>> a3477ed (giao dien nha xuat ban, tai khoan)
         this.diachiNXB = diachiNXB;
         this.sdt = sdt;
         this.tenNXB = tenNXB;

@@ -115,7 +115,11 @@ values
 ------------------ Nhà xuất bản ---------------------------------------------------------------------------------------
 Create table NhaXuatBan
 (
+<<<<<<< HEAD
 	maNXB varchar(10) primary key,
+=======
+	maNXB INT IDENTITY(1,1) PRIMARY KEY, -- Tự động tăng
+>>>>>>> a3477ed (giao dien nha xuat ban, tai khoan)
 	tenNXB nvarchar(255),
 	diaChiNXB nvarchar(255),
 	sdt varchar(11),
@@ -137,6 +141,11 @@ values
 	('XB11', N'Penguin', N'275 An Dương Vương P16, Q8, TP. HCM', '0862761223', 1),
 	('XB12', N'Nhà Xuất Bản Kim Đồng', N'275 An Dương Vương P16, Q8, TP. HCM', '0862761223', 1),
 	('XB13', N'Nhà Xuất Bản Đà Nẵng', N'275 An Dương Vương P16, Q8, TP. HCM', '0862761223', 1);
+<<<<<<< HEAD
+=======
+DROP TABLE IF EXISTS NhaXuatBan;
+
+>>>>>>> a3477ed (giao dien nha xuat ban, tai khoan)
 
 ------------------ Hóa đơn --------------------------------------------------------------------------------------------
 

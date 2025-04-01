@@ -108,10 +108,17 @@ public class MenuTaskbar extends JPanel {
         phieuNhap = new PhieuNhap(main);
         hoaDon = new HoaDon();
         kháchHang = new KhachHang();
+<<<<<<< HEAD
         nhaXuatBan = new NhaXuatBan();
         tacGia = new TacGia(main);
         nhanVien = new NhanVien();
         taiKhoan = new TaiKhoan();
+=======
+        nhaXuatBan = new NhaXuatBan(main);
+        tacGia = new TacGia(main);
+        nhanVien = new NhanVien();
+        taiKhoan = new TaiKhoan(main);
+>>>>>>> a3477ed (giao dien nha xuat ban, tai khoan)
         thongKe = new ThongKe();
         phanQuyen = new PhanQuyen(main);
     }

@@ -8,9 +8,15 @@ import java.sql.DriverManager;
  */
 
 public class Constant {
+<<<<<<< HEAD
     private static final String DB_URL = "jdbc:sqlserver://MAIVYMECHIDEP\\MSSQLSERVER01:1433;databaseName=quanlybansach;encrypt=false;";
     private static final String USERNAME = "sa";
     private static final String PASSWORD = "26031980";
+=======
+    private static final String DB_URL = "jdbc:sqlserver://MSI\\SQLEXPRESS:1433;databaseName=quanlybansach;encrypt=false;trustServerCertificate=true;";
+    private static final String USERNAME = "sa";
+    private static final String PASSWORD = "18012003";
+>>>>>>> a3477ed (giao dien nha xuat ban, tai khoan)
 
     private Connection con;
     

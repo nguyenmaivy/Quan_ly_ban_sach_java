@@ -119,7 +119,11 @@ public class NhaXuatBanDAO implements DAOInterface<NhaXuatBanDTO> {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 NhaXuatBanDTO nxb = new NhaXuatBanDTO();
+<<<<<<< HEAD
                 nxb.setMaNXB(rs.getNString(1));
+=======
+                nxb.setMaNXB(rs.getString(1));
+>>>>>>> a3477ed (giao dien nha xuat ban, tai khoan)
                 nxb.setTenNXB(rs.getString(2));
                 nxb.setDiachiNXB(rs.getString(3));
                 nxb.setSdt(rs.getString(4));
@@ -165,6 +169,7 @@ public class NhaXuatBanDAO implements DAOInterface<NhaXuatBanDTO> {
         return result;
     }
 
+<<<<<<< HEAD
     @Override
     public boolean add(NhaXuatBanDTO nxb) {
         boolean result = false;
@@ -192,12 +197,32 @@ public class NhaXuatBanDAO implements DAOInterface<NhaXuatBanDTO> {
 
         } catch (Exception e) {
             e.printStackTrace();
+=======
+        
+    @Override
+    public boolean add(NhaXuatBanDTO nxb) {
+        String query = "INSERT INTO NhaXuatBan (tenNXB, diaChiNXB, sdt, trangThai) VALUES ( ?, ?, ?, ?)";
+        boolean result = false;
+
+        try {
+            conn.openConnection();
+            PreparedStatement ps = conn.getConnection().prepareStatement(query);
+            ps.setString(1, nxb.getTenNXB());
+            ps.setString(2, nxb.getDiachiNXB());
+            ps.setString(3, nxb.getSdt());
+            ps.setInt(4, 1); // 1: Đang hoạt động
+
+            result = ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thêm NXB: " + e.getMessage());
+>>>>>>> a3477ed (giao dien nha xuat ban, tai khoan)
         } finally {
             conn.closeConnection();
         }
         return result;
     }
 
+<<<<<<< HEAD
     @Override
     public boolean delete(String manxb) {
         boolean result = false;
@@ -221,15 +246,35 @@ public class NhaXuatBanDAO implements DAOInterface<NhaXuatBanDTO> {
 
         } catch (Exception e) {
             e.printStackTrace();
+=======
+
+    @Override
+    public boolean delete(String maNXB) {
+        String query = "UPDATE NhaXuatBan SET trangThai = 0 WHERE maNXB = ?";
+        boolean result = false;
+
+        try {
+            conn.openConnection();
+            PreparedStatement ps = conn.getConnection().prepareStatement(query);
+            ps.setString(1, maNXB);
+
+            result = ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi xóa NXB: " + e.getMessage());
+>>>>>>> a3477ed (giao dien nha xuat ban, tai khoan)
         } finally {
             conn.closeConnection();
         }
         return result;
+<<<<<<< HEAD
 
+=======
+>>>>>>> a3477ed (giao dien nha xuat ban, tai khoan)
     }
 
     @Override
     public boolean update(NhaXuatBanDTO nxb) {
+<<<<<<< HEAD
         boolean result = false;
 
         try {
@@ -241,12 +286,20 @@ public class NhaXuatBanDAO implements DAOInterface<NhaXuatBanDTO> {
             String query = "UPDATE NhaXuatBan SET tenNXB = ?, diaChiNXB = ?, sdt = ? WHERE maNXB = ?";
 
             //B3
+=======
+        String query = "UPDATE NhaXuatBan SET tenNXB = ?, diaChiNXB = ?, sdt = ? WHERE maNXB = ?";
+        boolean result = false;
+
+        try {
+            conn.openConnection();
+>>>>>>> a3477ed (giao dien nha xuat ban, tai khoan)
             PreparedStatement ps = conn.getConnection().prepareStatement(query);
             ps.setString(1, nxb.getTenNXB());
             ps.setString(2, nxb.getDiachiNXB());
             ps.setString(3, nxb.getSdt());
             ps.setString(4, nxb.getMaNXB());
 
+<<<<<<< HEAD
             //B4
             if (ps.executeUpdate() > 0) {
                 return true;
@@ -254,12 +307,18 @@ public class NhaXuatBanDAO implements DAOInterface<NhaXuatBanDTO> {
 
         } catch (Exception e) {
             e.printStackTrace();
+=======
+            result = ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi cập nhật NXB: " + e.getMessage());
+>>>>>>> a3477ed (giao dien nha xuat ban, tai khoan)
         } finally {
             conn.closeConnection();
         }
         return result;
     }
 
+<<<<<<< HEAD
     @Override
     public NhaXuatBanDTO getByID(String maNXB) {
         NhaXuatBanDTO nxb = null;
@@ -289,12 +348,37 @@ public class NhaXuatBanDAO implements DAOInterface<NhaXuatBanDTO> {
 
         } catch (Exception e) {
             e.printStackTrace();
+=======
+     @Override
+    public NhaXuatBanDTO getByID(String maNXB) {
+        String query = "SELECT * FROM NhaXuatBan WHERE maNXB = ?";
+        NhaXuatBanDTO nxb = null;
+
+        try {
+            conn.openConnection();
+            PreparedStatement ps = conn.getConnection().prepareStatement(query);
+            ps.setString(1, maNXB);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                nxb = new NhaXuatBanDTO(
+                   // rs.getString("maNXB"),
+                    rs.getString("tenNXB"),
+                    rs.getString("diaChiNXB"),
+                    rs.getString("sdt"),
+                    rs.getInt("trangThai")
+                );
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tìm NXB theo mã: " + e.getMessage());
+>>>>>>> a3477ed (giao dien nha xuat ban, tai khoan)
         } finally {
             conn.closeConnection();
         }
         return nxb;
     }
 
+<<<<<<< HEAD
     @Override
     public ArrayList<NhaXuatBanDTO> search(String searchContent) {
 //        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
@@ -334,12 +418,40 @@ public class NhaXuatBanDAO implements DAOInterface<NhaXuatBanDTO> {
 
         } catch (Exception e) {
             e.printStackTrace();
+=======
+   @Override
+    public ArrayList<NhaXuatBanDTO> search(String searchContent) {
+        ArrayList<NhaXuatBanDTO> arr = new ArrayList<>();
+        String query = "SELECT * FROM NhaXuatBan WHERE "
+                + "maNXB LIKE ? OR tenNXB LIKE ? OR diaChiNXB LIKE ? OR sdt LIKE ?";
+
+        try {
+            conn.openConnection();
+            PreparedStatement ps = conn.getConnection().prepareStatement(query);
+            for (int i = 1; i <= 4; i++) {
+                ps.setString(i, "%" + searchContent + "%");
+            }
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                arr.add(new NhaXuatBanDTO(
+                   // rs.getString("maNXB"),
+                    rs.getString("tenNXB"),
+                    rs.getString("diaChiNXB"),
+                    rs.getString("sdt"),
+                    rs.getInt("trangThai")
+                ));
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tìm kiếm NXB: " + e.getMessage());
+>>>>>>> a3477ed (giao dien nha xuat ban, tai khoan)
         } finally {
             conn.closeConnection();
         }
         return arr;
     }
 
+<<<<<<< HEAD
     public NhaXuatBanDTO getByName(String tennxb) {
         NhaXuatBanDTO nxb = null;
 
@@ -367,9 +479,60 @@ public class NhaXuatBanDAO implements DAOInterface<NhaXuatBanDTO> {
 
         } catch (Exception e) {
             e.printStackTrace();
+=======
+   public NhaXuatBanDTO getByName(String tenNXB) {
+        String query = "SELECT * FROM NhaXuatBan WHERE tenNXB LIKE ?";
+        NhaXuatBanDTO nxb = null;
+
+        try {
+            conn.openConnection();
+            PreparedStatement ps = conn.getConnection().prepareStatement(query);
+            ps.setString(1, "%" + tenNXB + "%");
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                nxb = new NhaXuatBanDTO(
+                   // rs.getString("maNXB"),
+                    rs.getString("tenNXB"),
+                    rs.getString("diaChiNXB"),
+                    rs.getString("sdt"),
+                    rs.getInt("trangThai")
+                );
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tìm kiếm NXB theo tên: " + e.getMessage());
+>>>>>>> a3477ed (giao dien nha xuat ban, tai khoan)
         } finally {
             conn.closeConnection();
         }
         return nxb;
     }
+<<<<<<< HEAD
 }
+=======
+   
+    // Phương thức lấy mã nhà xuất bản lớn nhất
+   public String getLastMaNXB() {
+    String lastMaNXB = null;
+    String sql = "SELECT TOP 1 maNXB FROM NhaXuatBan ORDER BY maNXB DESC";  // Lấy mã nhà xuất bản lớn nhất
+    
+    try (Connection conn = new Constant().getConnection();  // Kết nối với cơ sở dữ liệu
+         Statement stmt = conn.createStatement();
+         ResultSet rs = stmt.executeQuery(sql)) {
+        
+        if (rs.next()) {
+            lastMaNXB = rs.getString("maNXB");  // Lấy mã nhà xuất bản
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    
+    return lastMaNXB;  // Trả về mã nhà xuất bản lớn nhất
+}
+
+
+}
+
+    
+
+>>>>>>> a3477ed (giao dien nha xuat ban, tai khoan)
