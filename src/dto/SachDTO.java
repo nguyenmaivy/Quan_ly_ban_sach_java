@@ -19,6 +19,7 @@ public class SachDTO {
     private int trangThai;
     private String maKho;
     private String hinhAnh;
+    
     public SachDTO(){
     
     }
