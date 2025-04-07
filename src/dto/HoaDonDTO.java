@@ -14,8 +14,12 @@ public class HoaDonDTO {
     private String maNV;
     private int trangThai;
     
-    public HoaDonDTO() {
     
+    public HoaDonDTO(String soHD1, LocalDate ngayBan1, String maNV1, int trangThai1) {
+        this.soHD = soHD1;
+        this.ngayBan = ngayBan1;
+        this.maNV = maNV1;
+        this.trangThai = trangThai1;
     }
 
     public HoaDonDTO(String soHD, LocalDate ngayBan) {
@@ -26,6 +30,10 @@ public class HoaDonDTO {
     public HoaDonDTO(String maNV, int trangThai) {
         this.maNV = maNV;
         this.trangThai = trangThai;
+    }
+
+    public HoaDonDTO() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
     // GETTER, SETTER
