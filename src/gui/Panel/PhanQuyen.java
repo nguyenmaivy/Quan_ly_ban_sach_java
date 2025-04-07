@@ -76,6 +76,8 @@ public class PhanQuyen extends JPanel implements ActionListener {
         for (String ac : actionStrings) {
             mainFunction.btn.get(ac).addActionListener(this);
         }
+        mainFunction.btn.get("create").setEnabled(false);
+        mainFunction.btn.get("update").setEnabled(false);
         functionBar.add(mainFunction);
 
         search = new IntegratedSearch(new String[]{"Tất cả"});

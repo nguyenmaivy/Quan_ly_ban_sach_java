@@ -14,6 +14,7 @@ import java.util.ArrayList;
  */
 public class KhoSachBUS {
    KhoSachDAO ksDAO = new KhoSachDAO();
+    ArrayList<KhoSachDTO> listkho = ksDAO.getALL();
    
    public ArrayList<KhoSachDTO> getALLKhoSach(){
        return ksDAO.getALL();
@@ -45,4 +46,13 @@ public class KhoSachBUS {
     public ArrayList<KhoSachDTO> search(String searchContent) {
         return ksDAO.search(searchContent);
     }
+    public String getTenKhoByMa(String maKho) {
+    for (KhoSachDTO kh : listkho) {
+        if (kh.getMaKho().equals(maKho)) {
+            return kh.getTenKho();
+        }
+    }
+    return "Không rõ";
+}
+
 }

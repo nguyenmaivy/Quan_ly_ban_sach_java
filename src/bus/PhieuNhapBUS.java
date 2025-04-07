@@ -63,5 +63,10 @@ public class PhieuNhapBUS {
     public boolean cancelPhieuNhap(String soPN) {
         return phieuNhapDAO.delete(soPN); // Xóa phiếu nhập bằng cách cập nhật `trangThai = 0`
     }
+    // Thêm vào PhieuNhapBUS.java
+
+    public int getAutoIncrement() {
+        return phieuNhapDAO.getAutoIncrement();
+    }
 
 }

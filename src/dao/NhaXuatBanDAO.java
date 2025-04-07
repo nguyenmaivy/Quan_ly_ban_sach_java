@@ -119,9 +119,9 @@ public class NhaXuatBanDAO implements DAOInterface<NhaXuatBanDTO> {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 NhaXuatBanDTO nxb = new NhaXuatBanDTO();
-                nxb.setMaNXB(rs.getNString(1));
-                nxb.setTenNXB(rs.getString(2));
-                nxb.setDiachiNXB(rs.getString(3));
+                nxb.setMaNXB(rs.getString(1));
+                nxb.setTenNXB(rs.getNString(2));
+                nxb.setDiachiNXB(rs.getNString(3));
                 nxb.setSdt(rs.getString(4));
 
                 arr.add(nxb);
@@ -340,6 +340,7 @@ public class NhaXuatBanDAO implements DAOInterface<NhaXuatBanDTO> {
         return arr;
     }
 
+    
     public NhaXuatBanDTO getByName(String tennxb) {
         NhaXuatBanDTO nxb = null;
 

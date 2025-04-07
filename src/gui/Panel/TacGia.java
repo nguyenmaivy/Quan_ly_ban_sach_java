@@ -6,6 +6,7 @@ import gui.Componet.Custom.PanelBorderRadius;
 import gui.Main;
 import bus.TacGiaBUS;
 import dto.TacGiaDTO;
+import gui.Dialog.TacGiaDialog;
 import helper.JTableExporter;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -24,6 +25,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BoxLayout;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -73,7 +76,7 @@ public class TacGia extends JPanel implements ActionListener, ItemListener {
 
     private void initComponent() {
         this.setBackground(BackgroundColor);
-        this.setLayout(new BorderLayout(0,0));
+        this.setLayout(new BorderLayout(0, 0));
         this.setBorder(new EmptyBorder(10, 10, 10, 10));
         this.setOpaque(true);
 
@@ -119,7 +122,7 @@ public class TacGia extends JPanel implements ActionListener, ItemListener {
         contentCenter.add(main, BorderLayout.CENTER);
 
         tbltacgia = new JTable();
-//        tbltacgia.setDefaultEditor(Object.class, null);
+        tbltacgia.setDefaultEditor(Object.class, null);
         scrollTable = new JScrollPane();
         tbModel = new DefaultTableModel();
         String[] header = new String[]{"Mã tác giả", "Tên tác giả", "Liên lạc"};
@@ -136,9 +139,8 @@ public class TacGia extends JPanel implements ActionListener, ItemListener {
         columnModel.getColumn(1).setPreferredWidth(300);
         columnModel.getColumn(2).setCellRenderer(cenCellRenderer);
         columnModel.getColumn(2).setPreferredWidth(200);
-        
+
         main.add(scrollTable);
-        
 
     }
 
@@ -236,14 +238,12 @@ public class TacGia extends JPanel implements ActionListener, ItemListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == mainFunction.btn.get("create")) {
             // Giả định có TacGiaDialog để thêm tác giả
-            // TacGiaDialog dialog = new TacGiaDialog(this, m, "Thêm tác giả", true, "create");
-            JOptionPane.showMessageDialog(this, "Chức năng thêm tác giả chưa được triển khai!");
+            TacGiaDialog dialog = new TacGiaDialog(this, m, "Thêm tác giả", true, "create");
         } else if (e.getSource() == mainFunction.btn.get("update")) {
             int index = getRowSelected();
             if (index != -1) {
                 // Giả định có TacGiaDialog để chỉnh sửa tác giả
-                // TacGiaDialog dialog = new TacGiaDialog(this, m, "Chỉnh sửa tác giả", true, "update", listtg.get(index));
-                JOptionPane.showMessageDialog(this, "Chức năng chỉnh sửa tác giả chưa được triển khai!");
+                TacGiaDialog dialog = new TacGiaDialog(this, m, "Chỉnh sửa tác giả", true, "update", listtg.get(index));
             }
         } else if (e.getSource() == mainFunction.btn.get("delete")) {
             int index = getRowSelected();
@@ -262,8 +262,7 @@ public class TacGia extends JPanel implements ActionListener, ItemListener {
             int index = getRowSelected();
             if (index != -1) {
                 // Giả định có TacGiaDialog để xem chi tiết
-                // TacGiaDialog dialog = new TacGiaDialog(this, m, "Chi tiết tác giả", true, "view", listtg.get(index));
-                JOptionPane.showMessageDialog(this, "Chức năng xem chi tiết tác giả chưa được triển khai!");
+                TacGiaDialog dialog = new TacGiaDialog(this, m, "Chi tiết tác giả", true, "view", listtg.get(index));
             }
         } else if (e.getSource() == mainFunction.btn.get("import")) {
             importExcel(); // Gọi phương thức importExcel
@@ -272,8 +271,8 @@ public class TacGia extends JPanel implements ActionListener, ItemListener {
                 JTableExporter.exportJTableToExcel(tbltacgia);
                 JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!");
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi khi xuất file Excel!");
-                ex.printStackTrace();
+                Logger.getLogger(TacGia.class.getName()).log(Level.SEVERE, null, ex);
+
             }
         } else if (e.getSource() == search.btnReset) {
             search.txtSearchForm.setText("");
@@ -286,7 +285,7 @@ public class TacGia extends JPanel implements ActionListener, ItemListener {
     public void itemStateChanged(ItemEvent e) {
         String type = (String) search.cbxChoose.getSelectedItem();
         String txt = search.txtSearchForm.getText();
-        // listtg = tgbus.search(txt, type); // Dòng này bị comment
-        // loadDataTable(listtg);
+//         listtg = tgbus.search(txt, type); // Dòng này bị comment
+//         loadDataTable(listtg);
     }
 }

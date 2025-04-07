@@ -51,7 +51,7 @@ public class PhanQuyenBUS {
             return true;
         }
 
-        // 💼 Quản lý bán hàng (mã nhóm quyền = 2)
+        //  Quản lý bán hàng (mã nhóm quyền = 2)
         if (maNhomQuyen == 2) {
             // Các chức năng của quản lý bán hàng
             if ((chucNang.equals("hoadon") || chucNang.equals("khachhang") || chucNang.equals("thongke") || chucNang.equals("duyetdonhang"))
@@ -60,7 +60,7 @@ public class PhanQuyenBUS {
             }
         }
 
-        // 🗃️ Quản lý kho (mã nhóm quyền = 3)
+        // ️ Quản lý kho (mã nhóm quyền = 3)
         if (maNhomQuyen == 3) {
             // Các chức năng của quản lý kho
             if ((chucNang.equals("phieunhap") || chucNang.equals("sach") || chucNang.equals("theloai") || chucNang.equals("khosach")
@@ -70,14 +70,14 @@ public class PhanQuyenBUS {
             }
         }
 
-        // 👥 Khách hàng (mã nhóm quyền = 4) - Ví dụ
+        //  Khách hàng (mã nhóm quyền = 4) - Ví dụ
         if (maNhomQuyen == 4) {
             if (chucNang.equals("sanpham") && (hanhDong.equals("view") || hanhDong.equals("buy") || hanhDong.equals("pay") || hanhDong.equals("addCart"))) {
                 return true;
             }
         }
 
-        // ❌ Mặc định không có quyền
+        //  Mặc định không có quyền
         return false;
     }
 

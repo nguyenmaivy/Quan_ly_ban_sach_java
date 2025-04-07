@@ -1,43 +1,31 @@
-
 package gui.Panel;
 
-import bus.PhieuNhapBUS;
+import bus.*;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
-import dto.ChiTietPhieuNhapDTO;
-import dto.NhanVienDTO;
+import dao.NhaXuatBanDAO;
+import dto.*;
 import gui.Componet.Custom.ButtonCustom;
 import gui.Componet.Custom.InputForm;
 import gui.Componet.Custom.NumericDocumentFilter;
 import gui.Componet.Custom.PanelBorderRadius;
 import gui.Componet.Custom.SelectForm;
 import gui.Main;
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import javax.swing.BoxLayout;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import javax.swing.text.PlainDocument;
-
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionListener {
 
@@ -47,8 +35,8 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
     JScrollPane scrollTablePhieuNhap, scrollTableSanPham;
     DefaultTableModel tblModel, tblModelSP;
     ButtonCustom btnAddSp, btnEditSP, btnDelete, btnImport, btnNhapHang;
-    InputForm txtMaphieu, txtNhanVien, txtMaSp, txtTenSp, txtDongia, txtSoLuong;
-    SelectForm cbxNXB, cbxTacGia, cbxPtNhap;
+    InputForm txtMaphieu, txtNhanVien, txtMaSp, txtTenSp, txtDongia, txtSoLuong, txtTacGia, txtTheLoai;
+    SelectForm cbxNXB, cbxTacGia, cbxTheLoai;
     JTextField txtTimKiem;
     JLabel lbltongtien;
     Main m;
@@ -57,18 +45,27 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
 
     PhieuNhapBUS phieunhapBus = new PhieuNhapBUS();
     NhanVienDTO nvDto;
+    SachBUS sachBus = new SachBUS();
+    TheLoaiBUS theLoaiBUS = new TheLoaiBUS();
+    NhaXuatBanBUS nxbbus = new NhaXuatBanBUS();
+    NhaXuatBanDAO nxbDAO = new NhaXuatBanDAO();
 
-    ArrayList<String> listmaimei = new ArrayList<>();
+    ArrayList<dto.SachDTO> listSP = sachBus.getAllSach();
+    private SachDTO selectedSach;
+    ArrayList<NhaXuatBanDTO> nhaXuatBanDTO = nxbDAO.getALL();
+    ArrayList<ChiTietPhieuNhapDTO> chiTietPhieuNhapDTO;
+
     int maphieunhap;
     int rowPhieuSelect = -1;
 
     public TaoPhieuNhap(NhanVienDTO nv, String type, Main m) {
         this.nvDto = nv;
         this.m = m;
-//        maphieunhap = phieunhapBus.phieunhapDAO.getAutoIncrement();
-//        chitietphieu = new ArrayList<>();
         initComponent(type);
-//        loadDataTalbeSanPham(listSP);
+        // Lấy mã phiếu tự động
+        maphieunhap = phieunhapBus.getAutoIncrement();
+        txtMaphieu.setText("PN" + maphieunhap);
+        loadDataTableSanPham(listSP);
     }
 
     public void initPadding() {
@@ -102,7 +99,7 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         tablePhieuNhap = new JTable();
         scrollTablePhieuNhap = new JScrollPane();
         tblModel = new DefaultTableModel();
-        String[] header = new String[]{"STT", "Mã sách", "Tên sách", "Thể loại", "Tác giả", "Nhà xuất bản", "Đơn giá", "Số lượng"};
+        String[] header = new String[]{"STT", "Mã sách", "Tên sách", "Thể loại", "Tác giả", "Nhà xuất bản", "Đơn giá", "Số lượng", "Mã kho"};
         tblModel.setColumnIdentifiers(header);
         tablePhieuNhap.setModel(tblModel);
         scrollTablePhieuNhap.setViewportView(tablePhieuNhap);
@@ -114,11 +111,10 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
                 columnModel.getColumn(i).setCellRenderer(centerRenderer);
             }
         }
-        tablePhieuNhap.getColumnModel().getColumn(2).setPreferredWidth(300);
+        tablePhieuNhap.getColumnModel().getColumn(2).setPreferredWidth(250);
         tablePhieuNhap.setDefaultEditor(Object.class, null);
         tablePhieuNhap.setFocusable(false);
         scrollTablePhieuNhap.setViewportView(tablePhieuNhap);
-
 
         // Table sản phẩm
         tableSanPham = new JTable();
@@ -129,10 +125,24 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         tableSanPham.setModel(tblModelSP);
         scrollTableSanPham.setViewportView(tableSanPham);
         tableSanPham.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
-        tableSanPham.getColumnModel().getColumn(1).setPreferredWidth(300);
+        tableSanPham.getColumnModel().getColumn(1).setPreferredWidth(450);
         tableSanPham.setDefaultEditor(Object.class, null);
         tableSanPham.setFocusable(false);
         scrollTableSanPham.setViewportView(tableSanPham);
+
+        // phần xử lý nút nhấn
+        tableSanPham.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                int index = tableSanPham.getSelectedRow();
+                if (index != -1) {
+                    resetForm();
+                    selectedSach = listSP.get(index);
+                    setInfoSanh(selectedSach);
+
+                }
+            }
+        });
 
         initPadding();
 
@@ -163,7 +173,14 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         txtTimKiem.putClientProperty("JTextField.showClearButton", true);
         txtTimKiem.putClientProperty("JTextField.leadingIcon", new FlatSVGIcon("./icon/search.svg"));
 
-        
+        txtTimKiem.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                ArrayList<SachDTO> rs = sachBus.search(txtTimKiem.getText());
+                loadDataTableSanPham(rs);
+            }
+        });
+
         txtTimKiem.setPreferredSize(new Dimension(100, 40));
         content_left.add(txtTimKiem, BorderLayout.NORTH);
         content_left.add(scrollTableSanPham, BorderLayout.CENTER);
@@ -178,21 +195,28 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         txtTenSp = new InputForm("Tên sách");
         txtTenSp.setEditable(false);
 
-        String[] arrCauhinh = {"Chọn sách"};
-        JPanel content_right_top_cbx = new JPanel(new BorderLayout());
-        content_right_top_cbx.setPreferredSize(new Dimension(100, 180));
-        cbxTacGia = new SelectForm("Tác giả", arrCauhinh);
+        String[] arrTen = {"Chọn sách"};
+        JPanel content_right_top_cbx = new JPanel(new GridLayout(3, 1, 0, 0));
+        content_right_top_cbx.setPreferredSize(new Dimension(100, 190));
+        cbxTacGia = new SelectForm("Tác giả", arrTen);
         cbxTacGia.cbb.addItemListener(this);
+
         txtDongia = new InputForm("Giá nhập");
+        txtDongia.setPreferredSize(new Dimension(100, 40));
         PlainDocument dongia = (PlainDocument) txtDongia.getTxtForm().getDocument();
         dongia.setDocumentFilter((new NumericDocumentFilter()));
-        String[] arrPtNhap = {"Ẩm thực", "Bán chạy", "Sách khác", "Luyện thi THPTQG", "Chính trị và Pháp luật", "Khoa học và kỹ thuật", "Giáo khoa - Giáo trình", "Văn học", "Tôn giáo - Tâm linh", "Truyện", "Ngoại ngữ"};
-        cbxPtNhap = new SelectForm("Thể loại", arrPtNhap);
-        cbxPtNhap.cbb.addItemListener(this);
-        cbxPtNhap.setPreferredSize(new Dimension(100, 90));
-        content_right_top_cbx.add(cbxTacGia, BorderLayout.WEST);
-        content_right_top_cbx.add(txtDongia, BorderLayout.CENTER);
-        content_right_top_cbx.add(cbxPtNhap, BorderLayout.SOUTH);
+
+//        // lấy dữ liệu tên thể loại
+//        ArrayList<TheLoaiDTO> listTL = theLoaiBUS.getAllTheLoai();
+//        String[] arrPtNhap = listTL.stream().map(TheLoaiDTO::getTenLoai).toArray(String[]::new);
+        cbxTheLoai = new SelectForm("Thể loại", arrTen);
+
+        cbxTheLoai.cbb.addItemListener(this);
+        cbxTheLoai.setPreferredSize(new Dimension(100, 90));
+
+        content_right_top_cbx.add(cbxTacGia);
+        content_right_top_cbx.add(txtDongia);
+        content_right_top_cbx.add(cbxTheLoai);
         content_right_top.add(txtMaSp, BorderLayout.WEST);
         content_right_top.add(txtTenSp, BorderLayout.CENTER);
         content_right_top.add(content_right_top_cbx, BorderLayout.SOUTH);
@@ -204,11 +228,9 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         card_content_one.setPreferredSize(new Dimension(100, 90));
         JPanel card_content_one_model = new JPanel(new BorderLayout());
         card_content_one_model.setPreferredSize(new Dimension(100, 90));
-//        txtMaImeiTheoLo = new InputForm("Mã Imei bắt đầu");
         txtSoLuong = new InputForm("Số lượng");
         PlainDocument soluong = (PlainDocument) txtSoLuong.getTxtForm().getDocument();
         soluong.setDocumentFilter((new NumericDocumentFilter()));
-//        card_content_one_model.add(txtMaImeiTheoLo, BorderLayout.CENTER);
         card_content_one_model.add(txtSoLuong, BorderLayout.CENTER);
         card_content_one.add(card_content_one_model, BorderLayout.NORTH);
 
@@ -225,20 +247,13 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         content_btn.setLayout(new GridLayout(1, 4, 5, 5));
         content_btn.setBorder(new EmptyBorder(8, 5, 0, 10));
         content_btn.setOpaque(false);
+
         btnAddSp = new ButtonCustom("Thêm sản phẩm", "success", 14);
-        btnEditSP = new ButtonCustom("Sửa sản phẩm", "warning", 14);
-        btnDelete = new ButtonCustom("Xoá sản phẩm", "danger", 14);
         btnImport = new ButtonCustom("Nhập Excel", "excel", 14);
         btnAddSp.addActionListener(this);
-        btnEditSP.addActionListener(this);
-        btnDelete.addActionListener(this);
         btnImport.addActionListener(this);
-        btnEditSP.setEnabled(false);
-        btnDelete.setEnabled(false);
         content_btn.add(btnAddSp);
         content_btn.add(btnImport);
-        content_btn.add(btnEditSP);
-        content_btn.add(btnDelete);
 
         left_top.add(content_top, BorderLayout.CENTER);
 
@@ -253,7 +268,7 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         left.add(main, BorderLayout.SOUTH);
 
         right = new PanelBorderRadius();
-        right.setPreferredSize(new Dimension(320, 0));
+        right.setPreferredSize(new Dimension(270, 0));
         right.setBorder(new EmptyBorder(5, 5, 5, 5));
         right.setLayout(new BorderLayout());
 
@@ -265,9 +280,15 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         txtMaphieu.setText("PN" + maphieunhap);
         txtMaphieu.setEditable(false);
         txtNhanVien = new InputForm("Nhân viên nhập");
-//        txtNhanVien.setText(nvDto.getHoten());
         txtNhanVien.setEditable(false);
-        cbxNXB = new SelectForm("Nhà xuất bản", header);
+
+        // Lấy danh sách tất cả nhà xuất bản
+        ArrayList<NhaXuatBanDTO> listNXB = nxbbus.getAllNhaXuatBan();
+        // Trích xuất mảng tên NXB
+        String[] arrNXB = listNXB.stream().map(NhaXuatBanDTO::getTenNXB).toArray(String[]::new);
+        // Tạo SelectForm với danh sách tên NXB và chọn giá trị mặc định là tenNXB
+        cbxNXB = new SelectForm("Nhà xuất bản", arrNXB);
+
         right_top.add(txtMaphieu);
         right_top.add(txtNhanVien);
         right_top.add(cbxNXB);
@@ -310,8 +331,6 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         boolean val_2 = type.equals("update");
         btnAddSp.setEnabled(val_1);
         btnImport.setEnabled(val_1);
-        btnEditSP.setEnabled(val_2);
-        btnDelete.setEnabled(val_2);
         content_btn.revalidate();
         content_btn.repaint();
     }
@@ -321,18 +340,222 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         this.txtTenSp.setText("");
         String[] arr = {"Chọn sản phẩm"};
         this.cbxTacGia.setArr(arr);
+        this.cbxTheLoai.setArr(arr);
         this.txtDongia.setText("");
         this.txtSoLuong.setText("");
     }
 
+    public void loadDataTableSanPham(ArrayList<dto.SachDTO> result) {
+        tblModelSP.setRowCount(0);
+        for (SachDTO sachDTO : result) {
+            tblModelSP.addRow(new Object[]{
+                sachDTO.getId(), sachDTO.getTenSach(), sachDTO.getSoLuong()
+            });
+        }
+    }
+
+    public void setInfoSanh(SachDTO sach) {
+        if (sach == null) {
+            return; // Thoát nếu sách không tồn tại
+        }
+        this.txtMaSp.setText(sach.getId());
+        this.txtTenSp.setText(sach.getTenSach());
+
+        // Xử lý combobox tác giả
+        String maTacGia = sach.getTacGia();
+        String maTheloai = sach.getTheLoai();
+
+        TacGiaBUS tacGiaBUS = new TacGiaBUS();
+        TheLoaiBUS theLoaiBUS = new TheLoaiBUS();
+
+        ArrayList<TheLoaiDTO> listTheLoai = theLoaiBUS.getAllTheLoai();
+        String[] arrTheLoai = listTheLoai.stream().map(TheLoaiDTO::getTenLoai).toArray(String[]::new);
+        this.cbxTheLoai.setArr(arrTheLoai);
+        String tenTheLoai = listTheLoai.stream().filter(tl -> tl.getMaLoai().equals(maTheloai))
+                .findFirst().map(TheLoaiDTO::getTenLoai).orElse("Khỗng xác định");
+        this.cbxTheLoai.setSelectedItem(tenTheLoai);
+
+        ArrayList<TacGiaDTO> listTacGia = tacGiaBUS.getAllTacGia();
+        String[] arrTacGia = listTacGia.stream()
+                .map(TacGiaDTO::getTenTG)
+                .toArray(String[]::new);
+
+        this.cbxTacGia.setArr(arrTacGia);
+        // Tìm tên tác giả tương ứng với mã
+        String tenTacGia = listTacGia.stream()
+                .filter(tg -> tg.getMaTG().equals(maTacGia))
+                .findFirst()
+                .map(TacGiaDTO::getTenTG)
+                .orElse("Không xác định");
+
+        this.cbxTacGia.setSelectedItem(tenTacGia);
+
+        // Hiển thị giá bán từ sách được chọn
+        this.txtDongia.setText(Integer.toString(sach.getGiaBan()));
+    }
+
+    private void updateTotal() {
+        int total = 0;
+        for (int i = 0; i < tblModel.getRowCount(); i++) {
+            int donGia = (int) tblModel.getValueAt(i, 6);
+            int soLuong = (int) tblModel.getValueAt(i, 7);
+            total += donGia * soLuong;
+        }
+        lbltongtien.setText(total + "đ");
+    }
+
     @Override
     public void itemStateChanged(ItemEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        if (e.getSource() == cbxTacGia.cbb && selectedSach != null) {
+            // Giữ nguyên giá bán từ sách đã chọn
+            this.txtDongia.setText(Integer.toString(selectedSach.getGiaBan()));
+        } else {
+            this.txtDongia.setText("");
+        }
+    }
+
+    private boolean validateForm() {
+        if (txtMaSp.getText().isEmpty() || txtTenSp.getText().isEmpty()
+                || txtDongia.getText().isEmpty() || txtSoLuong.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng điền đầy đủ thông tin sản phẩm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
+    private void saveBillToDatabase() {
+        if (tblModel.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Vui lòng thêm sản phẩm vào phiếu nhập!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Kiểm tra tất cả sản phẩm có cùng mã kho không
+        String maKho = null;
+        for (int i = 0; i < tblModel.getRowCount(); i++) {
+            String currentMaKho = tblModel.getValueAt(i, 8).toString(); // Cột 8 là "Mã kho"
+            if (maKho == null) {
+                maKho = currentMaKho;
+            } else if (!maKho.equals(currentMaKho)) {
+                JOptionPane.showMessageDialog(this, "Tất cả sản phẩm phải thuộc cùng một kho!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this, "Xác nhận tạo phiếu nhập?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                // Lấy thông tin từ form
+                String tenNXB = cbxNXB.getSelectedItem().toString();
+                NhaXuatBanDTO nxbDTO = nxbbus.getByName(tenNXB);
+                if (nxbDTO == null) {
+                    JOptionPane.showMessageDialog(this, "Nhà xuất bản không tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                String maNXB = nxbDTO.getMaNXB();
+
+                // Tạo đối tượng PhieuNhapDTO với mã kho đã kiểm tra
+                PhieuNhapDTO phieuNhap = new PhieuNhapDTO(
+                        "PN" + maphieunhap,
+                        nvDto.getMaNV(),
+                        maNXB,
+                        maKho, // Sử dụng mã kho đã xác định
+                        LocalDate.now(),
+                        Integer.parseInt(lbltongtien.getText().replace("đ", "")),
+                        1
+                );
+
+                // Thêm phiếu nhập vào database
+
+                phieunhapBus.add(phieuNhap);
+
+                // Thêm chi tiết phiếu nhập
+                ChiTietPhieuNhapBUS ctpnBus = new ChiTietPhieuNhapBUS();
+                for (int i = 0; i < tblModel.getRowCount(); i++) {
+                    ChiTietPhieuNhapDTO ctpn = new ChiTietPhieuNhapDTO(
+                            tblModel.getValueAt(i, 1).toString(),
+                            "PN" + maphieunhap,
+                            Integer.parseInt(tblModel.getValueAt(i, 7).toString()),
+                            Integer.parseInt(tblModel.getValueAt(i, 6).toString()),
+                            1
+                    );
+                    ctpnBus.add(ctpn);
+                }
+
+                JOptionPane.showMessageDialog(this, "Nhập hàng thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                resetForm();
+                tblModel.setRowCount(0);
+                lbltongtien.setText("0đ");
+                maphieunhap = phieunhapBus.getAutoIncrement();
+                txtMaphieu.setText("PN" + maphieunhap);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu nhập: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void importFromExcel() {
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            try ( Workbook workbook = new XSSFWorkbook(file)) {
+                Sheet sheet = workbook.getSheetAt(0);
+                for (Row row : sheet) {
+                    if (row.getRowNum() == 0) {
+                        continue; // Bỏ qua header
+                    }
+                    String maSach = row.getCell(0).getStringCellValue();
+                    String tenSach = row.getCell(1).getStringCellValue();
+                    String theLoai = row.getCell(2).getStringCellValue();
+                    String tacGia = row.getCell(3).getStringCellValue();
+                    String nhaXB = row.getCell(4).getStringCellValue();
+                    int donGia = (int) row.getCell(5).getNumericCellValue();
+                    int soLuong = (int) row.getCell(6).getNumericCellValue();
+
+                    tblModel.addRow(new Object[]{
+                        tblModel.getRowCount() + 1, maSach, tenSach, theLoai, tacGia,
+                        nhaXB, donGia, soLuong
+                    });
+                }
+                updateTotal();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Lỗi đọc file Excel!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void addSach() {
+        String maSach = txtMaSp.getText();
+        String tenSach = txtTenSp.getText();
+        String theLoai = cbxTheLoai.getSelectedItem().toString();
+        String tacGia = cbxTacGia.getSelectedItem().toString();
+        String nhaXB = cbxNXB.getSelectedItem().toString();
+        int donGia = Integer.parseInt(txtDongia.getText());
+        int soLuong = Integer.parseInt(txtSoLuong.getText());
+        String makho = selectedSach.getMaKho();
+        // Thêm dữ liệu vào bảng
+        tblModel.addRow(new Object[]{
+            tblModel.getRowCount() + 1,
+            maSach, tenSach, theLoai, tacGia, nhaXB, donGia, soLuong, makho
+        });
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        // Xử lý sự kiện nút nhấn
+        if (e.getSource() == btnAddSp) {
+            if (validateForm()) {
+                addSach();
+                updateTotal();
+                resetForm();
+            }
+
+        } else if (e.getSource() == btnNhapHang) {
+            saveBillToDatabase();
+        } else if (e.getSource() == btnImport) {
+            importFromExcel();
+        }
     }
 }
-

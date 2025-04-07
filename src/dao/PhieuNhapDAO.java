@@ -1,4 +1,3 @@
-
 package dao;
 
 import java.util.ArrayList;
@@ -9,7 +8,6 @@ import java.sql.ResultSet;
 import java.time.LocalDate;
 //import java.util.Date;
 import java.sql.Date;
-
 
 public class PhieuNhapDAO implements DAOInterface<PhieuNhapDTO> {
 
@@ -290,6 +288,25 @@ public class PhieuNhapDAO implements DAOInterface<PhieuNhapDTO> {
         }
 
         return arr;
+    }
+    // Thêm vào PhieuNhapDAO.java
+
+    public int getAutoIncrement() {
+        int nextID = 1;
+        try {
+            jdbc.openConnection();
+            String query = "SELECT SUBSTRING(soPN, 3, LEN(soPN) - 2) FROM PhieuNhap";
+            PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                nextID = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            jdbc.closeConnection();
+        }
+        return nextID;
     }
 
     public ArrayList<String> getAllMaKho() {

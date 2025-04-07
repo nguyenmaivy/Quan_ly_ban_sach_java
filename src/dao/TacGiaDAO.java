@@ -265,5 +265,22 @@ public class TacGiaDAO implements DAOInterface<TacGiaDTO> {
         }
         return tacgia;
     }
+    public String getMaxMaTG(){
+        String maxMaTG = null;
+        try {
+            jdbc.openConnection();
+            String query = "SELECT MAX(maTG) FROM TacGia";
+            PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                maxMaTG = rs.getString(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally{
+            jdbc.closeConnection();
+        }
+        return maxMaTG;
+    }
 
 }

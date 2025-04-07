@@ -75,4 +75,7 @@ public class TacGiaBUS {
         }
         return result;
     }
+    public String getMaxMaTG(){
+        return tacGiaDAO.getMaxMaTG();
+    }
 }

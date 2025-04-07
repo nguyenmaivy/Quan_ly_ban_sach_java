@@ -63,9 +63,9 @@ public class PhanQuyenDialog extends JDialog implements ActionListener {
         // Hiển thị danh sách các chức năng
         
         // Hiển thị chức năng CRUD
-        String[] chucnangs = {"hoadon", "khachhang", "thongke", "duyetdonhang",
-            "phieunhap", "sach", "theloai", "khosach",
-            "tacgia", "nhaxuatban", "dangxuat", "sanpham"};
+        String[] chucnangs = {"Hóa đơn", "Khách hàng", "Thống kê", "Duyệt đơn hàng",
+            "Phiếu nhập", "Sách", "Thể loại", "Kho sách",
+            "Tác giả", "Nhà xuất bản"};
         jpLeft = new JPanel(new GridLayout(chucnangs.length + 1, 1));
         jpLeft.setBackground(Color.WHITE);
         jpLeft.setBorder(new EmptyBorder(0, 20, 0, 14));
@@ -139,14 +139,14 @@ public class PhanQuyenDialog extends JDialog implements ActionListener {
         PhanQuyenBUS phanQuyenBUS = new PhanQuyenBUS();
 
         String[] hanhdong = {"view", "create", "update", "delete"};
-        String[] chucnangs = {"hoadon", "khachhang", "thongke", "duyetdonhang",
+        String[] chucNang = {"hoadon", "khachhang", "thongke", "duyetdonhang",
             "phieunhap", "sach", "theloai", "khosach",
-            "tacgia", "nhaxuatban", "dangxuat", "sanpham"};
+            "tacgia", "nhaxuatban"};
 
-        for (String chucnang : chucnangs) {
+        for (String chucnang : chucNang) {
             for (String action : hanhdong) {
                 if (phanQuyenBUS.kiemTraQuyen(manhomquyen, chucnang, action)) {
-                    result.add("Nhóm quyền " + manhomquyen + " có quyền " + action + " trên " + chucnang);
+                    result.add("Nhóm quyền " + manhomquyen + " có quyền " + action + " trên " + chucNang);
                 }
             }
         }
@@ -161,7 +161,7 @@ public class PhanQuyenDialog extends JDialog implements ActionListener {
         String[] hanhdong = {"view", "create", "update", "delete"};
         String[] chucnangs = {"hoadon", "khachhang", "thongke", "duyetdonhang",
             "phieunhap", "sach", "theloai", "khosach",
-            "tacgia", "nhaxuatban", "dangxuat", "sanpham"};
+            "tacgia", "nhaxuatban"};
 
         for (int i = 0; i < chucnangs.length; i++) {
             for (int j = 0; j < hanhdong.length; j++) {

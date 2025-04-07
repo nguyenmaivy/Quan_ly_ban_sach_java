@@ -61,7 +61,7 @@ Create table TheLoai
 	tenLoai nvarchar(255),
 	trangThai int not null DEFAULT 1
 );
-
+drop table TheLoai;
 insert into TheLoai
 	(maLoai, tenLoai)
 values
@@ -235,6 +235,7 @@ Create table KhoSach
 	loai nvarchar(255),
 	trangThai int not null DEFAULT 1
 );
+drop table KhoSach
 
 
 insert into KhoSach
@@ -257,7 +258,7 @@ Create table NhanVien
 	ngaySinh date,
 	trangThai int not null
 );
-
+drop table NhanVien
 insert into NhanVien
 	(maNV, tenNV, gioiTinh, diaChi, ngayVao, sdt, ngaySinh, trangThai)
 values
@@ -306,6 +307,8 @@ insert into TaiKhoan
 	(useName, sdt, matKhau, maNV, maNhomQuyen, trangThai)
 values
 	(N'Vy Nguyễn', '0862498257', '0123456789', 'NV01', 1, 1);
+
+insert into TaiKhoan values (N'Lê Hoàng A', '0123456789', '0123456789', 'NV02',1,1)
 
 --------------------- Nhóm quyền -----------------------------------------------------------------------
 CREATE TABLE nhomQuyen

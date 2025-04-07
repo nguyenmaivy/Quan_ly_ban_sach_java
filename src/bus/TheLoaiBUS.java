@@ -14,6 +14,7 @@ import java.util.ArrayList;
  */
 public class TheLoaiBUS {
     TheLoaiDAO theloaiDAO = new TheLoaiDAO();
+    ArrayList<TheLoaiDTO> listTheLoai = theloaiDAO.getALL();
     
     public ArrayList<TheLoaiDTO> getAllTheLoai(){
         return theloaiDAO.getALL();
@@ -43,7 +44,18 @@ public class TheLoaiBUS {
     	return theloaiDAO.getByID(maLoai);
     }
     
+    
     public ArrayList<TheLoaiDTO> search(String searchContent) {
         return theloaiDAO.search(searchContent);
     }
+    public String getTenTL(String maTL){
+        listTheLoai = theloaiDAO.getALL();
+        for (TheLoaiDTO theLoaiDTO : listTheLoai) {
+            if (theLoaiDTO.getMaLoai().equals(maTL)) {
+                return theLoaiDTO.getTenLoai();
+            }
+        }
+        return "Không rõ";
+    }
+    
 }

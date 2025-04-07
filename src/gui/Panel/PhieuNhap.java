@@ -1,6 +1,9 @@
 package gui.Panel;
 
+import bus.NhaXuatBanBUS;
+import bus.NhanVienBUS;
 import bus.PhieuNhapBUS;
+import bus.KhoSachBUS;
 import gui.Componet.Custom.IntegratedSearch;
 import gui.Componet.Custom.MainFunction;
 import gui.Componet.Custom.PanelBorderRadius;
@@ -30,11 +33,10 @@ import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import net.miginfocom.layout.UnitValue;
 
 public final class PhieuNhap extends JPanel implements ActionListener, KeyListener, PropertyChangeListener, ItemListener {
 
-    PanelBorderRadius main, functionBar, box;
+    PanelBorderRadius main, functionBar;
     JPanel pnlBorder1, pnlBorder2, pnlBorder3, pnlBorder4, contentCenter;
     JTable tablePhieuNhap;
     JScrollPane scrollTablePhieuNhap;
@@ -48,11 +50,17 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
     NhanVienDTO nv;
 
     PhieuNhapBUS phieunhapBUS = new PhieuNhapBUS();
+    NhaXuatBanBUS nxbbus = new NhaXuatBanBUS();
+    NhanVienBUS nvbus = new NhanVienBUS();
+    KhoSachBUS khobus = new KhoSachBUS();
     ArrayList<PhieuNhapDTO> listPhieu;
 
-    public PhieuNhap(Main m) {
+    public PhieuNhap(Main m, NhanVienDTO nv) {
         this.m = m;
+        this.nv = nv;
         initComponent();
+        this.listPhieu = phieunhapBUS.getAllPhieuNhap();
+        loadDataTable(listPhieu);
     }
 
     public void initPadding() {
@@ -85,7 +93,7 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
         tablePhieuNhap = new JTable();
         scrollTablePhieuNhap = new JScrollPane();
         tblModel = new DefaultTableModel();
-        String[] header = new String[]{"STT", "Mã phiếu nhập", "Nhà cung cấp", "Nhân viên nhập", "Thời gian", "Tổng tiền"};
+        String[] header = new String[]{"STT", "Mã phiếu nhập", "Nhà xuất bản", "Kho", "Nhân viên nhập", "Thời gian", "Tổng tiền"};
         tblModel.setColumnIdentifiers(header);
         tablePhieuNhap.setModel(tblModel);
         tablePhieuNhap.setDefaultEditor(Object.class, null);
@@ -136,12 +144,6 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
 
         contentCenter.add(functionBar, BorderLayout.NORTH);
 
-//        box = new PanelBorderRadius();
-//        box.setPreferredSize(new Dimension(250, 0));
-//        box.setLayout(new GridLayout(6, 1, 10, 0));
-//        box.setBorder(new EmptyBorder(0, 5, 150, 5));
-//        contentCenter.add(box, BorderLayout.WEST);
-
         main = new PanelBorderRadius();
         BoxLayout boxly = new BoxLayout(main, BoxLayout.Y_AXIS);
         main.setLayout(boxly);
@@ -176,22 +178,42 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
                 if (input == 0) {
                     PhieuNhapDTO pn = listPhieu.get(index);
                     System.out.println(pn);
-                    if(!phieunhapBUS.checkCancelPn(pn.getSoPN())) {// kiểm tra nếu phiếu nhập đã có sản phẩm
+                    if (!phieunhapBUS.checkCancelPn(pn.getSoPN())) {// kiểm tra nếu phiếu nhập đã có sản phẩm
                         JOptionPane.showMessageDialog(null, "Sản phẩm trong phiếu này đã được xuất đi không thể hủy phiếu này!");
-                    } else{
+                    } else {
                         boolean isDeleted = phieunhapBUS.cancelPhieuNhap(pn.getSoPN()); //Hủy phiếu
                         if (!isDeleted) {
                             JOptionPane.showMessageDialog(null, "Hủy phiếu không thành công!");
-                        } else{
+                        } else {
                             JOptionPane.showMessageDialog(null, "Hủy phiếu thành công");
-                            // loadDataTalbe(phieuNhapBUS.getALL()); // Nếu cần cập nhật lại bảng dữ liệu
+                             loadDataTable(phieunhapBUS.getAllPhieuNhap()); // Nếu cần cập nhật lại bảng dữ liệu
                         }
                     }
-                        
+
                 }
             }
 
         }
+    }
+
+    public void loadDataTable(ArrayList<PhieuNhapDTO> listpPhieuNhap) {
+        tblModel.setRowCount(0);
+        int stt = 1;
+        for (PhieuNhapDTO phieuNhapDTO : listpPhieuNhap) {
+            String tenNXB = nxbbus.getTenNXBByMa(phieuNhapDTO.getMaNXB());
+            String tenNV = nvbus.getTenNVByMa(phieuNhapDTO.getMaNV());
+            String tenKho = khobus.getTenKhoByMa(phieuNhapDTO.getMaKho());
+
+            tblModel.addRow(new Object[]{
+                stt++, phieuNhapDTO.getSoPN(), 
+                tenNXB, 
+                tenKho, 
+                tenNV, 
+                phieuNhapDTO.getNgayNhap(), 
+                phieuNhapDTO.getTongTien()
+            });
+        }
+
     }
 
     @Override
