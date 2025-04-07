@@ -42,13 +42,13 @@ public class TheLoaiDAO implements DAOInterface<TheLoaiDTO> {
     }
 
     @Override
-    public boolean has(String id) {
+    public boolean has(String maLoai) {
         boolean result = false;
         try {
             jdbc.openConnection();
             String query = "SELECT * FROM TheLoai WHERE maLoai = ?";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
-            ps.setString(1, id);
+            ps.setString(1, maLoai);
             ResultSet rs = ps.executeQuery();
             result = rs.next();
         } catch (Exception e) {
@@ -82,13 +82,13 @@ public class TheLoaiDAO implements DAOInterface<TheLoaiDTO> {
     }
 
     @Override
-    public boolean delete(String id) {
+    public boolean delete(String maLoai) {
         boolean result = false;
         try {
             jdbc.openConnection();
             String query = "UPDATE TheLoai SET trangThai = 0 WHERE maLoai = ?";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
-            ps.setString(1, id);
+            ps.setString(1, maLoai);
             if (ps.executeUpdate() > 0) {
                 result = true;
             }
@@ -122,13 +122,13 @@ public class TheLoaiDAO implements DAOInterface<TheLoaiDTO> {
     }
 
     @Override
-    public TheLoaiDTO getByID(String id) {
+    public TheLoaiDTO getByID(String maLoai) {
         TheLoaiDTO theLoai = null;
         try {
             jdbc.openConnection();
             String query = "SELECT * FROM TheLoai WHERE maLoai = ?";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
-            ps.setString(1, id);
+            ps.setString(1, maLoai);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 theLoai = new TheLoaiDTO(

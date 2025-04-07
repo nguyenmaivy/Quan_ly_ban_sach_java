@@ -51,13 +51,13 @@ public class NhanVienDAO implements DAOInterface<NhanVienDTO> {
     }
     
     @Override
-    public boolean has(String id) {
+    public boolean has(String maNV) {
         boolean result = false;
         try {
             jdbc.openConnection();
             String query = "SELECT * FROM NhanVien WHERE maNV = ?";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
-            ps.setString(1, id);
+            ps.setString(1, maNV);
             ResultSet rs = ps.executeQuery();
             result = rs.next();
         } catch (Exception e) {
@@ -96,13 +96,13 @@ public class NhanVienDAO implements DAOInterface<NhanVienDTO> {
     }
     
     @Override
-    public boolean delete(String id) {
+    public boolean delete(String maNV) {
         boolean result = false;
         try {
             jdbc.openConnection();
             String query = "UPDATE NhanVien SET trangThai = 0 WHERE maNV = ?";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
-            ps.setString(1, id);
+            ps.setString(1, maNV);
             if (ps.executeUpdate() > 0) {
                 result = true;
             }
@@ -141,13 +141,13 @@ public class NhanVienDAO implements DAOInterface<NhanVienDTO> {
     }
     
     @Override
-    public NhanVienDTO getByID(String id) {
+    public NhanVienDTO getByID(String maNV) {
         NhanVienDTO nv = null;
         try {
             jdbc.openConnection();
             String query = "SELECT * FROM NhanVien WHERE maNV = ?";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
-            ps.setString(1, id);
+            ps.setString(1, maNV);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 nv = new NhanVienDTO(
