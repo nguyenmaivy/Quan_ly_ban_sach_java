@@ -28,7 +28,7 @@ public class TheLoaiBUS {
         return "Thêm thể loại thất bại";
     }
     
-    public String deleteSach(String matl){
+    public String deleteTheLoai(String matl){
         if(theloaiDAO.delete(matl))
             return "Xóa thể loại thành công";
         return "Xóa thể loại thất bại";
