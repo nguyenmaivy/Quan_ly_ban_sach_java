@@ -14,6 +14,10 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -31,7 +35,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
-public class PhanQuyen extends JPanel implements ActionListener {
+public class PhanQuyen extends JPanel implements ActionListener, ItemListener {
 
     JFrame owner = (JFrame) SwingUtilities.getWindowAncestor(this);
     PanelBorderRadius main, functionBar;
@@ -42,7 +46,7 @@ public class PhanQuyen extends JPanel implements ActionListener {
     IntegratedSearch search;
     DefaultTableModel tblModel;
     Main m;
-    public PhanQuyenBUS PhanQuyenBUS = new PhanQuyenBUS();
+    PhanQuyenBUS PhanQuyenBUS = new PhanQuyenBUS();
     public ArrayList<nhomQuyenDTO> pqdao = PhanQuyenBUS.getALL();
 
     Color BackgroundColor = new Color(240, 247, 250);
@@ -71,16 +75,26 @@ public class PhanQuyen extends JPanel implements ActionListener {
         functionBar.setLayout(new GridLayout(1, 2, 50, 0));
         functionBar.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        String[] actionStrings = {"create", "update", "delete", "detail", "export"};
+        String[] actionStrings = { "delete", "detail", "export"};
         mainFunction = new MainFunction(SOMEBITS, "nhomquyen", actionStrings);
         for (String ac : actionStrings) {
             mainFunction.btn.get(ac).addActionListener(this);
         }
-        mainFunction.btn.get("create").setEnabled(false);
-        mainFunction.btn.get("update").setEnabled(false);
         functionBar.add(mainFunction);
 
-        search = new IntegratedSearch(new String[]{"Tất cả"});
+        search = new IntegratedSearch(new String[]{"Tất cả", "Mã nhóm quyền", "Tên nhóm quyền"});
+        search.cbxChoose.addItemListener(this);
+        search.txtSearchForm.addKeyListener(new KeyAdapter(){
+            @Override
+            public void keyReleased(KeyEvent e){
+                String type = (String) search.cbxChoose.getSelectedItem();
+                String txt = search.txtSearchForm.getText();
+                pqdao = PhanQuyenBUS.search(txt);
+                loadDataTable(pqdao);
+            }
+        });
+        search.btnReset.addActionListener(this);
+        
         functionBar.add(search);
 
         contentCenter.add(functionBar, BorderLayout.NORTH);
@@ -125,26 +139,11 @@ public class PhanQuyen extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
-
-        if (source == mainFunction.btn.get("create")) {
-            // Mở PhanQuyenDialog để thêm nhóm quyền
-            PhanQuyenDialog pqDialog = new PhanQuyenDialog(PhanQuyenBUS, this, owner, "Thêm nhóm quyền", true, "create");
-            pqDialog.setVisible(true);
-        } else if (source == mainFunction.btn.get("update")) {
-            int index = this.getRowSelected();
-            if (index >= 0) {
-                // Mở PhanQuyenDialog để chỉnh sửa nhóm quyền đã chọn
-                PhanQuyenDialog pqDialog = new PhanQuyenDialog(PhanQuyenBUS, this, owner, "Chỉnh sửa nhóm quyền", true, "update", pqdao.get(index));
-                pqDialog.setVisible(true);
-            } else {
-                JOptionPane.showMessageDialog(null, "Vui lòng chọn một nhóm quyền để chỉnh sửa!");
-            }
-        } else if (source == mainFunction.btn.get("detail")) {
+        if (source == mainFunction.btn.get("detail")) {
             int index = this.getRowSelected();
             if (index >= 0) {
                 // Mở PhanQuyenDialog để xem chi tiết nhóm quyền
                 PhanQuyenDialog pqDialog = new PhanQuyenDialog(PhanQuyenBUS, this, owner, "Chi tiết nhóm quyền", true, "view", pqdao.get(index));
-                pqDialog.setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(null, "Vui lòng chọn một nhóm quyền để xem chi tiết!");
             }
@@ -186,6 +185,12 @@ public class PhanQuyen extends JPanel implements ActionListener {
             return -1;
         }
         return index;
+    }
+
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+        String type = (String) search.cbxChoose.getSelectedItem();
+        String txt = search.txtSearchForm.getText();
     }
 
 }

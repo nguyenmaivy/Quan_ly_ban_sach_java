@@ -193,46 +193,9 @@ public class PhanQuyenDialog extends JDialog implements ActionListener {
     public void actionPerformed(ActionEvent e) {
 
         Object source = e.getSource();
-
-        if (source == btnAddnhomquyen) {
-            String tenNhomQuyen = txttennhomquyen.getText().trim();
-            if (tenNhomQuyen.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập tên nhóm quyền!");
-                return;
-            }
-            // Gọi BUS để thêm nhóm quyền
-            phanQuyenBUS.add(tenNhomQuyen, null); // Truyền null cho ctQuyen vì không dùng
-
-            // Cập nhật bảng nhóm quyền
-            this.jpPhanquyen.loadDataTable(phanQuyenBUS.getALL());
-
-            JOptionPane.showMessageDialog(this, "Thêm nhóm quyền thành công!");
-            dispose();
-
-        } else if (source == btnUpdatenhomquyen) {
-            // Cập nhật nhóm quyền
-            String tenNhomQuyen = txttennhomquyen.getText().trim();
-            if (tenNhomQuyen.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập tên nhóm quyền!");
-                return;
-            }
-
-            // Tạo DTO mới với thông tin cập nhật
-            nhomQuyenDTO nhomquyen = new nhomQuyenDTO(this.nhomQuyenDTO.getMaNhomQuyen(), tenNhomQuyen, this.nhomQuyenDTO.getTrangThai());
-
-            // Gọi BUS để cập nhật
-            phanQuyenBUS.updatePQ(nhomquyen);
-
-            // Cập nhật lại bảng danh sách nhóm quyền
-            this.jpPhanquyen.loadDataTable(phanQuyenBUS.getALL());
-
-            JOptionPane.showMessageDialog(this, "Cập nhật nhóm quyền thành công!");
-            dispose();
-        } else if (source == btnDeletenhomquyen) {
+         if (source == btnDeletenhomquyen) {
             dispose(); // Đóng dialog
         }
-
-//        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
 }

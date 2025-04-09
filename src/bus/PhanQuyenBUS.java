@@ -55,7 +55,7 @@ public class PhanQuyenBUS {
         if (maNhomQuyen == 2) {
             // Các chức năng của quản lý bán hàng
             if ((chucNang.equals("hoadon") || chucNang.equals("khachhang") || chucNang.equals("thongke") || chucNang.equals("duyetdonhang"))
-                    && (hanhDong.equals("view") || hanhDong.equals("update") || hanhDong.equals("delete"))) {
+                    && (hanhDong.equals("view") || hanhDong.equals("update") || hanhDong.equals("delete") || hanhDong.equals("create"))) {
                 return true;
             }
         }
@@ -65,7 +65,7 @@ public class PhanQuyenBUS {
             // Các chức năng của quản lý kho
             if ((chucNang.equals("phieunhap") || chucNang.equals("sach") || chucNang.equals("theloai") || chucNang.equals("khosach")
                     || chucNang.equals("tacgia") || chucNang.equals("nhaxuatban") || chucNang.equals("thongke") || chucNang.equals("dangxuat"))
-                    && (hanhDong.equals("view") || hanhDong.equals("update") || hanhDong.equals("delete"))) {
+                    && (hanhDong.equals("view") || hanhDong.equals("update") || hanhDong.equals("delete") || hanhDong.equals("create"))) {
                 return true;
             }
         }

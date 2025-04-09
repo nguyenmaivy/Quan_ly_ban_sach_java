@@ -1,7 +1,9 @@
 package gui.Componet.Custom;
 
+import bus.NhanVienBUS;
 import dto.NhanVienDTO;
 import dto.TaiKhoanDTO;
+import gui.LoginGUI;
 import gui.Main;
 import gui.Panel.*;
 import java.awt.BorderLayout;
@@ -67,7 +69,7 @@ public class MenuTaskbar extends JPanel {
     public MenuTaskbar(Main main, TaiKhoanDTO user) {
         this.main = main;
         initComponent();
-        initPanels();  // Khởi tạo các panel ở đây
+        initPanels(user);  // Khởi tạo các panel ở đây
     }
 
     private void initComponent() {
@@ -99,18 +101,20 @@ public class MenuTaskbar extends JPanel {
         }
     }
 
-    private void initPanels() {
+    private void initPanels(TaiKhoanDTO user) {
+        NhanVienBUS nhanVienBUS = new NhanVienBUS();
+        NhanVienDTO nhanVienDTO = (user != null && user.getMaNV() != null) ? nhanVienBUS.getByID(user.getMaNV()) : null;
         // Khởi tạo tất cả các panel một lần duy nhất
         trangChu = new TrangChu();
-        sach = new Sach();
-        theLoai = new TheLoai();
-        khoSach = new KhoSach();
+        sach = new Sach(main);
+        theLoai = new TheLoai(main);
+        khoSach = new KhoSach(main);
         phieuNhap = new PhieuNhap(main, nhanVienDTO);
         hoaDon = new HoaDon();
         kháchHang = new KhachHang();
         nhaXuatBan = new NhaXuatBan(main);
         tacGia = new TacGia(main);
-        nhanVien = new NhanVien();
+        nhanVien = new NhanVien(main);
         taiKhoan = new TaiKhoan(main);
         thongKe = new ThongKe();
         phanQuyen = new PhanQuyen(main);
@@ -161,11 +165,11 @@ public class MenuTaskbar extends JPanel {
                 int input = JOptionPane.showConfirmDialog(null,
                         "Bạn có chắc chắn muốn đăng xuất?", "Đăng xuất",
                         JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
-//                if (input == JOptionPane.OK_OPTION) {
-//                    Log_In login = new Log_In();
-//                    main.dispose();
-//                    login.setVisible(true);
-//                }
+                if (input == JOptionPane.OK_OPTION) {
+                    LoginGUI login = new LoginGUI();
+                    main.dispose();
+                    login.setVisible(true);
+                }
                 break;
             default:
                 break;

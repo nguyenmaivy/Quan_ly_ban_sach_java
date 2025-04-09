@@ -22,17 +22,19 @@ public class Main extends JFrame {
     Color MainColor = new Color(250, 250, 250);
     private MenuTaskbar menuTaskbar;
 
+    public Main(TaiKhoanDTO user) throws UnsupportedLookAndFeelException {
+        this.user = user;
+        initComponent();
+        setupUI();
+    }
+
     private void initComponent() {
         this.setSize(new Dimension(1400, 800));
         this.setLocationRelativeTo(null);
         this.setLayout(new BorderLayout(0, 0));
         this.setTitle("Quản lý cửa hàng bán sách");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        if (user != null) {
-            menuTaskbar = new MenuTaskbar(this,user);
-        } else{
-            menuTaskbar = new MenuTaskbar(this, user);
-        }
+
         menuTaskbar = new MenuTaskbar(this, user);
         menuTaskbar.setPreferredSize(new Dimension(250, 1400));
         this.add(menuTaskbar, BorderLayout.WEST);
@@ -42,16 +44,9 @@ public class Main extends JFrame {
         MainContent.setLayout(new BorderLayout(0, 0));
         this.add(MainContent, BorderLayout.CENTER);
         MainContent.setVisible(true);
-
     }
 
-    public Main() {
-        initComponent();
-    }
-
-    public Main(TaiKhoanDTO user) throws UnsupportedLookAndFeelException {
-        this.user = user;
-        initComponent();
+    private void setupUI() throws UnsupportedLookAndFeelException {
         FlatRobotoFont.install();
         FlatLaf.setPreferredFontFamily(FlatRobotoFont.FAMILY);
         FlatLaf.setPreferredLightFontFamily(FlatRobotoFont.FAMILY_LIGHT);
@@ -82,16 +77,5 @@ public class Main extends JFrame {
         MainContent.add(pn).setVisible(true);
         MainContent.repaint();
         MainContent.validate();
-    }
-
-    public static void main(String[] args) {
-        try {
-            // Thiết lập giao diện FlatLaf
-            FlatIntelliJLaf.setup();
-            Main frame = new Main();
-            frame.setVisible(true); // Đảm bảo giao diện được hiển thị
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

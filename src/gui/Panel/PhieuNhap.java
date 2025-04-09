@@ -11,6 +11,7 @@ import gui.Componet.Custom.TableSorter;
 import gui.Main;
 import dto.NhanVienDTO;
 import dto.PhieuNhapDTO;
+import gui.Dialog.ChiTietPhieuDialog;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -56,6 +57,9 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
     ArrayList<PhieuNhapDTO> listPhieu;
 
     public PhieuNhap(Main m, NhanVienDTO nv) {
+//        if (nv == null) {
+//            throw new IllegalArgumentException("NhanVienDTO cannot be null");
+//        }
         this.m = m;
         this.nv = nv;
         initComponent();
@@ -164,12 +168,16 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
     public void actionPerformed(ActionEvent e) {
         Object sourObject = e.getSource();
         if (sourObject == mainFunction.btn.get("create")) {
-            nhapkho = new TaoPhieuNhap(nv, "create", m);
+            if (nv == null) {
+                JOptionPane.showMessageDialog(this, "Không thể tạo phiếu nhập: Thông tin nhân viên không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            nhapkho = new TaoPhieuNhap(nv, "create", m, this); // Truyền this vào
             m.setPanel(nhapkho);
         } else if (sourObject == mainFunction.btn.get("detail")) {
             int index = getRowSelected();
             if (index != -1) {
-                System.out.println("gui.Panel.PhieuNhap.actionPerformed()");
+                ChiTietPhieuDialog ctsp = new ChiTietPhieuDialog(m, "Thông tin phiếu nhập", true, listPhieu.get(index));
             }
         } else if (sourObject == mainFunction.btn.get("cancel")) {
             int index = getRowSelected();
@@ -178,21 +186,19 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
                 if (input == 0) {
                     PhieuNhapDTO pn = listPhieu.get(index);
                     System.out.println(pn);
-                    if (!phieunhapBUS.checkCancelPn(pn.getSoPN())) {// kiểm tra nếu phiếu nhập đã có sản phẩm
+                    if (!phieunhapBUS.checkCancelPn(pn.getSoPN())) {
                         JOptionPane.showMessageDialog(null, "Sản phẩm trong phiếu này đã được xuất đi không thể hủy phiếu này!");
                     } else {
-                        boolean isDeleted = phieunhapBUS.cancelPhieuNhap(pn.getSoPN()); //Hủy phiếu
+                        boolean isDeleted = phieunhapBUS.cancelPhieuNhap(pn.getSoPN());
                         if (!isDeleted) {
                             JOptionPane.showMessageDialog(null, "Hủy phiếu không thành công!");
                         } else {
                             JOptionPane.showMessageDialog(null, "Hủy phiếu thành công");
-                             loadDataTable(phieunhapBUS.getAllPhieuNhap()); // Nếu cần cập nhật lại bảng dữ liệu
+                            loadDataTable(phieunhapBUS.getAllPhieuNhap());
                         }
                     }
-
                 }
             }
-
         }
     }
 
@@ -205,11 +211,11 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
             String tenKho = khobus.getTenKhoByMa(phieuNhapDTO.getMaKho());
 
             tblModel.addRow(new Object[]{
-                stt++, phieuNhapDTO.getSoPN(), 
-                tenNXB, 
-                tenKho, 
-                tenNV, 
-                phieuNhapDTO.getNgayNhap(), 
+                stt++, phieuNhapDTO.getSoPN(),
+                tenNXB,
+                tenKho,
+                tenNV,
+                phieuNhapDTO.getNgayNhap(),
                 phieuNhapDTO.getTongTien()
             });
         }

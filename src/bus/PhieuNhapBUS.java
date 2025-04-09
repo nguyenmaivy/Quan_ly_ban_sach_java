@@ -65,8 +65,9 @@ public class PhieuNhapBUS {
     }
     // Thêm vào PhieuNhapBUS.java
 
-    public int getAutoIncrement() {
-        return phieuNhapDAO.getAutoIncrement();
+    public String getAutoIncrement() {
+        int nextID = phieuNhapDAO.getAutoIncrement();
+        return "PN" + String.format("%02d", nextID);
     }
 
 }

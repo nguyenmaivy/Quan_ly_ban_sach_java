@@ -39,7 +39,7 @@ public class KhoSachBUS {
         return "Cập nhật thất bại";
     }
     
-    public KhoSachDTO getBySdt(String maKho) {
+    public KhoSachDTO getByID(String maKho) {
         return ksDAO.getByID(maKho);
     }
     

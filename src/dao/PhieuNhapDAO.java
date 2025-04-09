@@ -295,11 +295,15 @@ public class PhieuNhapDAO implements DAOInterface<PhieuNhapDTO> {
         int nextID = 1;
         try {
             jdbc.openConnection();
-            String query = "SELECT SUBSTRING(soPN, 3, LEN(soPN) - 2) FROM PhieuNhap";
+            // Truy vấn lấy số lớn nhất từ cột soPN
+            String query = "SELECT MAX(CAST(SUBSTRING(soPN, 3, LEN(soPN)) AS INT)) AS maxID FROM PhieuNhap";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                nextID = rs.getInt(1);
+                int maxID = rs.getInt("maxID");
+                if (!rs.wasNull()) { // Nếu có bản ghi tồn tại
+                    nextID = maxID + 1;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

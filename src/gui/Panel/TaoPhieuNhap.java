@@ -52,19 +52,20 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
 
     ArrayList<dto.SachDTO> listSP = sachBus.getAllSach();
     private SachDTO selectedSach;
+    private PhieuNhap phieuNhapPanel;
     ArrayList<NhaXuatBanDTO> nhaXuatBanDTO = nxbDAO.getALL();
     ArrayList<ChiTietPhieuNhapDTO> chiTietPhieuNhapDTO;
 
-    int maphieunhap;
+    String maphieunhap;
     int rowPhieuSelect = -1;
 
-    public TaoPhieuNhap(NhanVienDTO nv, String type, Main m) {
+    public TaoPhieuNhap(NhanVienDTO nv, String type, Main m, PhieuNhap phieuNhapPanel) {
         this.nvDto = nv;
         this.m = m;
+        this.phieuNhapPanel = phieuNhapPanel;
         initComponent(type);
-        // Lấy mã phiếu tự động
         maphieunhap = phieunhapBus.getAutoIncrement();
-        txtMaphieu.setText("PN" + maphieunhap);
+        txtMaphieu.setText(maphieunhap);
         loadDataTableSanPham(listSP);
     }
 
@@ -206,9 +207,6 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         PlainDocument dongia = (PlainDocument) txtDongia.getTxtForm().getDocument();
         dongia.setDocumentFilter((new NumericDocumentFilter()));
 
-//        // lấy dữ liệu tên thể loại
-//        ArrayList<TheLoaiDTO> listTL = theLoaiBUS.getAllTheLoai();
-//        String[] arrPtNhap = listTL.stream().map(TheLoaiDTO::getTenLoai).toArray(String[]::new);
         cbxTheLoai = new SelectForm("Thể loại", arrTen);
 
         cbxTheLoai.cbb.addItemListener(this);
@@ -278,8 +276,10 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         right_top.setOpaque(false);
         txtMaphieu = new InputForm("Mã phiếu nhập");
         txtMaphieu.setText("PN" + maphieunhap);
+
         txtMaphieu.setEditable(false);
         txtNhanVien = new InputForm("Nhân viên nhập");
+        txtNhanVien.setText(nvDto != null ? nvDto.getTenNV() : "Không xác định");
         txtNhanVien.setEditable(false);
 
         // Lấy danh sách tất cả nhà xuất bản
@@ -429,18 +429,6 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
             return;
         }
 
-        // Kiểm tra tất cả sản phẩm có cùng mã kho không
-        String maKho = null;
-        for (int i = 0; i < tblModel.getRowCount(); i++) {
-            String currentMaKho = tblModel.getValueAt(i, 8).toString(); // Cột 8 là "Mã kho"
-            if (maKho == null) {
-                maKho = currentMaKho;
-            } else if (!maKho.equals(currentMaKho)) {
-                JOptionPane.showMessageDialog(this, "Tất cả sản phẩm phải thuộc cùng một kho!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        }
-
         int confirm = JOptionPane.showConfirmDialog(this, "Xác nhận tạo phiếu nhập?", "Xác nhận", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
@@ -448,25 +436,26 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
                 // Lấy thông tin từ form
                 String tenNXB = cbxNXB.getSelectedItem().toString();
                 NhaXuatBanDTO nxbDTO = nxbbus.getByName(tenNXB);
+
                 if (nxbDTO == null) {
                     JOptionPane.showMessageDialog(this, "Nhà xuất bản không tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 String maNXB = nxbDTO.getMaNXB();
+                String maKho = tblModel.getRowCount() > 0 ? tblModel.getValueAt(0, 8).toString() : null;
 
-                // Tạo đối tượng PhieuNhapDTO với mã kho đã kiểm tra
+                // Tạo đối tượng PhieuNhapDTO
                 PhieuNhapDTO phieuNhap = new PhieuNhapDTO(
-                        "PN" + maphieunhap,
+                        maphieunhap,
                         nvDto.getMaNV(),
                         maNXB,
-                        maKho, // Sử dụng mã kho đã xác định
+                        maKho,
                         LocalDate.now(),
                         Integer.parseInt(lbltongtien.getText().replace("đ", "")),
                         1
                 );
 
                 // Thêm phiếu nhập vào database
-
                 phieunhapBus.add(phieuNhap);
 
                 // Thêm chi tiết phiếu nhập
@@ -474,7 +463,7 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
                 for (int i = 0; i < tblModel.getRowCount(); i++) {
                     ChiTietPhieuNhapDTO ctpn = new ChiTietPhieuNhapDTO(
                             tblModel.getValueAt(i, 1).toString(),
-                            "PN" + maphieunhap,
+                            maphieunhap,
                             Integer.parseInt(tblModel.getValueAt(i, 7).toString()),
                             Integer.parseInt(tblModel.getValueAt(i, 6).toString()),
                             1
@@ -483,9 +472,15 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
                 }
 
                 JOptionPane.showMessageDialog(this, "Nhập hàng thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-                resetForm();
-                tblModel.setRowCount(0);
-                lbltongtien.setText("0đ");
+
+                // Chuyển về giao diện PhieuNhap và làm mới bảng
+                PhieuNhap phieuNhapPanel = new PhieuNhap(m, nvDto);
+                m.setPanel(phieuNhapPanel);
+
+                // Reset mã phiếu mới sau khi lưu
+//                resetForm();
+//                tblModel.setRowCount(0);
+//                lbltongtien.setText("0đ");
                 maphieunhap = phieunhapBus.getAutoIncrement();
                 txtMaphieu.setText("PN" + maphieunhap);
             } catch (Exception ex) {
