@@ -60,17 +60,16 @@ public class ChiTietPhieuNhapDAO implements DAOInterface<ChiTietPhieuNhapDTO> {
             String query = "select * from ChiTietPhieuNhap where soPN=? and trangThai = 1";
 
             //B3
-            PreparedStatement ps = jdbc.getConnection().prepareStatement(sopn);
-
+            PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
+            ps.setString(1, sopn);
             //B4
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                String soPN = rs.getString(1);
-                String maSach = rs.getString(2);
-                int soLuongNhap = rs.getInt(3);
-                int giaNhap = rs.getInt(4);
+            while (rs.next()) {
+                String soPN = rs.getString("soPN");
+                String maSach = rs.getString("maSach");
+                int soLuongNhap = rs.getInt("soLuongNhap");
+                int giaNhap = rs.getInt("giaNhap");
                 arr.add(new ChiTietPhieuNhapDTO(maSach, soPN, soLuongNhap, giaNhap, 1));
-//
             }
 
         } catch (Exception e) {

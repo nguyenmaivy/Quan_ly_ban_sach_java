@@ -135,6 +135,8 @@ public class LoginGUI extends JFrame {
         txtPassword.addActionListener(e -> handleLogin());
 
         setContentPane(mainPanel);
+        txtUsername.setText("Vy Nguyễn");
+        txtPassword.setText("0123456789");
     }
 
     private void handleLogin() {

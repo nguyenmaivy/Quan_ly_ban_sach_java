@@ -4,10 +4,14 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/gui/Dialog/ChiTietPhieuDialog.java</file>
+            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/bus/TacGiaBUS.java</file>
             <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/gui/Panel/TaoPhieuNhap.java</file>
             <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/gui/Main.java</file>
+            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/dao/SachDAO.java</file>
+            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/gui/Panel/Sach.java</file>
             <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/gui/LoginGUI.java</file>
-            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/gui/Componet/Custom/MenuTaskbar.java</file>
+            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/bus/ChiTietPhieuNhapBUS.java</file>
+            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/bus/SachBUS.java</file>
         </group>
     </open-files>
 </project-private>

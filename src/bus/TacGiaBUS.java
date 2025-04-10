@@ -7,6 +7,7 @@ import java.util.ArrayList;
 public class TacGiaBUS {
 
     TacGiaDAO tacGiaDAO = new TacGiaDAO();
+    ArrayList<TacGiaDTO> listTg = tacGiaDAO.getALL();
 
     public ArrayList<TacGiaDTO> getAllTacGia() {
         return tacGiaDAO.getALL();
@@ -77,5 +78,14 @@ public class TacGiaBUS {
     }
     public String getMaxMaTG(){
         return tacGiaDAO.getMaxMaTG();
+    }
+    public String getTenTG(String matg){
+    listTg = tacGiaDAO.getALL();
+        for (TacGiaDTO tacGiaDTO : listTg) {
+            if (tacGiaDTO.getMaTG().equals(matg)) {
+                return tacGiaDTO.getTenTG();
+            }
+        }
+        return  "Không rõ";
     }
 }

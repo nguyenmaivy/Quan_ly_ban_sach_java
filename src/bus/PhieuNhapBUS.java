@@ -3,10 +3,12 @@ package bus;
 import dto.*;
 import dao.*;
 import java.util.ArrayList;
+import org.apache.poi.ss.usermodel.FormulaError;
 
 public class PhieuNhapBUS {
 
     PhieuNhapDAO phieuNhapDAO = new PhieuNhapDAO();
+    ArrayList<PhieuNhapDTO> listpn = phieuNhapDAO.getALL();
 
     public void add(PhieuNhapDTO pn) {
         phieuNhapDAO.add(pn);
@@ -68,6 +70,52 @@ public class PhieuNhapBUS {
     public String getAutoIncrement() {
         int nextID = phieuNhapDAO.getAutoIncrement();
         return "PN" + String.format("%02d", nextID);
+    }
+
+    public ArrayList<PhieuNhapDTO> search(String txt, String type) {
+        ArrayList<PhieuNhapDTO> result = new ArrayList<>();
+        txt = txt.toLowerCase();
+
+        switch (type) {
+            case "Tất cả":
+                return phieuNhapDAO.search(txt);
+     
+            case "Mã phiếu nhập":
+                for (PhieuNhapDTO pn : phieuNhapDAO.search(txt)) {
+                    if (pn.getSoPN().toLowerCase().contains(txt)) {
+                        result.add(pn);
+                    }
+                }
+                break;
+            case "Nhà xuất bản":
+                NhaXuatBanBUS nxbbus = new NhaXuatBanBUS();
+                for (PhieuNhapDTO pn : phieuNhapDAO.search(txt)) {
+                    String tenNXB = nxbbus.getTenNXBByMa(pn.getMaNXB().toLowerCase());
+                    if (tenNXB.contains(txt)) {
+                        result.add(pn);
+                    }
+                }
+                break;
+            case "Nhân viên nhập":
+                NhanVienBUS nvbus = new NhanVienBUS();
+                for (PhieuNhapDTO pn : phieuNhapDAO.search(txt)) {
+                    String tennv = nvbus.getTenNVByMa(pn.getMaNV().toLowerCase());
+                    if (tennv.contains(txt)) {
+                        result.add(pn);
+                    }
+                }
+                break;
+            case "Kho":
+                KhoSachBUS khoSachBUS = new KhoSachBUS();
+                for (PhieuNhapDTO pn : phieuNhapDAO.search(txt)) {
+                    String tenkho = khoSachBUS.getTenKhoByMa(pn.getMaKho().toLowerCase());
+                    if (tenkho.contains(txt)) {
+                        result.add(pn);
+                    }
+                }
+                break;
+        }
+        return result;
     }
 
 }

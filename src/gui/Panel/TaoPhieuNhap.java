@@ -469,9 +469,23 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
                             1
                     );
                     ctpnBus.add(ctpn);
+                    // Cập nhật số lượng tồn sách
+                    SachDTO sach = sachBus.getByID(ctpn.getMaSach());
+                    if (sach != null) {
+                        int soLuongHienTai = sach.getSoLuong();
+                        int soLuongNhap = ctpn.getSoLuongNhap();
+                        sach.setSoLuong(soLuongHienTai + soLuongNhap); // tăng số lượng tồn
+
+                        String updated = sachBus.updateSach(sach);
+                        if (!"Cập nhật thành công".equals(updated)) {
+                            System.out.println("Cập nhật số lượng sách thất bại cho mã: " + sach.getId());
+                        }
+                    }
+
                 }
 
                 JOptionPane.showMessageDialog(this, "Nhập hàng thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+
 
                 // Chuyển về giao diện PhieuNhap và làm mới bảng
                 PhieuNhap phieuNhapPanel = new PhieuNhap(m, nvDto);

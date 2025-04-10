@@ -44,7 +44,15 @@ public final class ChiTietPhieuDialog extends JDialog implements ActionListener 
     JScrollPane scrollTable;
 
     PhieuNhapDTO phieunhap;
-    PhieuNhapBUS phieunhapBus;
+    PhieuNhapBUS phieunhapBus = new PhieuNhapBUS();
+    NhaXuatBanBUS nxbbus = new NhaXuatBanBUS();
+    KhoSachBUS khoSachBUS = new KhoSachBUS();
+    NhanVienBUS nvbus = new NhanVienBUS();
+    SachBUS sachBUS = new SachBUS();
+    NhaXuatBanBUS nhaXuatBanBUS = new NhaXuatBanBUS();
+    TheLoaiBUS theLoaiBUS = new TheLoaiBUS();
+    ChiTietPhieuNhapBUS chiTietPhieuNhapBUS = new ChiTietPhieuNhapBUS();
+    TacGiaBUS tacGiaBUS = new TacGiaBUS();
 
     ButtonCustom btnHuyBo;
 
@@ -55,6 +63,8 @@ public final class ChiTietPhieuDialog extends JDialog implements ActionListener 
         super(owner, title, modal);
         this.phieunhap = phieunhapDTO;
         phieunhapBus = new PhieuNhapBUS();
+        chitietphieu = chiTietPhieuNhapBUS.getAllByID(phieunhap.getSoPN());
+
         initComponent(title);
         initPhieuNhap();
         loadDataTableChiTietPhieu(chitietphieu);
@@ -70,16 +80,41 @@ public final class ChiTietPhieuDialog extends JDialog implements ActionListener 
 
     public void initPhieuNhap() {
 
+        txtMaPhieu.setText(phieunhap.getSoPN());
+        txtNhanVien.setText(nvbus.getTenNVByMa(phieunhap.getMaNV()));
+        txtNXB.setText(nxbbus.getTenNXBByMa(phieunhap.getMaNXB()));
+        txtKho.setText(khoSachBUS.getTenKhoByMa(phieunhap.getMaKho()));
+        txtThoiGian.setText(phieunhap.getNgayNhap().toString());
+
     }
 
     public void loadDataTableChiTietPhieu(ArrayList<ChiTietPhieuNhapDTO> ctPhieu) {
         tblModel.setRowCount(0);
-//        int size = ctPhieu.size();
-//        for (int i = 0; i < size; i++) {
-//            tblModel.addRow(new Object[]{
-//                i+1, 
-//            });
-//        }
+        if (ctPhieu == null || ctPhieu.isEmpty()) {
+            System.out.println("Không có dữ liệu để load.");
+            return;
+        }
+        int stt = 1;
+        for (ChiTietPhieuNhapDTO chiTietPhieuNhapDTO : ctPhieu) {
+            String maSach = chiTietPhieuNhapDTO.getMaSach();
+            SachDTO sach = sachBUS.getByID(maSach);
+            // Kiểm tra sách có tồn tại không
+            if (sach == null) {
+                System.err.println("Không tìm thấy sách với mã: " + maSach);
+                continue; // Bỏ qua dòng này
+            }
+            String tenSach = sach.getTenSach();
+            String tennxb = nhaXuatBanBUS.getTenNXBByMa(sach.getNhaXuatBan());
+            String tentl = theLoaiBUS.getTenTL(sach.getTheLoai());
+            String tentg = tacGiaBUS.getTenTG(sach.getTacGia());
+            int dongia = chiTietPhieuNhapDTO.getGiaNhap();
+            int soluong = chiTietPhieuNhapDTO.getSoLuongNhap();
+            String makho = sach.getMaKho();
+            tblModel.addRow(new Object[]{
+                stt++, maSach, tenSach, tentl, tentg, tennxb, dongia, soluong, makho
+            });
+
+        }
     }
 
     public void initComponent(String title) {
@@ -125,12 +160,6 @@ public final class ChiTietPhieuDialog extends JDialog implements ActionListener 
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         table.setDefaultRenderer(Object.class, centerRenderer);
         table.getColumnModel().getColumn(2).setPreferredWidth(200);
-        table.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
-        });
         pnmain_bottom_left.add(scrollTable);
 
         pnmain_bottom.add(pnmain_bottom_left, BorderLayout.CENTER);

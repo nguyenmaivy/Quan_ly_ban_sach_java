@@ -15,6 +15,7 @@ import java.util.ArrayList;
 public class SachBUS {
 
     SachDAO sachDAO = new SachDAO();
+    ArrayList<SachDTO> listSach = sachDAO.getALL();
 
     public ArrayList<SachDTO> getAllSach() {
         return sachDAO.getALL();
@@ -50,5 +51,14 @@ public class SachBUS {
 
     public ArrayList<SachDTO> search(String searchContent) {
         return sachDAO.search(searchContent);
+    }
+    public String getTenSachByMa(String maSach){
+        listSach = sachDAO.getALL();
+        for (SachDTO sachDTO : listSach) {
+            if (sachDTO.getId().equals(maSach)) {
+                return sachDTO.getTenSach();
+            }
+        }
+        return "Không rõ";
     }
 }

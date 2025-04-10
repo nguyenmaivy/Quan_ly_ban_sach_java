@@ -9,6 +9,9 @@ import java.util.ArrayList;
  */
 public class ChiTietPhieuNhapBUS {
     ChiTietPhieuNhapDAO ctpndao = new ChiTietPhieuNhapDAO();
+    public  ArrayList<ChiTietPhieuNhapDTO> getAllCTPN(){
+        return ctpndao.getALL();
+    }
     public void add(ChiTietPhieuNhapDTO ctpn){
         ctpndao.add(ctpn);
     }
