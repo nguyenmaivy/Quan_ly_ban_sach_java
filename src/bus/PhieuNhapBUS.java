@@ -76,12 +76,16 @@ public class PhieuNhapBUS {
         ArrayList<PhieuNhapDTO> result = new ArrayList<>();
         txt = txt.toLowerCase();
 
+        ArrayList<PhieuNhapDTO> searchResult = phieuNhapDAO.search(txt);
+        if (searchResult == null) {
+            searchResult = new ArrayList<>(); // Return empty list if DAO returns null
+        }
+
         switch (type) {
             case "Tất cả":
-                return phieuNhapDAO.search(txt);
-     
+                return searchResult;
             case "Mã phiếu nhập":
-                for (PhieuNhapDTO pn : phieuNhapDAO.search(txt)) {
+                for (PhieuNhapDTO pn : searchResult) {
                     if (pn.getSoPN().toLowerCase().contains(txt)) {
                         result.add(pn);
                     }
@@ -89,31 +93,33 @@ public class PhieuNhapBUS {
                 break;
             case "Nhà xuất bản":
                 NhaXuatBanBUS nxbbus = new NhaXuatBanBUS();
-                for (PhieuNhapDTO pn : phieuNhapDAO.search(txt)) {
+                for (PhieuNhapDTO pn : searchResult) {
                     String tenNXB = nxbbus.getTenNXBByMa(pn.getMaNXB().toLowerCase());
-                    if (tenNXB.contains(txt)) {
+                    if (tenNXB != null && tenNXB.contains(txt)) {
                         result.add(pn);
                     }
                 }
                 break;
             case "Nhân viên nhập":
                 NhanVienBUS nvbus = new NhanVienBUS();
-                for (PhieuNhapDTO pn : phieuNhapDAO.search(txt)) {
+                for (PhieuNhapDTO pn : searchResult) {
                     String tennv = nvbus.getTenNVByMa(pn.getMaNV().toLowerCase());
-                    if (tennv.contains(txt)) {
+                    if (tennv != null && tennv.contains(txt)) {
                         result.add(pn);
                     }
                 }
                 break;
             case "Kho":
                 KhoSachBUS khoSachBUS = new KhoSachBUS();
-                for (PhieuNhapDTO pn : phieuNhapDAO.search(txt)) {
+                for (PhieuNhapDTO pn : searchResult) {
                     String tenkho = khoSachBUS.getTenKhoByMa(pn.getMaKho().toLowerCase());
-                    if (tenkho.contains(txt)) {
+                    if (tenkho != null && tenkho.contains(txt)) {
                         result.add(pn);
                     }
                 }
                 break;
+            default:
+                return new ArrayList<>(); // Return empty list for unknown type
         }
         return result;
     }
