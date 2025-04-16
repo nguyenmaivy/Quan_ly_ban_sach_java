@@ -2,7 +2,6 @@
 package gui.Dialog;
 
 import dto.NhaXuatBanDTO;
-import dao.NhaXuatBanDAO;
 import bus.NhaXuatBanBUS;
 import gui.Componet.Custom.ButtonCustom;
 import java.awt.*;
@@ -137,8 +136,8 @@ public class NhaXuatBanDialog extends JDialog implements ActionListener {
             return;
         }
         
-        NhaXuatBanDAO dao = new NhaXuatBanDAO();      // tạo DAO
-        String  maMoi = dao.NextMaNXB();   
+        String maMoi = nhaXuatBanBUS.getNextMaNXB();
+
         // Tạo đối tượng NXB mới và thêm vào CSDL
         NhaXuatBanDTO newNXB = new NhaXuatBanDTO();       
         newNXB.setMaNXB(maMoi); 

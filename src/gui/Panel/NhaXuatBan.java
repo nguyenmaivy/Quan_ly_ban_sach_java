@@ -10,9 +10,7 @@ import gui.Componet.Custom.PanelBorderRadius;
 import gui.Componet.Custom.TableSorter;
 import gui.Main;
 import dto.NhaXuatBanDTO;
-import dto.TaiKhoanDTO;
 import gui.Dialog.NhaXuatBanDialog;
-import gui.Dialog.TaiKhoanDialog;
 import javax.swing.*;
 import helper.JTableExporter;
 import java.awt.BorderLayout;
@@ -43,7 +41,7 @@ import javax.swing.table.DefaultTableModel;
 import net.miginfocom.layout.UnitValue;
 import javax.swing.table.TableColumnModel;
 
-import javax.swing.JTable;
+
 import javax.swing.table.TableModel;
 import java.io.FileOutputStream;
 import java.io.IOException;
