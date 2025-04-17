@@ -3,7 +3,6 @@ package gui.Panel;
 import bus.*;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
-import dao.NhaXuatBanDAO;
 import dto.*;
 import gui.Componet.Custom.ButtonCustom;
 import gui.Componet.Custom.InputForm;
@@ -48,12 +47,11 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
     SachBUS sachBus = new SachBUS();
     TheLoaiBUS theLoaiBUS = new TheLoaiBUS();
     NhaXuatBanBUS nxbbus = new NhaXuatBanBUS();
-    NhaXuatBanDAO nxbDAO = new NhaXuatBanDAO();
 
     ArrayList<dto.SachDTO> listSP = sachBus.getAllSach();
     private SachDTO selectedSach;
     private PhieuNhap phieuNhapPanel;
-    ArrayList<NhaXuatBanDTO> nhaXuatBanDTO = nxbDAO.getALL();
+    ArrayList<NhaXuatBanDTO> nhaXuatBanDTO = nxbbus.getAllNhaXuatBan();
     ArrayList<ChiTietPhieuNhapDTO> chiTietPhieuNhapDTO;
 
     String maphieunhap;

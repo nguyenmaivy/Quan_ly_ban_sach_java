@@ -136,11 +136,9 @@ public class NhanVien extends JPanel implements ActionListener {
                 loadDataTable();
             }
         } else if (source == mainFunction.btn.get("export")) {
-            try {
-                JTableExporter.exportJTableToExcel(tblNhanVien);
+            boolean success = JTableExporter.exportJTableToExcel(tblNhanVien);
+            if (success) {
                 JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!");
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, "Xuất file thất bại: " + ex.getMessage());
             }
         }
     }

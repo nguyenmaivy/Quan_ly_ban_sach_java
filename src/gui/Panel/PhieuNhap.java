@@ -4,7 +4,6 @@ import bus.NhaXuatBanBUS;
 import bus.NhanVienBUS;
 import bus.PhieuNhapBUS;
 import bus.KhoSachBUS;
-import gui.Componet.Custom.IntegratedSearch;
 import gui.Componet.Custom.MainFunction;
 import gui.Componet.Custom.PanelBorderRadius;
 import gui.Componet.Custom.TableSorter;
@@ -12,6 +11,7 @@ import gui.Main;
 import dto.NhanVienDTO;
 import dto.PhieuNhapDTO;
 import gui.Dialog.ChiTietPhieuDialog;
+import helper.JTableExporter;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -20,7 +20,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
@@ -188,6 +187,11 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
                         }
                     }
                 }
+            }
+        } else if (e.getSource() == mainFunction.btn.get("export")) {
+            boolean success = JTableExporter.exportJTableToExcel(tablePhieuNhap);
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!");
             }
         }
     }

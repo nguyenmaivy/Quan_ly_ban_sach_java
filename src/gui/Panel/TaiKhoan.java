@@ -24,6 +24,7 @@ import java.awt.event.KeyListener;
 import static java.awt.image.ImageObserver.SOMEBITS;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -35,10 +36,17 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import net.miginfocom.layout.UnitValue;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class TaiKhoan extends JPanel implements ActionListener {
 
@@ -78,13 +86,35 @@ public class TaiKhoan extends JPanel implements ActionListener {
         functionBar.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         String[] acStrings = {"create", "update", "delete", "detail", "export"};
-        mainFunction = new MainFunction(SOMEBITS, "tacgia", acStrings);
+        mainFunction = new MainFunction(SOMEBITS, "taikhoan", acStrings);
         for (String ac : acStrings) {
             mainFunction.btn.get(ac).addActionListener(this);
         }
         functionBar.add(mainFunction);
 
-        search = new IntegratedSearch(new String[]{"Tất cả"});
+        search = new IntegratedSearch(new String[]{"Tất cả", "Username", "Số điện thoại", "Mã nhân viên", "Mã nhóm quyền"});
+        search.txtSearchForm.addKeyListener(new KeyListener() {
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                searchData();
+            }
+        });
+        search.cbxChoose.addItemListener(new ItemListener() {
+
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                searchData();  // Khi đổi tiêu chí tìm kiếm, cũng lọc lại
+            }
+        });
         functionBar.add(search);
 
         contentCenter.add(functionBar, BorderLayout.NORTH);
@@ -134,8 +164,8 @@ public class TaiKhoan extends JPanel implements ActionListener {
                 return;
             }
 
-            String usename = tbModel.getValueAt(selectedRow, 0).toString();
-            TaiKhoanDTO tk = tkBUS.getBySdt(usename);
+            String sdt = tbModel.getValueAt(selectedRow, 2).toString();
+            TaiKhoanDTO tk = tkBUS.getBySdt(sdt);
 
             if (tk != null) {
                 TaiKhoanDialog dialog = new TaiKhoanDialog(tkBUS,
@@ -160,6 +190,24 @@ public class TaiKhoan extends JPanel implements ActionListener {
                 JOptionPane.showMessageDialog(this, result);
                 loadDataTable();  // Cập nhật bảng sau khi xóa
             }
+        } else if (source == mainFunction.btn.get("detail")) {
+            int selectedRow = tbltk.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một tài khoản để xem chi tiết!");
+                return;
+            }
+
+            String sdt = tbModel.getValueAt(selectedRow, 2).toString(); // lấy số điện thoại để tra đối tượng
+            TaiKhoanDTO tk = tkBUS.getBySdt(sdt);
+
+            if (tk != null) {
+                TaiKhoanDialog dialog = new TaiKhoanDialog(tkBUS,
+                        (JFrame) SwingUtilities.getWindowAncestor(this),
+                        "Chi tiết tài khoản", true, "detail", tk);
+            } else {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy tài khoản!");
+            }
+
         } else if (source == mainFunction.btn.get("export")) {
             try {
                 JTableExporter.exportJTableToExcel(tbltk);
@@ -185,6 +233,103 @@ public class TaiKhoan extends JPanel implements ActionListener {
                 tk.getSdt(),
                 tk.getMaNV(),
                 tk.getMaNhomQuyen()});
+        }
+    }
+
+    private void searchData() {
+        String keyword = search.txtSearchForm.getText().trim().toLowerCase();
+        String selectedField = search.cbxChoose.getSelectedItem().toString();
+
+        TaiKhoanBUS tkBUS = new TaiKhoanBUS();
+        ArrayList<TaiKhoanDTO> tkList = tkBUS.getAllTaiKhoan();
+
+        // Xóa dữ liệu cũ trong bảng
+        tbModel.setRowCount(0);
+
+        for (TaiKhoanDTO tk : tkList) {
+            boolean match = false;
+
+            switch (selectedField) {
+                case "Tất cả":
+                    match = tk.getUseName().toLowerCase().contains(keyword)
+                            || tk.getMatKhau().toLowerCase().contains(keyword)
+                            || tk.getSdt().toLowerCase().contains(keyword)
+                            || tk.getMaNV().toLowerCase().contains(keyword)
+                            || String.valueOf(tk.getMaNhomQuyen()).toLowerCase().contains(keyword);
+                    break;
+                case "Username":
+                    match = tk.getUseName().toLowerCase().contains(keyword);
+                    break;
+                case "Số điện thoại":
+                    match = tk.getSdt().toLowerCase().contains(keyword);
+                    break;
+                case "Mã nhân viên":
+                    match = tk.getMaNV().toLowerCase().contains(keyword);
+                    break;
+                case "Mã nhóm quyền":
+                    match = String.valueOf(tk.getMaNhomQuyen()).contains(keyword);
+                    break;
+            }
+
+            if (match) {
+                tbModel.addRow(new Object[]{
+                    tk.getUseName(),
+                    tk.getMatKhau(),
+                    tk.getSdt(),
+                    tk.getMaNV(),
+                    tk.getMaNhomQuyen()
+                });
+            }
+        }
+    }
+
+    public class JTableExporter {
+
+        public static void exportJTableToExcel(JTable table) throws IOException {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
+            fileChooser.setFileFilter(new FileNameExtensionFilter("Excel Files", "xlsx"));
+
+            int userSelection = fileChooser.showSaveDialog(null);
+
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                String filePath = fileChooser.getSelectedFile().getAbsolutePath();
+                if (!filePath.toLowerCase().endsWith(".xlsx")) {
+                    filePath += ".xlsx";
+                }
+
+                Workbook workbook = new XSSFWorkbook();
+                Sheet sheet = workbook.createSheet("Danh sách tài khoản");
+
+                TableModel model = table.getModel();
+
+                // Tạo header
+                Row headerRow = sheet.createRow(0);
+                for (int col = 0; col < model.getColumnCount(); col++) {
+                    Cell cell = headerRow.createCell(col);
+                    cell.setCellValue(model.getColumnName(col));
+                }
+
+                // Ghi dữ liệu
+                for (int row = 0; row < model.getRowCount(); row++) {
+                    Row dataRow = sheet.createRow(row + 1);
+                    for (int col = 0; col < model.getColumnCount(); col++) {
+                        Cell cell = dataRow.createCell(col);
+                        Object value = model.getValueAt(row, col);
+                        cell.setCellValue(value != null ? value.toString() : "");
+                    }
+                }
+
+                // Tự động căn chỉnh độ rộng cột
+                for (int i = 0; i < model.getColumnCount(); i++) {
+                    sheet.autoSizeColumn(i);
+                }
+
+                FileOutputStream fos = new FileOutputStream(filePath);
+                workbook.write(fos);
+                fos.close();
+                workbook.close();
+            }
         }
     }
 

@@ -267,12 +267,9 @@ public class TacGia extends JPanel implements ActionListener, ItemListener {
         } else if (e.getSource() == mainFunction.btn.get("import")) {
             importExcel(); // Gọi phương thức importExcel
         } else if (e.getSource() == mainFunction.btn.get("export")) {
-            try {
-                JTableExporter.exportJTableToExcel(tbltacgia);
+            boolean success = JTableExporter.exportJTableToExcel(tbltacgia);
+            if (success) {
                 JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!");
-            } catch (IOException ex) {
-                Logger.getLogger(TacGia.class.getName()).log(Level.SEVERE, null, ex);
-
             }
         } else if (e.getSource() == search.btnReset) {
             search.txtSearchForm.setText("");

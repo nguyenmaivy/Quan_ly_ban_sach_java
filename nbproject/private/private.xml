@@ -3,12 +3,13 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/gui/Dialog/ChiTietPhieuDialog.java</file>
-            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/bus/TacGiaBUS.java</file>
-            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/bus/PhieuNhapBUS.java</file>
-            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/gui/Panel/TacGia.java</file>
+            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/dao/TaiKhoanDAO.java</file>
+            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/gui/Panel/TaiKhoan.java</file>
+            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/gui/Dialog/PhanQuyenDialog.java</file>
+            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/gui/Dialog/TaiKhoanDialog.java</file>
+            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/gui/Panel/NhaXuatBan.java</file>
             <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/gui/LoginGUI.java</file>
-            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/gui/Panel/PhieuNhap.java</file>
+            <file>file:/C:/Users/MZI/OneDrive/Documents/NetBeansProjects/Quan_ly_ban_sach_java/src/bus/TaiKhoanBUS.java</file>
         </group>
     </open-files>
 </project-private>

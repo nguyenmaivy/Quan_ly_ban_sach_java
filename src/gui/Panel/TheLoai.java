@@ -136,11 +136,9 @@ public class TheLoai extends JPanel implements ActionListener {
                 loadDataTable();
             }
         } else if (source == mainFunction.btn.get("export")) {
-            try {
-                JTableExporter.exportJTableToExcel(tblTheLoai);
+            boolean success = JTableExporter.exportJTableToExcel(tblTheLoai);
+            if (success) {
                 JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!");
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, "Xuất file thất bại: " + ex.getMessage());
             }
         }
     }

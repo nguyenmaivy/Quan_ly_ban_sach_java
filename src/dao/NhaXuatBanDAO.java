@@ -13,100 +13,6 @@ import java.util.List;
 public class NhaXuatBanDAO implements DAOInterface<NhaXuatBanDTO> {
 
     Constant conn = new Constant();
-//    // Lấy danh sách Nhà Xuất Bản
-//    public List<NhaXuatBanDTO> getAllNXB() {
-//        List<NhaXuatBanDTO> dsNXB = new ArrayList<>();
-//        String query = "SELECT * FROM NhaXuatBan";
-//        try (Statement stmt = conn.createStatement();
-//             ResultSet rs = stmt.executeQuery(query)) {
-//            while (rs.next()) {
-//                dsNXB.add(new NhaXuatBanDTO(
-//                        rs.getString("maNXB"),
-//                        rs.getString("diachiNXB"),
-//                        rs.getString("sdt"),
-//                        rs.getString("tenNXB")));
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return dsNXB;
-//    }
-//
-//    // Kiểm tra xem Nhà Xuất Bản có tồn tại hay không
-//    public NhaXuatBanDTO getNXBById(String maNXB) {
-//        String query = "SELECT * FROM NhaXuatBan WHERE maNXB = ?";
-//        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-//            pstmt.setString(1, maNXB);
-//            ResultSet rs = pstmt.executeQuery();
-//            if (rs.next()) {
-//                return new NhaXuatBanDTO(
-//                        rs.getString("maNXB"),
-//                        rs.getString("diachiNXB"),
-//                        rs.getString("sdt"),
-//                        rs.getString("tenNXB"));
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-//
-//    // Kiểm tra xem Nhà Xuất Bản có sách liên quan không
-//    public boolean hasRelatedBooks(String maNXB) {
-//        String query = "SELECT COUNT(*) FROM Sach WHERE maNXB = ?";
-//        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-//            pstmt.setString(1, maNXB);
-//            ResultSet rs = pstmt.executeQuery();
-//            if (rs.next() && rs.getInt(1) > 0) {
-//                return true; // Có sách liên quan
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return false; // Không có sách liên quan
-//    }
-//
-//    // Thêm Nhà Xuất Bản
-//    public boolean themNXB(NhaXuatBanDTO nxb) {
-//        String query = "INSERT INTO NhaXuatBan (maNXB, diachiNXB, sdt, tenNXB) VALUES (?, ?, ?, ?)";
-//        try (PreparedStatement p = conn.prepareStatement(query)) {
-//            p.setString(1, nxb.getManxb());
-//            p.setString(2, nxb.getDiachiNXB());
-//            p.setString(3, nxb.getSdt());
-//            p.setString(4, nxb.getTenNXB());
-//            return p.executeUpdate() > 0;
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-//    }
-//
-//    // Cập nhật Nhà Xuất Bản
-//    public boolean updateNXB(NhaXuatBanDTO nxb) {
-//        String query = "UPDATE NhaXuatBan SET diachiNXB=?, sdt=?, tenNXB=? WHERE maNXB=?";
-//        try (PreparedStatement p = conn.prepareStatement(query)) {
-//            p.setString(1, nxb.getDiachiNXB());
-//            p.setString(2, nxb.getSdt());
-//            p.setString(3, nxb.getTenNXB());
-//            p.setString(4, nxb.getManxb());
-//            return p.executeUpdate() > 0;
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-//    }
-//
-//    // Xóa Nhà Xuất Bản
-//    public boolean deleteNXB(String maNXB) {
-//        String query = "DELETE FROM NhaXuatBan WHERE maNXB=?";
-//        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-//            pstmt.setString(1, maNXB);
-//            return pstmt.executeUpdate() > 0;
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-//    }
 
     @Override
     public ArrayList<NhaXuatBanDTO> getALL() {
@@ -340,7 +246,6 @@ public class NhaXuatBanDAO implements DAOInterface<NhaXuatBanDTO> {
         return arr;
     }
 
-    
     public NhaXuatBanDTO getByName(String tennxb) {
         NhaXuatBanDTO nxb = null;
 
@@ -372,5 +277,82 @@ public class NhaXuatBanDAO implements DAOInterface<NhaXuatBanDTO> {
             conn.closeConnection();
         }
         return nxb;
+    }
+    // Phương thức lấy mã nhà xuất bản lớn nhất
+
+    public String getLastMaNXB() {
+        String lastMaNXB = null;
+        String sql = "SELECT TOP 1 maNXB FROM NhaXuatBan ORDER BY maNXB DESC";  // Lấy mã nhà xuất bản lớn nhất
+
+        try ( Connection conn = new Constant().getConnection(); // Kết nối với cơ sở dữ liệu
+                  Statement stmt = conn.createStatement();  ResultSet rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                lastMaNXB = rs.getString("maNXB");  // Lấy mã nhà xuất bản
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return lastMaNXB;  // Trả về mã nhà xuất bản lớn nhất
+    }
+
+    public boolean isPhoneNumberExists(String phoneNumber, String currentMaNXB) {
+        String sql;
+        boolean exists = false;
+
+        try {
+            conn.openConnection();
+
+            if (currentMaNXB == null || currentMaNXB.isEmpty()) {
+                // Kiểm tra số điện thoại có tồn tại khi thêm mới
+                sql = "SELECT COUNT(*) FROM NhaXuatBan WHERE sdt = ?";
+            } else {
+                // Kiểm tra số điện thoại có tồn tại khi sửa (loại trừ chính nó)
+                sql = "SELECT COUNT(*) FROM NhaXuatBan WHERE sdt = ? AND maNXB != ?";
+            }
+
+            PreparedStatement stmt = conn.getConnection().prepareStatement(sql);
+            stmt.setString(1, phoneNumber);
+
+            if (currentMaNXB != null && !currentMaNXB.isEmpty()) {
+                stmt.setString(2, currentMaNXB); // Chỉ set khi sửa
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                exists = rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi kiểm tra số điện thoại: " + e.getMessage());
+        } finally {
+            conn.closeConnection();
+        }
+
+        return exists;
+    }
+
+    public String NextMaNXB() {
+        String getMaxIdQuery = "SELECT MAX(maNXB) FROM NhaXuatBan";
+        String newId = "XB01"; // Mã mặc định nếu bảng trống
+
+        try {
+            conn.openConnection();
+            PreparedStatement psGetMax = conn.getConnection().prepareStatement(getMaxIdQuery);
+            ResultSet rs = psGetMax.executeQuery();
+
+            if (rs.next() && rs.getString(1) != null) {
+                String maxId = rs.getString(1); // VD: XB07
+                int num = Integer.parseInt(maxId.substring(2)) + 1;
+                newId = String.format("XB%02d", num); // VD: XB08
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi sinh mã mới: " + e.getMessage());
+        } finally {
+            conn.closeConnection();
+        }
+
+        return newId;
     }
 }

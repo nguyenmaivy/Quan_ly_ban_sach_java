@@ -6,6 +6,7 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
+
     Constant conn = new Constant();
 
     @Override
@@ -58,15 +59,15 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
         boolean result = false;
         try {
             conn.openConnection();
-            String query = "INSERT INTO TaiKhoan VALUES (?,?,?,?,?,?)";  
+            String query = "INSERT INTO TaiKhoan VALUES (?,?,?,?,?,?)";
             PreparedStatement ps = conn.getConnection().prepareStatement(query);
             ps.setString(2, tk.getSdt());
-            ps.setString(1, tk.getUseName());            
-            ps.setString(3, tk.getMatKhau());            
+            ps.setString(1, tk.getUseName());
+            ps.setString(3, tk.getMatKhau());
             ps.setString(4, tk.getMaNV());
-           // ps.setString(5, tk.getMaKH());
+            // ps.setString(5, tk.getMaKH());
             ps.setInt(6, tk.getMaNhomQuyen());
-            ps.setInt(7, tk.getTrangThai());
+            ps.setInt(5, tk.getTrangThai());
             if (ps.executeUpdate() > 0) {
                 result = true;
             }
@@ -102,14 +103,14 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
         boolean result = false;
         try {
             conn.openConnection();
-            String query = "UPDATE TaiKhoan SET useName = ?, matKhau = ?, maNV = ?,  maNhomQuyen = ? WHERE sdt = ?";
+            String query = "UPDATE TaiKhoan SET useName = ?, matKhau = ?,  maNhomQuyen = ? WHERE sdt = ?";
             PreparedStatement ps = conn.getConnection().prepareStatement(query);
             ps.setString(1, tk.getUseName());
-            ps.setString(2, tk.getMatKhau());            
-            ps.setString(3, tk.getMaNV());
-          //  ps.setString(4, tk.getMaKH());            
+            ps.setString(2, tk.getMatKhau());
+            ps.setString(3, tk.getSdt());
+            ps.setString(4, tk.getMaNV());        
             ps.setInt(5, tk.getMaNhomQuyen());
-            ps.setString(6, tk.getSdt());
+
             if (ps.executeUpdate() > 0) {
                 result = true;
             }
@@ -134,9 +135,9 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
                 tk = new TaiKhoanDTO();
                 tk.setSdt(rs.getString("sdt"));
                 tk.setUseName(rs.getString("useName"));
-                tk.setMatKhau(rs.getString("matKhau"));                
+                tk.setMatKhau(rs.getString("matKhau"));
                 tk.setMaNV(rs.getString("maNV"));
-               // tk.setMaKH(rs.getString("maKH"));
+                // tk.setMaKH(rs.getString("maKH"));
                 tk.setMaNhomQuyen(rs.getInt("maNhomQuyen"));
                 tk.setTrangThai(rs.getInt("trangThai"));
             }
@@ -154,27 +155,27 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
         try {
             conn.openConnection();
             String query = "SELECT * FROM TaiKhoan WHERE "
-                         + "useName LIKE ? OR "
-                         + "matKhau LIKE ? OR "
-                         + "sdt LIKE ? OR "
-                         + "maNV LIKE ? OR "
-                        // + "maKH LIKE ?  ";
-                         + "maNhomQuyen = ? ";
+                    + "useName LIKE ? OR "
+                    + "matKhau LIKE ? OR "
+                    + "sdt LIKE ? OR "
+                    + "maNV LIKE ? OR "
+                    // + "maKH LIKE ?  ";
+                    + "maNhomQuyen = ? ";
             // Kiểm tra nếu searchContent là số, mới thêm điều kiện cho maNhomQuyen
-        boolean isNumber = searchContent.matches("\\d+");
-        if (isNumber) {
-            query += " OR maNhomQuyen = ? ";
-        }
+            boolean isNumber = searchContent.matches("\\d+");
+            if (isNumber) {
+                query += " OR maNhomQuyen = ? ";
+            }
             PreparedStatement ps = conn.getConnection().prepareStatement(query);
             ps.setString(1, "%" + searchContent + "%");
             ps.setString(2, "%" + searchContent + "%");
             ps.setString(3, "%" + searchContent + "%");
             ps.setString(4, "%" + searchContent + "%");
-            
+
             ps.setString(5, "%" + Integer.parseInt(searchContent) + "%");
             if (isNumber) {
-        ps.setInt(6, Integer.parseInt(searchContent)); // Chỉ set giá trị nếu là số
-    }
+                ps.setInt(6, Integer.parseInt(searchContent)); // Chỉ set giá trị nếu là số
+            }
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 TaiKhoanDTO tk = new TaiKhoanDTO();
@@ -182,7 +183,7 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
                 tk.setMatKhau(rs.getString("matKhau"));
                 tk.setSdt(rs.getString("sdt"));
                 tk.setMaNV(rs.getString("maNV"));
-               // tk.setMaKH(rs.getString("maKH"));
+                // tk.setMaKH(rs.getString("maKH"));
                 tk.setMaNhomQuyen(rs.getInt("maNhomQuyen"));
                 arr.add(tk);
             }

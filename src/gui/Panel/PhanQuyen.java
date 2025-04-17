@@ -75,7 +75,7 @@ public class PhanQuyen extends JPanel implements ActionListener, ItemListener {
         functionBar.setLayout(new GridLayout(1, 2, 50, 0));
         functionBar.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        String[] actionStrings = { "delete", "detail", "export"};
+        String[] actionStrings = {"delete", "detail", "export"};
         mainFunction = new MainFunction(SOMEBITS, "nhomquyen", actionStrings);
         for (String ac : actionStrings) {
             mainFunction.btn.get(ac).addActionListener(this);
@@ -84,9 +84,9 @@ public class PhanQuyen extends JPanel implements ActionListener, ItemListener {
 
         search = new IntegratedSearch(new String[]{"Tất cả", "Mã nhóm quyền", "Tên nhóm quyền"});
         search.cbxChoose.addItemListener(this);
-        search.txtSearchForm.addKeyListener(new KeyAdapter(){
+        search.txtSearchForm.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyReleased(KeyEvent e){
+            public void keyReleased(KeyEvent e) {
                 String type = (String) search.cbxChoose.getSelectedItem();
                 String txt = search.txtSearchForm.getText();
                 pqdao = PhanQuyenBUS.search(txt);
@@ -94,7 +94,7 @@ public class PhanQuyen extends JPanel implements ActionListener, ItemListener {
             }
         });
         search.btnReset.addActionListener(this);
-        
+
         functionBar.add(search);
 
         contentCenter.add(functionBar, BorderLayout.NORTH);
@@ -165,12 +165,9 @@ public class PhanQuyen extends JPanel implements ActionListener, ItemListener {
                 JOptionPane.showMessageDialog(null, "Vui lòng chọn một nhóm quyền để xóa!");
             }
         } else if (source == mainFunction.btn.get("export")) {
-            try {
-                JTableExporter.exportJTableToExcel(tblnhomquyen);
-                JOptionPane.showMessageDialog(null, "Xuất Excel thành công!");
-            } catch (IOException ex) {
-                Logger.getLogger(PhanQuyen.class.getName()).log(Level.SEVERE, null, ex);
-                JOptionPane.showMessageDialog(null, "Lỗi khi xuất Excel!");
+            boolean success = JTableExporter.exportJTableToExcel(tblnhomquyen);
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!");
             }
         } else if (source == this.search.btnReset) {
             loadDataTable(PhanQuyenBUS.getALL()); // Reset lại bảng danh sách nhóm quyền

@@ -65,6 +65,10 @@ public class NhaXuatBanDialog extends JDialog implements ActionListener {
                 btnAdd = new ButtonCustom("Thêm", "success", 14);
                 btnAdd.addActionListener(this);
                 jpBottom.add(btnAdd);
+                // Set mã nhà xuất bản tự sinh lên txtMaNXB
+                String nextMa = nhaXuatBanBUS.getNextMaNXB();
+                txtMaNXB.setText(nextMa);
+                txtMaNXB.setEditable(false); // Không cho sửa
             }
             case "update" -> {
                 btnUpdate = new ButtonCustom("Cập nhật", "success", 14);
@@ -75,6 +79,21 @@ public class NhaXuatBanDialog extends JDialog implements ActionListener {
                     txtTenNXB.setText(nhaXuatBanDTO.getTenNXB());
                     txtSdt.setText(nhaXuatBanDTO.getSdt());
                     txtDiachi.setText(nhaXuatBanDTO.getDiachiNXB());
+                }
+            }
+            case "detail" -> {
+                if (nhaXuatBanDTO != null) {
+                    txtMaNXB.setText(nhaXuatBanDTO.getMaNXB());
+                    txtTenNXB.setText(nhaXuatBanDTO.getTenNXB());
+                    txtDiachi.setText(nhaXuatBanDTO.getDiachiNXB());
+                    txtSdt.setText(nhaXuatBanDTO.getSdt());
+
+                    // Set các field thành không chỉnh sửa
+                    txtMaNXB.setEditable(false);
+                    txtTenNXB.setEditable(false);
+                    txtDiachi.setEditable(false);
+                    txtSdt.setEditable(false);
+
                 }
             }
         }
@@ -92,30 +111,76 @@ public class NhaXuatBanDialog extends JDialog implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         if (source == btnAdd) {
-            NhaXuatBanDTO newNXB = new NhaXuatBanDTO();
-            newNXB.setMaNXB(txtMaNXB.getText());
-            newNXB.setTenNXB(txtTenNXB.getText());
-            newNXB.setSdt(txtSdt.getText());
-            newNXB.setDiachiNXB(txtDiachi.getText());
-            String result = nhaXuatBanBUS.addNhaXuatBan(newNXB);
-            JOptionPane.showMessageDialog(this, result);
-            dispose();
+            String tenNXB = txtTenNXB.getText().trim();
+            String diachi = txtDiachi.getText().trim();
+            String sdt = txtSdt.getText().trim();
 
-            JOptionPane.showMessageDialog(this, "Thêm nhà xuất bản thành công!");
-            dispose();
-        } else if (source == btnUpdate) {
-            if (nhaXuatBanDTO != null) {
-                nhaXuatBanDTO.setMaNXB(txtMaNXB.getText());
-                nhaXuatBanDTO.setTenNXB(txtTenNXB.getText());
-                nhaXuatBanDTO.setSdt(txtSdt.getText());
-                nhaXuatBanDTO.setDiachiNXB(txtDiachi.getText());
-                String result = nhaXuatBanBUS.updateNhaXuatBan(nhaXuatBanDTO);
-                JOptionPane.showMessageDialog(this, result);
-                dispose();
-
-                JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
-                dispose();
+            // Kiểm tra rỗng
+            if (tenNXB.isEmpty() || diachi.isEmpty() || sdt.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            // Kiểm tra số điện thoại (10 chữ số, bắt đầu bằng 0)
+            if (!sdt.matches("^0\\d{9}$")) {
+                JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ! Phải có 10 chữ số và bắt đầu bằng 0.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String maMoi = nhaXuatBanBUS.getNextMaNXB();
+
+            // Tạo đối tượng NXB mới và thêm vào CSDL
+            NhaXuatBanDTO newNXB = new NhaXuatBanDTO();
+            newNXB.setMaNXB(maMoi);
+            newNXB.setTenNXB(tenNXB);
+            newNXB.setDiachiNXB(diachi);
+            newNXB.setSdt(sdt);
+
+            // Gọi BUS để thêm nhà xuất bản
+            String result = nhaXuatBanBUS.addNhaXuatBan(newNXB);
+
+            // Hiển thị thông báo kết quả
+            if (result.equals("Số điện thoại đã tồn tại. Vui lòng nhập số khác!")) {
+                JOptionPane.showMessageDialog(this, result, "Lỗi", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, result);
+
+                if (result.equals("Thêm nhà xuất bản thành công")) {
+                    dispose(); // Đóng cửa sổ khi thêm thành công
+                }
+            }
+
+        } else if (source == btnUpdate) {
+            String tenNXB = txtTenNXB.getText().trim();
+            String diachi = txtDiachi.getText().trim();
+            String sdt = txtSdt.getText().trim();
+
+            // Kiểm tra rỗng
+            if (tenNXB.isEmpty() || diachi.isEmpty() || sdt.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Kiểm tra số điện thoại (10 chữ số, bắt đầu bằng 0)
+            if (!sdt.matches("^0\\d{9}$")) {
+                JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ! Phải có 10 chữ số và bắt đầu bằng 0.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Cập nhật thông tin
+            nhaXuatBanDTO.setTenNXB(tenNXB);
+            nhaXuatBanDTO.setDiachiNXB(diachi);
+            nhaXuatBanDTO.setSdt(sdt);
+
+            String result = nhaXuatBanBUS.updateNhaXuatBan(nhaXuatBanDTO);
+
+            if (result.equals("Cập nhật nhà xuất bản thành công!")) {
+                JOptionPane.showMessageDialog(this, result, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                dispose(); // Đóng form sau khi cập nhật
+            } else {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy nhà xuất bản!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+
         } else if (source == btnCancel) {
             dispose();
         }

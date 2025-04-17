@@ -23,6 +23,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -34,10 +35,17 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import net.miginfocom.layout.UnitValue;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class NhaXuatBan extends JPanel implements ActionListener {
 
@@ -77,13 +85,36 @@ public class NhaXuatBan extends JPanel implements ActionListener {
         functionBar.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         String[] acStrings = {"create", "update", "delete", "detail", "export"};
-        mainFunction = new MainFunction(SOMEBITS, "tacgia", acStrings);
+        mainFunction = new MainFunction(SOMEBITS, "nhaxuatban", acStrings);
         for (String ac : acStrings) {
             mainFunction.btn.get(ac).addActionListener(this);
         }
         functionBar.add(mainFunction);
 
-        search = new IntegratedSearch(new String[]{"Tất cả"});
+        search = new IntegratedSearch(new String[]{"Tất cả", "Mã nhà xuất bản", "Tên nhà xuất bản", "Địa chỉ", "Số điện thoại"});
+        search.txtSearchForm.addKeyListener(new KeyListener() {
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                searchData();
+            }
+        });
+
+        search.cbxChoose.addItemListener(new ItemListener() {
+
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                searchData();  // Khi đổi tiêu chí tìm kiếm, cũng lọc lại
+            }
+        });
         functionBar.add(search);
 
         contentCenter.add(functionBar, BorderLayout.NORTH);
@@ -125,7 +156,7 @@ public class NhaXuatBan extends JPanel implements ActionListener {
             NhaXuatBanDialog dialog = new NhaXuatBanDialog(nxbBUS,
                     (JFrame) SwingUtilities.getWindowAncestor(this),
                     "Thêm Nhà Xuất Bản", true, "create", null);
-//            loadDataTable();  // Cập nhật bảng sau khi thêm
+            loadDataTable();  // Cập nhật bảng sau khi thêm
 
         } else if (source == mainFunction.btn.get("update")) {
             int selectedRow = tblnxb.getSelectedRow();
@@ -135,7 +166,7 @@ public class NhaXuatBan extends JPanel implements ActionListener {
             }
 
             String maNXB = tbModel.getValueAt(selectedRow, 0).toString();
-            NhaXuatBanDTO nhaXuatBan = nxbBUS.getByName(maNXB);
+            NhaXuatBanDTO nhaXuatBan = nxbBUS.getByID(maNXB);
 
             if (nhaXuatBan != null) {
                 NhaXuatBanDialog dialog = new NhaXuatBanDialog(nxbBUS,
@@ -159,6 +190,25 @@ public class NhaXuatBan extends JPanel implements ActionListener {
                 JOptionPane.showMessageDialog(this, result);
                 loadDataTable();  // Cập nhật bảng sau khi xóa
             }
+        } else if (source == mainFunction.btn.get("detail")) {
+            int selectedRow = tblnxb.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một nhà xuất bản để xem chi tiết!");
+                return;
+            }
+
+            String manxb = tbModel.getValueAt(selectedRow, 0).toString();
+            NhaXuatBanDTO nhaXuatBan = nxbBUS.getByID(manxb);
+
+            if (nhaXuatBan != null) {
+                NhaXuatBanDialog dialog = new NhaXuatBanDialog(nxbBUS,
+                        (JFrame) SwingUtilities.getWindowAncestor(this),
+                        "Chi tiết Nhà Xuất Bản", true, "detail", nhaXuatBan);
+                // Không load lại bảng vì không có thay đổi
+            } else {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy nhà xuất bản!");
+            }
+
         } else if (source == mainFunction.btn.get("export")) {
             try {
                 JTableExporter.exportJTableToExcel(tblnxb);
@@ -168,6 +218,7 @@ public class NhaXuatBan extends JPanel implements ActionListener {
             }
         }
     }
+
     // chưa có lấy dữ liệu ra nên có thế sửa lại bus, dao
     private void loadDataTable() {
         NhaXuatBanBUS nxbBUS = new NhaXuatBanBUS();
@@ -185,6 +236,94 @@ public class NhaXuatBan extends JPanel implements ActionListener {
                 nxb.getDiachiNXB()
             });
 
+        }
+    }
+
+    private void searchData() {
+        String keyword = search.txtSearchForm.getText().trim().toLowerCase();
+        String category = search.cbxChoose.getSelectedItem().toString();
+
+        NhaXuatBanBUS nxbBUS = new NhaXuatBanBUS();
+        ArrayList<NhaXuatBanDTO> list = nxbBUS.getAllNhaXuatBan();
+
+        tbModel.setRowCount(0); // Clear bảng trước
+
+        for (NhaXuatBanDTO nxb : list) {
+            String ma = (nxb.getMaNXB() != null) ? nxb.getMaNXB().toLowerCase() : "";
+            String ten = (nxb.getTenNXB() != null) ? nxb.getTenNXB().toLowerCase() : "";
+            String sdt = (nxb.getSdt() != null) ? nxb.getSdt().toLowerCase() : "";
+            String diachi = (nxb.getDiachiNXB() != null) ? nxb.getDiachiNXB().toLowerCase() : "";
+
+            boolean match = false;
+
+            switch (category) {
+                case "Tất cả":
+                    match = ma.contains(keyword) || ten.contains(keyword) || sdt.contains(keyword) || diachi.contains(keyword);
+                    break;
+                case "Mã nhà xuất bản":
+                    match = ma.contains(keyword);
+                    break;
+                case "Tên nhà xuất bản":
+                    match = ten.contains(keyword);
+                    break;
+                case "Địa chỉ":
+                    match = diachi.contains(keyword);
+                    break;
+                case "Số điện thoại":
+                    match = sdt.contains(keyword);
+                    break;
+            }
+
+            if (match) {
+                tbModel.addRow(new Object[]{
+                    nxb.getMaNXB(), nxb.getTenNXB(), nxb.getDiachiNXB(), nxb.getSdt(),});
+            }
+        }
+    }
+
+    public class JTableExporter {
+
+        public static void exportJTableToExcel(JTable table) throws IOException {
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Nha Xuat Ban");
+
+            TableModel model = table.getModel();
+
+            // Tạo dòng tiêu đề
+            Row headerRow = sheet.createRow(0);
+            for (int col = 0; col < model.getColumnCount(); col++) {
+                Cell cell = headerRow.createCell(col);
+                cell.setCellValue(model.getColumnName(col));
+            }
+
+            // Ghi dữ liệu
+            for (int row = 0; row < model.getRowCount(); row++) {
+                Row excelRow = sheet.createRow(row + 1);
+                for (int col = 0; col < model.getColumnCount(); col++) {
+                    Cell cell = excelRow.createCell(col);
+                    Object value = model.getValueAt(row, col);
+                    cell.setCellValue(value != null ? value.toString() : "");
+                }
+            }
+
+            // Mở hộp thoại lưu file
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
+            fileChooser.setFileFilter(new FileNameExtensionFilter("Excel files", "xlsx"));
+
+            int userSelection = fileChooser.showSaveDialog(null);
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                String savePath = fileChooser.getSelectedFile().getAbsolutePath();
+                if (!savePath.toLowerCase().endsWith(".xlsx")) {
+                    savePath += ".xlsx";
+                }
+
+                try ( FileOutputStream fileOut = new FileOutputStream(savePath)) {
+                    workbook.write(fileOut);
+                }
+            }
+
+            workbook.close();
         }
     }
 }
