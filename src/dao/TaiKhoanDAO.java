@@ -65,14 +65,14 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
             ps.setString(1, tk.getUseName());
             ps.setString(3, tk.getMatKhau());
             ps.setString(4, tk.getMaNV());
-            // ps.setString(5, tk.getMaKH());
+            ps.setInt(5, 1);
             ps.setInt(6, tk.getMaNhomQuyen());
-            ps.setInt(5, tk.getTrangThai());
+
             if (ps.executeUpdate() > 0) {
                 result = true;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Lỗi khi thêm tài khoản:" + e.getMessage());
         } finally {
             conn.closeConnection();
         }
@@ -103,13 +103,13 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
         boolean result = false;
         try {
             conn.openConnection();
-            String query = "UPDATE TaiKhoan SET useName = ?, matKhau = ?,  maNhomQuyen = ? WHERE sdt = ?";
+            String query = "UPDATE TaiKhoan SET useName = ?, matKhau = ?,  maNV = ?, maNhomQuyen = ? WHERE sdt = ?";
             PreparedStatement ps = conn.getConnection().prepareStatement(query);
             ps.setString(1, tk.getUseName());
             ps.setString(2, tk.getMatKhau());
-            ps.setString(3, tk.getSdt());
-            ps.setString(4, tk.getMaNV());        
-            ps.setInt(5, tk.getMaNhomQuyen());
+            ps.setString(3, tk.getMaNV());
+            ps.setInt(4, tk.getMaNhomQuyen());
+            ps.setString(5, tk.getSdt());
 
             if (ps.executeUpdate() > 0) {
                 result = true;
@@ -137,9 +137,8 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
                 tk.setUseName(rs.getString("useName"));
                 tk.setMatKhau(rs.getString("matKhau"));
                 tk.setMaNV(rs.getString("maNV"));
-                // tk.setMaKH(rs.getString("maKH"));
-                tk.setMaNhomQuyen(rs.getInt("maNhomQuyen"));
                 tk.setTrangThai(rs.getInt("trangThai"));
+                tk.setMaNhomQuyen(rs.getInt("maNhomQuyen"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -159,7 +158,6 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
                     + "matKhau LIKE ? OR "
                     + "sdt LIKE ? OR "
                     + "maNV LIKE ? OR "
-                    // + "maKH LIKE ?  ";
                     + "maNhomQuyen = ? ";
             // Kiểm tra nếu searchContent là số, mới thêm điều kiện cho maNhomQuyen
             boolean isNumber = searchContent.matches("\\d+");
@@ -183,7 +181,6 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
                 tk.setMatKhau(rs.getString("matKhau"));
                 tk.setSdt(rs.getString("sdt"));
                 tk.setMaNV(rs.getString("maNV"));
-                // tk.setMaKH(rs.getString("maKH"));
                 tk.setMaNhomQuyen(rs.getInt("maNhomQuyen"));
                 arr.add(tk);
             }
@@ -194,4 +191,44 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
         }
         return arr;
     }
+
+    public ArrayList<String> getDSMaNVChuaCoTaiKhoan() {
+        ArrayList<String> listMaNV = new ArrayList<>();
+        try {
+            conn.openConnection();
+            String query = "SELECT maNV FROM NhanVien WHERE maNV NOT IN (SELECT maNV FROM TaiKhoan)";
+
+            PreparedStatement ps = conn.getConnection().prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                listMaNV.add(rs.getString("maNV"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            conn.closeConnection();  // Đảm bảo đóng kết nối
+        }
+        return listMaNV;
+    }
+
+//    Phương thức lấy số điện thoại của nhân viên từ bảng NhanVien
+    public String getSdtNV(String maNV) {
+
+        String sdt = null;
+        try {
+            conn.openConnection();
+            String query = "SELECT sdt FROM NhanVien WHERE maNV = ?";
+            PreparedStatement ps = conn.getConnection().prepareStatement(query);
+            ps.setString(1, maNV);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                sdt = rs.getString("sdt");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return sdt;
+    }
+
 }

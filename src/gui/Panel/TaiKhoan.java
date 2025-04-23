@@ -49,7 +49,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class TaiKhoan extends JPanel implements ActionListener {
-
+    public JFrame owner = (JFrame) SwingUtilities.getWindowAncestor(this);
     PanelBorderRadius main, functionBar;
     JPanel contentCenter;
     JTable tbltk;
@@ -209,11 +209,9 @@ public class TaiKhoan extends JPanel implements ActionListener {
             }
 
         } else if (source == mainFunction.btn.get("export")) {
-            try {
-                JTableExporter.exportJTableToExcel(tbltk);
+            boolean success = JTableExporter.exportJTableToExcel(tbltk);
+            if (success) {
                 JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!");
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, "Xuất file thất bại: " + ex.getMessage());
             }
         }
     }
@@ -283,54 +281,5 @@ public class TaiKhoan extends JPanel implements ActionListener {
         }
     }
 
-    public class JTableExporter {
-
-        public static void exportJTableToExcel(JTable table) throws IOException {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
-            fileChooser.setFileFilter(new FileNameExtensionFilter("Excel Files", "xlsx"));
-
-            int userSelection = fileChooser.showSaveDialog(null);
-
-            if (userSelection == JFileChooser.APPROVE_OPTION) {
-                String filePath = fileChooser.getSelectedFile().getAbsolutePath();
-                if (!filePath.toLowerCase().endsWith(".xlsx")) {
-                    filePath += ".xlsx";
-                }
-
-                Workbook workbook = new XSSFWorkbook();
-                Sheet sheet = workbook.createSheet("Danh sách tài khoản");
-
-                TableModel model = table.getModel();
-
-                // Tạo header
-                Row headerRow = sheet.createRow(0);
-                for (int col = 0; col < model.getColumnCount(); col++) {
-                    Cell cell = headerRow.createCell(col);
-                    cell.setCellValue(model.getColumnName(col));
-                }
-
-                // Ghi dữ liệu
-                for (int row = 0; row < model.getRowCount(); row++) {
-                    Row dataRow = sheet.createRow(row + 1);
-                    for (int col = 0; col < model.getColumnCount(); col++) {
-                        Cell cell = dataRow.createCell(col);
-                        Object value = model.getValueAt(row, col);
-                        cell.setCellValue(value != null ? value.toString() : "");
-                    }
-                }
-
-                // Tự động căn chỉnh độ rộng cột
-                for (int i = 0; i < model.getColumnCount(); i++) {
-                    sheet.autoSizeColumn(i);
-                }
-
-                FileOutputStream fos = new FileOutputStream(filePath);
-                workbook.write(fos);
-                fos.close();
-                workbook.close();
-            }
-        }
-    }
 
 }

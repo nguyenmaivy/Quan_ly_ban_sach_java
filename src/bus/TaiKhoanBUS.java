@@ -12,24 +12,14 @@ import bus.PhanQuyenBUS;
 import dto.NhaXuatBanDTO;
 
 public class TaiKhoanBUS {
-
-    private TaiKhoanDAO tkDAO = new TaiKhoanDAO();
-    private NhanVienBUS nvBUS = new NhanVienBUS();
+    private TaiKhoanDAO tkDAO = new TaiKhoanDAO();    
     private PhanQuyenBUS pqBUS = new PhanQuyenBUS();
-
+    
     // Lấy danh sách tất cả tài khoản
     public ArrayList<TaiKhoanDTO> getAllTaiKhoan() {
         return tkDAO.getALL();
-    }
-
-    public ArrayList<String> getAllMaNhanVien() {
-        ArrayList<String> dsMaNV = new ArrayList<>();
-        for (NhanVienDTO nv : nvBUS.getAllNhanVien()) {
-            dsMaNV.add(nv.getMaNV());
-        }
-        return dsMaNV;
-    }
-
+    }    
+    
     public ArrayList<Integer> getAllMaNhomQuyen() {
         ArrayList<Integer> dsMaNQ = new ArrayList<>();
         for (nhomQuyenDTO nq : pqBUS.getALL()) {
@@ -39,26 +29,24 @@ public class TaiKhoanBUS {
     }
 
     // Thêm tài khoản mới, kiểm tra sdt là duy nhất
-    public String addTaiKhoan(TaiKhoanDTO tk) {
-        if (tk.getUseName().trim().isEmpty()
-                || tk.getMatKhau().trim().isEmpty()
-                || tk.getMaNV().trim().isEmpty()
-                || tk.getMaNhomQuyen() <= 0
-                || tk.getSdt().trim().isEmpty()) {
+   public String addTaiKhoan(TaiKhoanDTO tk) {    
+    if (tk.getUseName().trim().isEmpty() ||
+            tk.getMatKhau() .trim().isEmpty() ||
+            tk.getMaNV() .trim().isEmpty() ||
+            tk.getMaNhomQuyen() <=0) {
             return "Vui lòng nhập đầy đủ thông tin";
         }
+    
+        // Lấy số điện thoại từ mã nhân viên
+        String sdt = getSdtByMaNV(tk.getMaNV());       
 
-        // Kiểm tra định dạng số điện thoại
-        if (!tk.getSdt().matches("^0\\d{9}$")) {
-            return "Số điện thoại không hợp lệ! Phải có 10 chữ số và bắt đầu bằng số 0.";
-        }
-
-        if (tkDAO.has(tk.getSdt())) {
-            return "Số điện thoại tài khoản đã tồn tại";
-        }
+        // Gán số điện thoại vào tài khoản
+        tk.setSdt(sdt);        
 
         return tkDAO.add(tk) ? "Thêm tài khoản thành công" : "Thêm tài khoản thất bại";
     }
+
+
 
     // Xóa tài khoản theo sdt (khóa chính)
     public String deleteTaiKhoan(String sdt) {
@@ -73,6 +61,8 @@ public class TaiKhoanBUS {
 
     // Cập nhật thông tin tài khoản
     public String updateTaiKhoan(TaiKhoanDTO tk) {
+       
+        
         if (!tkDAO.has(tk.getSdt())) { // Kiểm tra xem tài khoản có tồn tại không
             return "Số điện thoại không tồn tại";
         }
@@ -85,7 +75,8 @@ public class TaiKhoanBUS {
     // Tìm tài khoản theo sdt (vì sdt là khóa chính)
     public TaiKhoanDTO getBySdt(String sdt) {
         return tkDAO.getByID(sdt);
-    }
+    }      
+    
 
     // Thêm phương thức mới để lấy tài khoản theo username
     public TaiKhoanDTO getByUsername(String username) {
@@ -106,8 +97,8 @@ public class TaiKhoanBUS {
         }
         return tk.getMatKhau().equals(password) && tk.getTrangThai() == 1;
     }
-
-    public ArrayList<TaiKhoanDTO> searchNhaXuatBan(String searchContent) {
+    
+     public ArrayList<TaiKhoanDTO> search(String searchContent) {
         if (searchContent == null || searchContent.trim().isEmpty()) {
             // Nếu không có nội dung tìm kiếm, trả về toàn bộ danh sách
             return tkDAO.getALL();
@@ -115,5 +106,15 @@ public class TaiKhoanBUS {
 
         return tkDAO.search(searchContent.trim());
     }
+     
+    // Lấy danh sách mã nhân viên chưa có tài khoản
+    public ArrayList<String> getDanhSachMaNVChuaCoTK() {
+        return tkDAO.getDSMaNVChuaCoTaiKhoan();
+    }
+
+    public String getSdtByMaNV(String maNV) {        
+        return tkDAO.getSdtNV(maNV); 
+    }
 
 }
+

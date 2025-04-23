@@ -29,11 +29,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BoxLayout;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -44,6 +46,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class TacGia extends JPanel implements ActionListener, ItemListener {
 
+    public JFrame owner = (JFrame) SwingUtilities.getWindowAncestor(this);
     PanelBorderRadius main, functionBar;
     JPanel contentCenter;
     JTable tbltacgia;

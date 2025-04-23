@@ -21,7 +21,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
 public class Sach extends JPanel implements ActionListener {
-
+    public JFrame owner = (JFrame) SwingUtilities.getWindowAncestor(this);
     PanelBorderRadius main, functionBar;
     JPanel contentCenter;
     JTable tblSach;

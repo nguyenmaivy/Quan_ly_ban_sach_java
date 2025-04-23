@@ -37,7 +37,7 @@ import javax.swing.table.TableColumnModel;
 
 public class PhanQuyen extends JPanel implements ActionListener, ItemListener {
 
-    JFrame owner = (JFrame) SwingUtilities.getWindowAncestor(this);
+    public JFrame owner = (JFrame) SwingUtilities.getWindowAncestor(this);
     PanelBorderRadius main, functionBar;
     JPanel contentCenter;
     JTable tblnhomquyen;

@@ -21,7 +21,7 @@ import gui.Main;
 import helper.JTableExporter;
 
 public class TheLoai extends JPanel implements ActionListener {
-
+    public JFrame owner = (JFrame) SwingUtilities.getWindowAncestor(this);
     PanelBorderRadius main, functionBar;
     JPanel contentCenter;
     JTable tblTheLoai;

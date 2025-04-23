@@ -17,14 +17,15 @@ import javax.swing.border.EmptyBorder;
 public class TaiKhoanDialog extends JDialog implements ActionListener {
 
     private JLabel lblUsername, lblMatKhau, lblSdt, lblMaNhanVien, lblMaNhomQuyen;
-    private JTextField txtUsername, txtSdt, txtMaNhanVien;
-    private JComboBox<String> cbMaNhomQuyen;
+    private JTextField txtUsername, txtSdt;
+    private JComboBox<String> cbMaNhanVien, cbMaNhomQuyen;
 
     private JPasswordField txtMatKhau;
     private JPanel jpTop, jpBottom;
     private ButtonCustom btnAdd, btnUpdate, btnCancel, btnDetail;
     private TaiKhoanBUS taiKhoanBUS;
     private TaiKhoanDTO taiKhoanDTO;
+    private NhanVienBUS nhanVienBUS;
 
     public TaiKhoanDialog(TaiKhoanBUS bus, JFrame owner, String title, boolean modal, String type, TaiKhoanDTO dto) {
         super(owner, title, modal);
@@ -51,14 +52,16 @@ public class TaiKhoanDialog extends JDialog implements ActionListener {
         txtUsername = new JTextField();
         txtMatKhau = new JPasswordField();
         txtSdt = new JTextField();
-        txtMaNhanVien = new JTextField();
+        cbMaNhanVien = new JComboBox<>();
         cbMaNhomQuyen = new JComboBox<>();
+
+        nhanVienBUS = new NhanVienBUS();
 
         // Tạo đối tượng BUS để gọi phương thức
         PhanQuyenBUS pqBUS = new PhanQuyenBUS();
 
         // Lấy danh sách mã nhóm quyền
-        List<nhomQuyenDTO> dsNQ = pqBUS.getALL();  // Hàm phải tên đúng là getAll() nhé
+        List<nhomQuyenDTO> dsNQ = pqBUS.getALL();
         for (nhomQuyenDTO nq : dsNQ) {
             cbMaNhomQuyen.addItem(String.valueOf(nq.getMaNhomQuyen()));
         }
@@ -70,7 +73,7 @@ public class TaiKhoanDialog extends JDialog implements ActionListener {
         jpTop.add(lblSdt);
         jpTop.add(txtSdt);
         jpTop.add(lblMaNhanVien);
-        jpTop.add(txtMaNhanVien);
+        jpTop.add(cbMaNhanVien);
         jpTop.add(lblMaNhomQuyen);
         jpTop.add(cbMaNhomQuyen);
 
@@ -83,6 +86,24 @@ public class TaiKhoanDialog extends JDialog implements ActionListener {
                 btnAdd = new ButtonCustom("Thêm", "success", 14);
                 btnAdd.addActionListener(this);
                 jpBottom.add(btnAdd);
+
+                taiKhoanBUS = new TaiKhoanBUS(); // đảm bảo BUS được khởi tạo
+                // Lấy danh sách mã nhân viên chưa có tài khoản
+                List<String> dsMaNV = taiKhoanBUS.getDanhSachMaNVChuaCoTK();
+                for (String maNV : dsMaNV) {
+                    cbMaNhanVien.addItem(maNV);
+                }
+                cbMaNhanVien.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        String maNV = (String) cbMaNhanVien.getSelectedItem();
+                        if (maNV != null) {
+                            String sdt = taiKhoanBUS.getSdtByMaNV(maNV); // gọi từ BUS
+                            txtSdt.setText(sdt);
+                        }
+                    }
+                });
+
             }
             case "update" -> {
                 btnUpdate = new ButtonCustom("Cập nhật", "success", 14);
@@ -93,29 +114,28 @@ public class TaiKhoanDialog extends JDialog implements ActionListener {
                     txtMatKhau.setText(taiKhoanDTO.getMatKhau());
                     txtSdt.setText(taiKhoanDTO.getSdt());
                     txtSdt.setEditable(false);
-                    txtMaNhanVien.setText(taiKhoanDTO.getMaNV());
-                    txtMaNhanVien.setEditable(false);
+                    // Set mã nhân viên vào ComboBox và disable nó
+                    cbMaNhanVien.addItem(taiKhoanDTO.getMaNV());  // add mã nhân viên hiện tại
+                    cbMaNhanVien.setSelectedItem(taiKhoanDTO.getMaNV());
+                    cbMaNhanVien.setEnabled(false); // không cho sửa                  
                     cbMaNhomQuyen.setSelectedItem(String.valueOf(taiKhoanDTO.getMaNhomQuyen()));
 
                 }
             }
             case "detail" -> {
-//                btnDetail = new ButtonCustom("Đóng", "info", 14);
-//                btnDetail.addActionListener(this);
-//                jpBottom.add(btnDetail);
-
                 if (taiKhoanDTO != null) {
                     txtUsername.setText(taiKhoanDTO.getUseName());
                     txtMatKhau.setText(taiKhoanDTO.getMatKhau());
                     txtSdt.setText(taiKhoanDTO.getSdt());
-                    txtMaNhanVien.setText(taiKhoanDTO.getMaNV());
+                    cbMaNhanVien.addItem(taiKhoanDTO.getMaNV());
+                    cbMaNhanVien.setSelectedItem(String.valueOf(taiKhoanDTO.getMaNV()));
                     cbMaNhomQuyen.setSelectedItem(String.valueOf(taiKhoanDTO.getMaNhomQuyen()));
 
                     // Set các field thành không chỉnh sửa
                     txtUsername.setEditable(false);
                     txtMatKhau.setEditable(false);
                     txtSdt.setEditable(false);
-                    txtMaNhanVien.setEnabled(false);
+                    cbMaNhanVien.setEnabled(false);
                     cbMaNhomQuyen.setEnabled(false);
 
                 }
@@ -130,6 +150,7 @@ public class TaiKhoanDialog extends JDialog implements ActionListener {
         this.add(jpTop, BorderLayout.CENTER);
         this.add(jpBottom, BorderLayout.SOUTH);
         this.setVisible(true);
+
     }
 
     @Override
@@ -140,18 +161,13 @@ public class TaiKhoanDialog extends JDialog implements ActionListener {
 
             String username = txtUsername.getText().trim();
             String matKhau = new String(txtMatKhau.getPassword()).trim();
-            String sdt = txtSdt.getText().trim();
-            String maNV = txtMaNhanVien.getText().trim();
+            //String sdt = txtSdt.getText().trim();
+            String maNV = (String) cbMaNhanVien.getSelectedItem();
             String maNhomQuyenStr = (String) cbMaNhomQuyen.getSelectedItem();
-
-            if (username.isEmpty() || matKhau.isEmpty() || sdt.isEmpty() || maNV.isEmpty() || maNhomQuyenStr == null) {
+            // Lấy SĐT từ BUS dựa vào mã nhân viên
+            String sdt = taiKhoanBUS.getSdtByMaNV(maNV);
+            if (username.isEmpty() || matKhau.isEmpty() || maNV == null || maNhomQuyenStr == null) {
                 JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Kiểm tra số điện thoại đúng định dạng: bắt đầu bằng 0 và đủ 10 chữ số
-            if (!sdt.matches("^0\\d{9}$")) {
-                JOptionPane.showMessageDialog(this, "Số điện thoại phải bắt đầu bằng 0 và có đúng 10 chữ số!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -177,7 +193,7 @@ public class TaiKhoanDialog extends JDialog implements ActionListener {
                 // Lấy dữ liệu từ các ô nhập
                 String username = txtUsername.getText().trim();
                 String matKhau = new String(txtMatKhau.getPassword()).trim();
-                String maNV = txtMaNhanVien.getText().trim();
+                String maNV = (String) cbMaNhanVien.getSelectedItem();
                 String maNhomQuyenStr = (String) cbMaNhomQuyen.getSelectedItem();
 
                 // Kiểm tra các trường không để trống

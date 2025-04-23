@@ -48,7 +48,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class NhaXuatBan extends JPanel implements ActionListener {
-
+    public JFrame owner = (JFrame) SwingUtilities.getWindowAncestor(this);
     PanelBorderRadius main, functionBar;
     JPanel contentCenter;
     JTable tblnxb;
@@ -91,7 +91,7 @@ public class NhaXuatBan extends JPanel implements ActionListener {
         }
         functionBar.add(mainFunction);
 
-        search = new IntegratedSearch(new String[]{"Tất cả", "Mã nhà xuất bản", "Tên nhà xuất bản", "Địa chỉ", "Số điện thoại"});
+        search = new IntegratedSearch(new String[]{"Tất cả", "Mã nhà xuất bản", "Tên nhà xuất bản", "Số điện thoại", "Địa chỉ"});
         search.txtSearchForm.addKeyListener(new KeyListener() {
 
             @Override
@@ -210,11 +210,9 @@ public class NhaXuatBan extends JPanel implements ActionListener {
             }
 
         } else if (source == mainFunction.btn.get("export")) {
-            try {
-                JTableExporter.exportJTableToExcel(tblnxb);
+            boolean success = JTableExporter.exportJTableToExcel(tblnxb);
+            if (success) {
                 JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!");
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, "Xuất file thất bại: " + ex.getMessage());
             }
         }
     }
@@ -266,64 +264,20 @@ public class NhaXuatBan extends JPanel implements ActionListener {
                 case "Tên nhà xuất bản":
                     match = ten.contains(keyword);
                     break;
-                case "Địa chỉ":
-                    match = diachi.contains(keyword);
-                    break;
                 case "Số điện thoại":
                     match = sdt.contains(keyword);
                     break;
+                case "Địa chỉ":
+                    match = diachi.contains(keyword);
+                    break;
+
             }
 
             if (match) {
                 tbModel.addRow(new Object[]{
-                    nxb.getMaNXB(), nxb.getTenNXB(), nxb.getDiachiNXB(), nxb.getSdt(),});
+                    nxb.getMaNXB(), nxb.getTenNXB(), nxb.getSdt(), nxb.getDiachiNXB()});
             }
         }
     }
 
-    public class JTableExporter {
-
-        public static void exportJTableToExcel(JTable table) throws IOException {
-            Workbook workbook = new XSSFWorkbook();
-            Sheet sheet = workbook.createSheet("Nha Xuat Ban");
-
-            TableModel model = table.getModel();
-
-            // Tạo dòng tiêu đề
-            Row headerRow = sheet.createRow(0);
-            for (int col = 0; col < model.getColumnCount(); col++) {
-                Cell cell = headerRow.createCell(col);
-                cell.setCellValue(model.getColumnName(col));
-            }
-
-            // Ghi dữ liệu
-            for (int row = 0; row < model.getRowCount(); row++) {
-                Row excelRow = sheet.createRow(row + 1);
-                for (int col = 0; col < model.getColumnCount(); col++) {
-                    Cell cell = excelRow.createCell(col);
-                    Object value = model.getValueAt(row, col);
-                    cell.setCellValue(value != null ? value.toString() : "");
-                }
-            }
-
-            // Mở hộp thoại lưu file
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
-            fileChooser.setFileFilter(new FileNameExtensionFilter("Excel files", "xlsx"));
-
-            int userSelection = fileChooser.showSaveDialog(null);
-            if (userSelection == JFileChooser.APPROVE_OPTION) {
-                String savePath = fileChooser.getSelectedFile().getAbsolutePath();
-                if (!savePath.toLowerCase().endsWith(".xlsx")) {
-                    savePath += ".xlsx";
-                }
-
-                try ( FileOutputStream fileOut = new FileOutputStream(savePath)) {
-                    workbook.write(fileOut);
-                }
-            }
-
-            workbook.close();
-        }
-    }
 }
