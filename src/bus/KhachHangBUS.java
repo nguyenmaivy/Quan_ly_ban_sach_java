@@ -2,37 +2,40 @@ package bus;
 
 import dao.KhachHangDAO;
 import dto.KhachHangDTO;
-import java.sql.SQLException;
-import java.util.List;
+
+import java.util.ArrayList;
 
 public class KhachHangBUS {
+    private final KhachHangDAO khachHangDAO = new KhachHangDAO();
 
-    private KhachHangDAO khachHangDAO;
-
-    public KhachHangBUS() {
-        khachHangDAO = new KhachHangDAO();
+    public ArrayList<KhachHangDTO> getAllKhachHang() {
+        return khachHangDAO.getAllKhachHang();
     }
 
-    public void themKhachHang(KhachHangDTO khachHang) throws SQLException {
+    public String addKhachHang(KhachHangDTO kh) {
+        if (khachHangDAO.getByMaKH(kh.getMaKH()) != null) {
+            return "Mã khách hàng đã tồn tại!";
+        }
 
-        khachHangDAO.themKhachHang(khachHang);
+        boolean success = khachHangDAO.addKhachHang(kh);
+        return success ? "Thêm khách hàng thành công!" : "Thêm khách hàng thất bại!";
     }
 
-    public KhachHangDTO layKhachHang(int maKH) throws SQLException {
-        return khachHangDAO.layKhachHang(maKH);
+    public String updateKhachHang(KhachHangDTO kh) {
+        boolean success = khachHangDAO.updateKhachHang(kh);
+        return success ? "Cập nhật khách hàng thành công!" : "Cập nhật khách hàng thất bại!";
     }
 
-    public void capNhatKhachHang(KhachHangDTO khachHang) throws SQLException {
-
-        khachHangDAO.capNhatKhachHang(khachHang);
+    public String deleteKhachHang(String maKH) {
+        boolean success = khachHangDAO.deleteKhachHang(maKH);
+        return success ? "Xóa khách hàng thành công!" : "Xóa khách hàng thất bại!";
     }
 
-    public void xoaKhachHang(int maKH) throws SQLException {
-
-        khachHangDAO.xoaKhachHang(maKH);
+    public KhachHangDTO getByMaKH(String maKH) {
+        return khachHangDAO.getByMaKH(maKH);
     }
 
-    public List<KhachHangDTO> layDanhSachKhachHang() throws SQLException {
-        return khachHangDAO.layDanhSachKhachHang();
+    public KhachHangDTO getById(String maKH) {
+        return khachHangDAO.getByMaKH(maKH); // Gọi phương thức đã được triển khai
     }
 }
