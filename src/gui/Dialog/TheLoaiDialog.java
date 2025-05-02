@@ -28,6 +28,7 @@ public class TheLoaiDialog extends JDialog implements ActionListener {
         this.theLoaiBUS = bus;
         this.theLoaiDTO = dto;
         initComponents(type);
+        txtMaLoai.setEditable(false);// <<< Dòng này giúp không cho sửa
     }
 
     private void initComponents(String type) {
@@ -40,6 +41,8 @@ public class TheLoaiDialog extends JDialog implements ActionListener {
         jpTop.setBackground(Color.WHITE);
 
         txtMaLoai = new JTextField();
+        txtMaLoai.setEditable(false); // khong cho nhap ma
+        
         txtTenLoai = new JTextField();
 
         jpTop.add(new JLabel("Mã thể loại:"));
@@ -56,6 +59,11 @@ public class TheLoaiDialog extends JDialog implements ActionListener {
                 btnAdd = new ButtonCustom("Thêm", "success", 14);
                 btnAdd.addActionListener(this);
                 jpBottom.add(btnAdd);
+                
+                // Set mã the loai tự sinh lên txtMalaoi
+                String nextMa = theLoaiBUS.getNextMaLoai();
+                txtMaLoai.setText(nextMa);
+                txtMaLoai.setEditable(false); // Không cho sửa
             }
             case "update" -> {
                 btnUpdate = new ButtonCustom("Cập nhật", "success", 14);
@@ -66,6 +74,17 @@ public class TheLoaiDialog extends JDialog implements ActionListener {
                     txtMaLoai.setText(theLoaiDTO.getMaLoai());
                     txtTenLoai.setText(theLoaiDTO.getTenLoai());
                 }
+            }
+            case "detail" -> {
+                if (theLoaiDTO != null) {
+                    txtMaLoai.setText(theLoaiDTO.getMaLoai());
+                    txtTenLoai.setText(theLoaiDTO.getTenLoai()); 
+                    
+                    // Set các field thành không chỉnh sửa
+                    txtMaLoai.setEditable(false);
+                    txtTenLoai.setEditable(false);                   
+                              
+                }  
             }
         }
 
@@ -83,29 +102,59 @@ public class TheLoaiDialog extends JDialog implements ActionListener {
         Object source = e.getSource();
 
         if (source == btnAdd) {
-            TheLoaiDTO newLoai = new TheLoaiDTO();
-            newLoai.setMaLoai(txtMaLoai.getText());
-            newLoai.setTenLoai(txtTenLoai.getText());
-            newLoai.setTrangThai(1); // mặc định hoạt động
+            String tenLoai = txtTenLoai.getText().trim();
 
-            String result = theLoaiBUS.addTheLoai(newLoai);
+            // Kiểm tra rỗng
+            if (tenLoai.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập tên thể loại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Sinh mã mới
+            String maMoi = theLoaiBUS.getNextMaLoai();
+
+            // Tạo DTO
+            TheLoaiDTO newTL = new TheLoaiDTO();
+            newTL.setMaLoai(maMoi);
+            newTL.setTenLoai(tenLoai);
+            newTL.setTrangThai(1);
+
+            // Gọi BUS thêm
+            String result = theLoaiBUS.addTheLoai(newTL);
+
             JOptionPane.showMessageDialog(this, result);
-            dispose();
+            if (result.equals("Thêm thể loại thành công")) {
+                dispose();
+            }
 
         } else if (source == btnUpdate) {
             if (theLoaiDTO != null) {
-                theLoaiDTO.setMaLoai(txtMaLoai.getText());
-                theLoaiDTO.setTenLoai(txtTenLoai.getText());
-                theLoaiDTO.setTrangThai(1); // giữ trạng thái cũ hoặc mặc định
+                String tenLoai = txtTenLoai.getText().trim();
+
+                if (tenLoai.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Vui lòng nhập tên thể loại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                theLoaiDTO.setTenLoai(tenLoai);
+                theLoaiDTO.setTrangThai(1);
 
                 String result = theLoaiBUS.updateTheLoai(theLoaiDTO);
-                JOptionPane.showMessageDialog(this, result);
-                dispose();
+
+                if (result.equals("Cập nhật thể loại thành công")) {
+                    JOptionPane.showMessageDialog(this, result, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                    dispose();
+                } else {
+                    JOptionPane.showMessageDialog(this, result, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+
+            } else {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy thể loại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
+
         } else if (source == btnCancel) {
             dispose();
         }
     }
 
-   
 }
