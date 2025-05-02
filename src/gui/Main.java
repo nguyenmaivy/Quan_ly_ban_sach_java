@@ -9,6 +9,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.sql.SQLException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
@@ -22,13 +23,13 @@ public class Main extends JFrame {
     Color MainColor = new Color(250, 250, 250);
     private MenuTaskbar menuTaskbar;
 
-    public Main(TaiKhoanDTO user) throws UnsupportedLookAndFeelException {
+    public Main(TaiKhoanDTO user) throws UnsupportedLookAndFeelException, SQLException {
         this.user = user;
         initComponent();
         setupUI();
     }
 
-    private void initComponent() {
+    private void initComponent() throws SQLException {
         this.setSize(new Dimension(1400, 800));
         this.setLocationRelativeTo(null);
         this.setLayout(new BorderLayout(0, 0));
@@ -78,4 +79,6 @@ public class Main extends JFrame {
         MainContent.repaint();
         MainContent.validate();
     }
+    
+    
 }
