@@ -1,4 +1,3 @@
-
 package dao;
 
 import Config.Constant;
@@ -22,7 +21,8 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
                 tk.setUseName(rs.getString("useName"));
                 tk.setMatKhau(rs.getString("matKhau"));
                 tk.setSdt(rs.getString("sdt"));
-                tk.setMaNV(rs.getString("maNV"));               
+                tk.setMaNV(rs.getString("maNV"));
+                //tk.setMaKH(rs.getString("maKH"));
                 tk.setMaNhomQuyen(rs.getInt("maNhomQuyen"));
                 tk.setTrangThai(rs.getInt("trangThai"));
                 arr.add(tk);
@@ -60,22 +60,21 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
             conn.openConnection();
             String query = "INSERT INTO TaiKhoan VALUES (?,?,?,?,?,?)";  
             PreparedStatement ps = conn.getConnection().prepareStatement(query);
-            
-            ps.setString(1, tk.getUseName());
-            ps.setString(2, tk.getSdt());            
-            ps.setString(3, tk.getMatKhau());   // sắp xếp theo thứ tự csdl            
-            ps.setString(4, tk.getMaNV());          
-            ps.setInt(5, tk.getMaNhomQuyen());
-            ps.setInt(6, 1);
-            //ps.setInt(6, tk.getTrangThai());
+            ps.setString(2, tk.getSdt());
+            ps.setString(1, tk.getUseName());            
+            ps.setString(3, tk.getMatKhau());            
+            ps.setString(4, tk.getMaNV());
+           // ps.setString(5, tk.getMaKH());
+            ps.setInt(6, tk.getMaNhomQuyen());
+            ps.setInt(7, tk.getTrangThai());
             if (ps.executeUpdate() > 0) {
                 result = true;
             }
-       } catch (SQLException e) {
-        System.err.println("Lỗi khi thêm tài khoản: " + e.getMessage());
-    } finally {
-        conn.closeConnection();
-    }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            conn.closeConnection();
+        }
         return result;
     }
 
@@ -107,9 +106,10 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
             PreparedStatement ps = conn.getConnection().prepareStatement(query);
             ps.setString(1, tk.getUseName());
             ps.setString(2, tk.getMatKhau());            
-            ps.setString(3, tk.getMaNV());                  
-            ps.setInt(4, tk.getMaNhomQuyen());
-            ps.setString(5, tk.getSdt());
+            ps.setString(3, tk.getMaNV());
+          //  ps.setString(4, tk.getMaKH());            
+            ps.setInt(5, tk.getMaNhomQuyen());
+            ps.setString(6, tk.getSdt());
             if (ps.executeUpdate() > 0) {
                 result = true;
             }
@@ -135,7 +135,8 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
                 tk.setSdt(rs.getString("sdt"));
                 tk.setUseName(rs.getString("useName"));
                 tk.setMatKhau(rs.getString("matKhau"));                
-                tk.setMaNV(rs.getString("maNV"));               
+                tk.setMaNV(rs.getString("maNV"));
+               // tk.setMaKH(rs.getString("maKH"));
                 tk.setMaNhomQuyen(rs.getInt("maNhomQuyen"));
                 tk.setTrangThai(rs.getInt("trangThai"));
             }
@@ -156,7 +157,8 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
                          + "useName LIKE ? OR "
                          + "matKhau LIKE ? OR "
                          + "sdt LIKE ? OR "
-                         + "maNV LIKE ? OR "                        
+                         + "maNV LIKE ? OR "
+                        // + "maKH LIKE ?  ";
                          + "maNhomQuyen = ? ";
             // Kiểm tra nếu searchContent là số, mới thêm điều kiện cho maNhomQuyen
         boolean isNumber = searchContent.matches("\\d+");
@@ -167,7 +169,8 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
             ps.setString(1, "%" + searchContent + "%");
             ps.setString(2, "%" + searchContent + "%");
             ps.setString(3, "%" + searchContent + "%");
-            ps.setString(4, "%" + searchContent + "%");            
+            ps.setString(4, "%" + searchContent + "%");
+            
             ps.setString(5, "%" + Integer.parseInt(searchContent) + "%");
             if (isNumber) {
         ps.setInt(6, Integer.parseInt(searchContent)); // Chỉ set giá trị nếu là số
@@ -178,7 +181,8 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
                 tk.setUseName(rs.getString("useName"));
                 tk.setMatKhau(rs.getString("matKhau"));
                 tk.setSdt(rs.getString("sdt"));
-                tk.setMaNV(rs.getString("maNV"));               
+                tk.setMaNV(rs.getString("maNV"));
+               // tk.setMaKH(rs.getString("maKH"));
                 tk.setMaNhomQuyen(rs.getInt("maNhomQuyen"));
                 arr.add(tk);
             }
@@ -189,5 +193,4 @@ public class TaiKhoanDAO implements DAOInterface<TaiKhoanDTO> {
         }
         return arr;
     }
-    
 }

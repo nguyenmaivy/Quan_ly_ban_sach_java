@@ -1,89 +1,134 @@
 package dao;
 
+import Config.Constant;
 import dto.KhachHangDTO;
+
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class KhachHangDAO {
+    private final Constant db = new Constant();
 
-    private Connection getConnection() throws SQLException {
-        // Thay thế thông tin kết nối của bạn
-        String url = "jdbc:mysql://localhost:3306/quanlybansach";
-        String user = "root";
-        String password = "";
-        return DriverManager.getConnection(url, user, password);
-    }
+    public ArrayList<KhachHangDTO> getAllKhachHang() {
+        ArrayList<KhachHangDTO> list = new ArrayList<>();
+        if (db.openConnection()) {
+            try {
+                String sql = "SELECT * FROM KhachHang";
+                Statement stmt = db.getConnection().createStatement();
+                ResultSet rs = stmt.executeQuery(sql);
 
-    public void themKhachHang(KhachHangDTO khachHang) throws SQLException {
-        String sql = "INSERT INTO KHACHHANG (TenKH, SDT, DiaChi, TrangThai) VALUES (?, ?, ?, ?)";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, khachHang.getTenKH());
-            pstmt.setString(2, khachHang.getSdt());
-            pstmt.setString(3, khachHang.getDiaChi());
-            pstmt.setInt(4, khachHang.getTrangThai());
-            pstmt.executeUpdate();
-        }
-    }
+                while (rs.next()) {
+                    KhachHangDTO kh = new KhachHangDTO();
+                    kh.setMaKH(rs.getString("MaKH"));
+                    kh.setTenKh(rs.getString("TenKH"));
+                    kh.setSdt(rs.getString("Sdt"));
+                    kh.setDiaChi(rs.getString("DiaChi"));
+                    kh.setTrangThai(rs.getInt("TrangThai"));  // nếu có cột này
+                    list.add(kh);
+                }
 
-    public KhachHangDTO layKhachHang(int maKH) throws SQLException {
-        String sql = "SELECT * FROM KHACHHANG WHERE MaKH = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, maKH);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return new KhachHangDTO(
-                        rs.getString("MaKH"),
-                        rs.getString("TenKH"),
-                        rs.getString("SDT"),
-                        rs.getString("DiaChi"),
-                        rs.getInt("TrangThai")
-                );
+                rs.close();
+                stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                db.closeConnection();
             }
         }
-        return null;
+        return list;
     }
 
-    public void capNhatKhachHang(KhachHangDTO khachHang) throws SQLException {
-        String sql = "UPDATE KHACHHANG SET TenKH = ?, SDT = ?, DiaChi = ?, TrangThai = ? WHERE MaKH = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, khachHang.getTenKH());
-            pstmt.setString(2, khachHang.getSdt());
-            pstmt.setString(3, khachHang.getDiaChi());
-            pstmt.setInt(4, khachHang.getTrangThai());
-            pstmt.setString(5, khachHang.getMaKH());
-            pstmt.executeUpdate();
-        }
-    }
+    public boolean addKhachHang(KhachHangDTO kh) {
+        boolean result = false;
+        if (db.openConnection()) {
+            try {
+                String sql = "INSERT INTO KhachHang (MaKH, TenKH, Sdt, DiaChi, TrangThai) VALUES (?, ?, ?, ?, ?)";
+                PreparedStatement stmt = db.getConnection().prepareStatement(sql);
+                stmt.setString(1, kh.getMaKH());
+                stmt.setString(2, kh.getTenKH());
+                stmt.setString(3, kh.getSdt());
+                stmt.setString(4, kh.getDiaChi());
+                stmt.setInt(5, kh.getTrangThai());
 
-    public void xoaKhachHang(int maKH) throws SQLException {
-        String sql = "UPDATE KHACHHANG SET TrangThai = 'Inactive' WHERE MaKH = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, maKH);
-            pstmt.executeUpdate();
-        }
-    }
-
-    public List<KhachHangDTO> layDanhSachKhachHang() throws SQLException {
-        String sql = "SELECT * FROM KHACHHANG";
-        List<KhachHangDTO> danhSachKhachHang = new ArrayList<>();
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                danhSachKhachHang.add(new KhachHangDTO(
-                        rs.getString("MaKH"),
-                        rs.getString("TenKH"),
-                        rs.getString("SDT"),
-                        rs.getString("DiaChi"),
-                        rs.getInt("TrangThai")
-                ));
+                result = stmt.executeUpdate() > 0;
+                stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                db.closeConnection();
             }
         }
-        return danhSachKhachHang;
+        return result;
+    }
+
+    public boolean updateKhachHang(KhachHangDTO kh) {
+        boolean result = false;
+        if (db.openConnection()) {
+            try {
+                String sql = "UPDATE KhachHang SET TenKH=?, Sdt=?, DiaChi=?, TrangThai=? WHERE MaKH=?";
+                PreparedStatement stmt = db.getConnection().prepareStatement(sql);
+                stmt.setString(1, kh.getTenKH());
+                stmt.setString(2, kh.getSdt());
+                stmt.setString(3, kh.getDiaChi());
+                stmt.setInt(4, kh.getTrangThai());
+                stmt.setString(5, kh.getMaKH());
+
+                result = stmt.executeUpdate() > 0;
+                stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                db.closeConnection();
+            }
+        }
+        return result;
+    }
+
+    public boolean deleteKhachHang(String maKH) {
+        boolean result = false;
+        if (db.openConnection()) {
+            try {
+                String sql = "DELETE FROM KhachHang WHERE MaKH = ?";
+                PreparedStatement stmt = db.getConnection().prepareStatement(sql);
+                stmt.setString(1, maKH);
+
+                result = stmt.executeUpdate() > 0;
+                stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                db.closeConnection();
+            }
+        }
+        return result;
+    }
+
+    public KhachHangDTO getByMaKH(String maKH) {
+        KhachHangDTO kh = null;
+        if (db.openConnection()) {
+            try {
+                String sql = "SELECT * FROM KhachHang WHERE MaKH = ?";
+                PreparedStatement stmt = db.getConnection().prepareStatement(sql);
+                stmt.setString(1, maKH);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()) {
+                    kh = new KhachHangDTO();
+                    kh.setMaKH(rs.getString("MaKH"));
+                    kh.setTenKh(rs.getString("TenKH"));
+                    kh.setSdt(rs.getString("Sdt"));
+                    kh.setDiaChi(rs.getString("DiaChi"));
+                    kh.setTrangThai(rs.getInt("TrangThai"));
+                }
+
+                rs.close();
+                stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                db.closeConnection();
+            }
+        }
+        return kh;
     }
 }
