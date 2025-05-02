@@ -12,6 +12,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.SQLException;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -110,8 +111,8 @@ public class MenuTaskbar extends JPanel {
         theLoai = new TheLoai(main);
         khoSach = new KhoSach(main);
         phieuNhap = new PhieuNhap(main, nhanVienDTO);
-        hoaDon = new HoaDon();
-        kháchHang = new KhachHang();
+        hoaDon = new HoaDon(main);
+        kháchHang = new KhachHang(main);
         nhaXuatBan = new NhaXuatBan(main);
         tacGia = new TacGia(main);
         nhanVien = new NhanVien(main);
