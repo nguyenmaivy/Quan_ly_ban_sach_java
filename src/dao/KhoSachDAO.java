@@ -6,10 +6,12 @@ package dao;
 
 import Config.Constant;
 import dto.KhoSachDTO;
+import java.beans.Statement;
 import java.util.ArrayList;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  *
@@ -66,7 +68,6 @@ public class KhoSachDAO implements DAOInterface<KhoSachDTO> {
 
     @Override
     public boolean add(KhoSachDTO kho) {
-        //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
         boolean result = false;
         try {
             jdbc.openConnection();
@@ -81,8 +82,8 @@ public class KhoSachDAO implements DAOInterface<KhoSachDTO> {
             if (ps.executeUpdate() > 0) {
                 result = true;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thêm nhà xuất bản: " + e.getMessage());
         } finally {
             jdbc.closeConnection();
         }
@@ -91,7 +92,6 @@ public class KhoSachDAO implements DAOInterface<KhoSachDTO> {
 
     @Override
     public boolean delete(String maKho) {
-        //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
         boolean result = false;
         try {
             jdbc.openConnection();
@@ -191,4 +191,84 @@ public class KhoSachDAO implements DAOInterface<KhoSachDTO> {
         return arr;
     }
     
+    public KhoSachDTO getByName(String tenKho) {
+        String query = "SELECT * FROM KhoSach WHERE tenKho LIKE ?";
+        KhoSachDTO kho = null;
+
+        try {
+            jdbc.openConnection();
+            PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
+            ps.setString(1, "%" + tenKho + "%");
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                kho = new KhoSachDTO();
+                kho.setMaKho(rs.getString("maKho"));
+                kho.setTenKho(rs.getString("tenKho"));
+                kho.setDiaChi(rs.getString("diaChi"));
+                kho.setLoai(rs.getString("loai"));
+                kho.setTrangThai(rs.getInt("trangThai"));
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tìm kho theo tên: " + e.getMessage());
+        } finally {
+            jdbc.closeConnection();
+        }
+
+        return kho;
+    }
+    
+    public String getLastMaKho() {
+        String lastMaKho = null;
+        String sql = "SELECT TOP 1 maKho FROM KhoSach ORDER BY maKho DESC";
+
+        try (Connection connection = new Constant().getConnection();
+             java.sql.Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                lastMaKho = rs.getString("maKho");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi lấy mã kho cuối cùng: " + e.getMessage());
+        }
+
+        return lastMaKho;
+    }
+    
+    public String nextMaKho() {
+        String query = "SELECT maKho FROM KhoSach";
+        String newId = "K001";
+        int maxNum = 0;
+
+        try {
+            jdbc.openConnection();
+            PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String ma = rs.getString("maKho");
+                if (ma != null && ma.matches("^K\\d{3}$")) {  // Chỉ xử lý mã đúng định dạng "Kxxx"
+                    int num = Integer.parseInt(ma.substring(1)); // Bỏ ký tự 'K'
+                    if (num > maxNum) {
+                        maxNum = num;
+                    }
+                }
+            }
+
+            newId = String.format("K%03d", maxNum + 1); // Format lại mã mới
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi sinh mã kho mới: " + e.getMessage());
+        } finally {
+            jdbc.closeConnection();
+        }
+
+        return newId;
+    }
+
+
+    
+
 }
