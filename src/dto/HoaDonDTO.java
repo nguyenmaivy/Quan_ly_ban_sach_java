@@ -1,21 +1,26 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dto;
+
 import java.time.LocalDate;
+import java.sql.Date; // Import java.sql.Date for database compatibility
+
 /**
- *
- * @author MZI
+ * Data Transfer Object cho Hóa đơn
  */
 public class HoaDonDTO {
     private String soHD;
     private LocalDate ngayBan;
     private String maNV;
     private int trangThai;
-    
+    private String tenNV; //Thêm thuộc tính tên nhân viên
+
     public HoaDonDTO() {
-    
+    }
+
+    public HoaDonDTO(String soHD, LocalDate ngayBan, String maNV, int trangThai) {
+        this.soHD = soHD;
+        this.ngayBan = ngayBan;
+        this.maNV = maNV;
+        this.trangThai = trangThai;
     }
 
     public HoaDonDTO(String soHD, LocalDate ngayBan) {
@@ -27,7 +32,16 @@ public class HoaDonDTO {
         this.maNV = maNV;
         this.trangThai = trangThai;
     }
-    
+
+    // Constructor đầy đủ, bao gồm tenNV
+    public HoaDonDTO(String soHD, LocalDate ngayBan, String maNV, int trangThai, String tenNV) {
+        this.soHD = soHD;
+        this.ngayBan = ngayBan;
+        this.maNV = maNV;
+        this.trangThai = trangThai;
+        this.tenNV = tenNV;
+    }
+
     // GETTER, SETTER
     public String getSoHD() {
         return soHD;
@@ -60,6 +74,12 @@ public class HoaDonDTO {
     public void setTrangThai(int trangThai) {
         this.trangThai = trangThai;
     }
-    
-    
+
+    public String getTenNV() {
+        return tenNV;
+    }
+
+    public void setTenNV(String tenNV) {
+        this.tenNV = tenNV;
+    }
 }

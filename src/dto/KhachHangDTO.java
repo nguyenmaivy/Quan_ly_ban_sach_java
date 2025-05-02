@@ -80,5 +80,9 @@ public class KhachHangDTO {
     public void setMaHD(String maHD) {
         this.maHD = maHD;
     }
+
+    public void setTenKH(String text) {
+        this.tenKH = tenKH;
+    }
     
 }
