@@ -55,12 +55,13 @@ Create table Viet
 -- 	();
 
 --------------- Thể loại --------------------------------------------------------------------------------------------
-Create table TheLoai
+CREATE TABLE TheLoai 
 (
-	maLoai varchar(10) primary key,
-	tenLoai nvarchar(255),
+    maLoai INT PRIMARY KEY,
+    tenLoai NVARCHAR(100) NOT NULL,
 	trangThai int not null DEFAULT 1
 );
+	
 drop table TheLoai;
 insert into TheLoai
 	(maLoai, tenLoai)
@@ -169,18 +170,25 @@ Create table ChiTietHoaDon
 	giaBan int,
 	primary key (maSach, soHD)
 );
-
+--drop table ChiTietHoaDon
+--delete from ChiTietHoaDon
 insert into ChiTietHoaDon
 	(soHD,maSach, soLuongBan, giaBan)
 values
-	('HD01', null, 5, 300000),
-	('HD01', null, 3, 285000),
-	('HD01', null, 8, 1360000),
-	('HD02', null, 3, 210000),
-	('HD02', null, 2, 120000),
-	('HD04', null, 3, 435000),
-	('HD05', null, 1, 95000),
-	('HD08', null, 4, 320000);
+	('HD01', 'S009', 5, 300000),
+	('HD01', 'S017', 8, 1360000),
+	('HD02', 'S003', 3, 210000),
+	('HD02', 'S008', 2, 120000),
+	('HD04', 'S016', 3, 435000),
+	('HD05', 'S013', 1, 95000),
+	('HD08', 'S009', 4, 320000);
+
+
+ALTER TABLE ChiTietHoaDon
+ADD CONSTRAINT fk_ChiTietHoaDon_Sach
+FOREIGN KEY (maSach) REFERENCES Sach(id),
+ADD CONSTRAINT fk_ChiTietHoaDon_HoaDon
+FOREIGN KEY (soHD) REFERENCES HoaDon(soHD);
 
 ----------------- Phiếu nhập --------------------------------------------------------------------------------------------
 
