@@ -21,6 +21,10 @@ public class TheLoaiBUS {
     }
     
     public String addTheLoai(TheLoaiDTO theloai){
+        if(theloai.getTenLoai().trim().isEmpty()) {
+           return "Vui lòng nhập tên Thể loại!";
+       }
+        
         if(theloaiDAO.has(theloai.getMaLoai()))
             return "Mã thể loại đã tồn tại";
         if(theloaiDAO.add(theloai))
@@ -35,6 +39,10 @@ public class TheLoaiBUS {
     }
     
     public String updateTheLoai(TheLoaiDTO tl){
+        if (tl == null || tl.getMaLoai() == null || tl.getMaLoai().isEmpty()) {
+            return "Mã thể loại không hợp lệ!";
+        }
+        
         if(theloaiDAO.update(tl))
             return "Cập nhật thể loại thành công";
         return "Cập thể loại thất bại";
@@ -43,11 +51,23 @@ public class TheLoaiBUS {
     public TheLoaiDTO getByID(String maLoai) {
     	return theloaiDAO.getByID(maLoai);
     }
+    public String getNextMaLoai() {
+        TheLoaiDAO dao = new TheLoaiDAO();
+        return dao.nextMaLoai();
+    }
+    public TheLoaiDTO getByName(String tenLoai) {
+        return null; 
+    }
     
     
     public ArrayList<TheLoaiDTO> search(String searchContent) {
-        return theloaiDAO.search(searchContent);
+        if (searchContent == null || searchContent.trim().isEmpty()) {
+            // Nếu không có nội dung tìm kiếm, trả về toàn bộ danh sách
+            return theloaiDAO.getALL();
+        }
+        return theloaiDAO.search(searchContent.trim());
     }
+    
     public String getTenTL(String maTL){
         listTheLoai = theloaiDAO.getALL();
         for (TheLoaiDTO theLoaiDTO : listTheLoai) {

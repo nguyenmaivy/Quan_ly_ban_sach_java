@@ -20,6 +20,12 @@ public class KhoSachBUS {
        return ksDAO.getALL();
    }
    public String addKhoSach(KhoSachDTO ks){
+       if(ks.getTenKho().trim().isEmpty() 
+               || ks.getDiaChi().trim().isEmpty() 
+               || ks.getLoai().trim().isEmpty()){
+           return "Vui lòng nhập đầy đủ thông tin!";
+       }
+       
         if(ksDAO.has(ks.getMaKho()))
             return "Mã kho đã tồn tại";
         if(ksDAO.add(ks))
@@ -34,6 +40,9 @@ public class KhoSachBUS {
     }
     
     public String updateKhoSach(KhoSachDTO ks){
+        if (ks == null || ks.getMaKho() == null || ks.getMaKho().isEmpty()) {
+            return "Mã nhà Kho không hợp lệ!";
+        }
         if(ksDAO.update(ks))
             return "Cập nhật kho sach thành công";
         return "Cập nhật thất bại";
@@ -42,9 +51,20 @@ public class KhoSachBUS {
     public KhoSachDTO getByID(String maKho) {
         return ksDAO.getByID(maKho);
     }
+    public String getNextMaKho() {
+        KhoSachDAO dao = new KhoSachDAO();
+        return dao.nextMaKho();
+    }
+    public KhoSachDTO getByName(String tenKho) {
+        return null; 
+    }
     
     public ArrayList<KhoSachDTO> search(String searchContent) {
-        return ksDAO.search(searchContent);
+        if (searchContent == null || searchContent.trim().isEmpty()) {
+            // Nếu không có nội dung tìm kiếm, trả về toàn bộ danh sách
+            return ksDAO.getALL();
+        }
+        return ksDAO.search(searchContent.trim());
     }
     public String getTenKhoByMa(String maKho) {
     for (KhoSachDTO kh : listkho) {
