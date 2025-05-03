@@ -39,4 +39,35 @@ public class KhachHangBUS {
     public KhachHangDTO getById(String maKH) {
         return khachHangDAO.getByMaKH(maKH); // Gọi phương thức đã được triển khai
     }
+    
+    public ArrayList<KhachHangDTO> searchKhachHang(String keyword) {
+        ArrayList<KhachHangDTO> all = getAllKhachHang(); // Gọi tất cả khách hàng
+        ArrayList<KhachHangDTO> result = new ArrayList<>();
+        for (KhachHangDTO kh : all) {
+            if (kh.getMaKH().toLowerCase().contains(keyword.toLowerCase())
+             || kh.getTenKH().toLowerCase().contains(keyword.toLowerCase())
+             || kh.getSdt().toLowerCase().contains(keyword.toLowerCase())
+             || kh.getDiaChi().toLowerCase().contains(keyword.toLowerCase())) {
+                result.add(kh);
+            }
+        }
+        return result;
+    }
+
+    
+    public String generateMaKH() {
+        ArrayList<KhachHangDTO> list = khachHangDAO.getAllKhachHang();
+        int max = 0;
+        for (KhachHangDTO kh : list) {
+            try {
+                String numPart = kh.getMaKH().replaceAll("[^0-9]", "");
+                int number = Integer.parseInt(numPart);
+                if (number > max) {
+                    max = number;
+                }
+            } catch (NumberFormatException ignored) {}
+        }
+        return String.format("C%03d", max + 1); 
+    }
+
 }
