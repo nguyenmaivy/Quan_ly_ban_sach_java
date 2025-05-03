@@ -54,5 +54,10 @@ public class IntegratedSearch extends JPanel {
         txtSearchForm.setText("");
         cbxChoose.setSelectedIndex(0);
     }
+    
+    
+    public JTextField getTextField() {
+        return txtSearchForm;
+    }   
 }
 
