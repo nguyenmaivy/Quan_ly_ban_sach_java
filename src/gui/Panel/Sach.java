@@ -13,15 +13,27 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class Sach extends JPanel implements ActionListener {
-    public JFrame owner = (JFrame) SwingUtilities.getWindowAncestor(this);
+
     PanelBorderRadius main, functionBar;
     JPanel contentCenter;
     JTable tblSach;
@@ -57,13 +69,37 @@ public class Sach extends JPanel implements ActionListener {
         functionBar.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         String[] acStrings = {"create", "update", "delete", "detail", "export"};
-        mainFunction = new MainFunction(0, "sach", acStrings);
+        mainFunction = new MainFunction(SOMEBITS, "sach", acStrings);
         for (String ac : acStrings) {
             mainFunction.btn.get(ac).addActionListener(this);
         }
         functionBar.add(mainFunction);
 
-        search = new IntegratedSearch(new String[]{"Tất cả"});
+        search = new IntegratedSearch(new String[]{"Tất cả", "Mã sách", "Tên sách", "Giá bán"});
+        search.txtSearchForm.addKeyListener(new KeyListener() {
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                searchData();
+            }
+        });
+
+        search.cbxChoose.addItemListener(new ItemListener() {
+
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                searchData();  // Khi đổi tiêu chí tìm kiếm, cũng lọc lại
+            }
+        });
+
         functionBar.add(search);
 
         contentCenter.add(functionBar, BorderLayout.NORTH);
@@ -135,6 +171,26 @@ public class Sach extends JPanel implements ActionListener {
                 JOptionPane.showMessageDialog(this, result);
                 loadDataTable();
             }
+        } else if (source == mainFunction.btn.get("detail")) {
+            int selectedRow = tblSach.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một sách để xem chi tiết!");
+                return;
+            }
+
+            String maSach = tbModel.getValueAt(selectedRow, 0).toString();
+            SachDTO sach = sachBUS.getByID(maSach);
+
+            if (sach != null) {
+                SachDialog dialog = new SachDialog(
+                        sachBUS,
+                        (JFrame) SwingUtilities.getWindowAncestor(this),
+                        "Chi tiết Sách", true, "detail", sach
+                );
+                // Không cần load lại bảng vì chỉ xem chi tiết
+            } else {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy sách!");
+            }
         } else if (source == mainFunction.btn.get("export")) {
             boolean success = JTableExporter.exportJTableToExcel(tblSach);
             if (success) {
@@ -161,4 +217,46 @@ public class Sach extends JPanel implements ActionListener {
             });
         }
     }
+
+    private void searchData() {
+        String keyword = search.txtSearchForm.getText().trim().toLowerCase();
+        String category = search.cbxChoose.getSelectedItem().toString();
+
+        SachBUS sachBUS = new SachBUS();
+        ArrayList<SachDTO> list = sachBUS.getAllSach();
+
+        tbModel.setRowCount(0); // Clear bảng
+
+        for (SachDTO sach : list) {
+            String ma = (sach.getId() != null) ? sach.getId().toLowerCase() : "";
+            String ten = (sach.getTenSach() != null) ? sach.getTenSach().toLowerCase() : "";
+            int giaban = sach.getGiaBan();
+
+            boolean match = false;
+
+            switch (category) {
+                case "Tất cả":
+                    match = ma.contains(keyword) || ten.contains(keyword) || String.valueOf(giaban).contains(keyword);
+                    break;
+                case "Mã sách":
+                    match = ma.contains(keyword);
+                    break;
+                case "Tên sách":
+                    match = ten.contains(keyword);
+                    break;
+                case "Giá bán":
+                    match = String.valueOf(giaban).contains(keyword);  // So sánh bằng chữ số
+                    break;
+
+            }
+
+            if (match) {
+                tbModel.addRow(new Object[]{
+                    sach.getId(), sach.getTenSach(), sach.getTheLoai(), sach.getTacGia(),
+                    sach.getNhaXuatBan(), sach.getGiaBan(), sach.getSoLuong(), sach.getMaKho(), sach.getHinhAnh()
+                });
+            }
+        }
+    }
+
 }

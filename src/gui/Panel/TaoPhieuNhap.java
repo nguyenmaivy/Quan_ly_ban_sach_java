@@ -27,7 +27,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionListener {
-    
+
     PanelBorderRadius right, left;
     JPanel pnlBorder1, pnlBorder2, pnlBorder3, pnlBorder4, contentCenter, left_top, main, content_right_bottom, content_btn;
     JTable tablePhieuNhap, tableSanPham;
@@ -53,6 +53,7 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
     private PhieuNhap phieuNhapPanel;
     ArrayList<NhaXuatBanDTO> nhaXuatBanDTO = nxbbus.getAllNhaXuatBan();
     ArrayList<ChiTietPhieuNhapDTO> chiTietPhieuNhapDTO;
+
 
     String maphieunhap;
     int rowPhieuSelect = -1;
@@ -198,7 +199,8 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         JPanel content_right_top_cbx = new JPanel(new GridLayout(3, 1, 0, 0));
         content_right_top_cbx.setPreferredSize(new Dimension(100, 190));
         cbxTacGia = new SelectForm("Tác giả", arrTen);
-        cbxTacGia.cbb.addItemListener(this);
+   
+        cbxTacGia.cbb.setEnabled(false);
 
         txtDongia = new InputForm("Giá nhập");
         txtDongia.setPreferredSize(new Dimension(100, 40));
@@ -206,8 +208,7 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         dongia.setDocumentFilter((new NumericDocumentFilter()));
 
         cbxTheLoai = new SelectForm("Thể loại", arrTen);
-
-        cbxTheLoai.cbb.addItemListener(this);
+        cbxTheLoai.cbb.setEnabled(false);
         cbxTheLoai.setPreferredSize(new Dimension(100, 90));
 
         content_right_top_cbx.add(cbxTacGia);
@@ -280,13 +281,13 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         txtNhanVien.setText(nvDto != null ? nvDto.getTenNV() : "Không xác định");
         txtNhanVien.setEditable(false);
 
-        // Lấy danh sách tất cả nhà xuất bản
-        ArrayList<NhaXuatBanDTO> listNXB = nxbbus.getAllNhaXuatBan();
-        // Trích xuất mảng tên NXB
-        String[] arrNXB = listNXB.stream().map(NhaXuatBanDTO::getTenNXB).toArray(String[]::new);
+//        // Lấy danh sách tất cả nhà xuất bản
+//        ArrayList<NhaXuatBanDTO> listNXB = nxbbus.getAllNhaXuatBan();
+//        // Trích xuất mảng tên NXB
+//        String[] arrNXB = listNXB.stream().map(NhaXuatBanDTO::getTenNXB).toArray(String[]::new);
         // Tạo SelectForm với danh sách tên NXB và chọn giá trị mặc định là tenNXB
-        cbxNXB = new SelectForm("Nhà xuất bản", arrNXB);
-
+        cbxNXB = new SelectForm("Nhà xuất bản", arrTen);
+        cbxNXB.cbb.setEnabled(false);
         right_top.add(txtMaphieu);
         right_top.add(txtNhanVien);
         right_top.add(cbxNXB);
@@ -341,6 +342,7 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         this.cbxTheLoai.setArr(arr);
         this.txtDongia.setText("");
         this.txtSoLuong.setText("");
+        this.cbxNXB.setArr(arr);
     }
 
     public void loadDataTableSanPham(ArrayList<dto.SachDTO> result) {
@@ -362,9 +364,11 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         // Xử lý combobox tác giả
         String maTacGia = sach.getTacGia();
         String maTheloai = sach.getTheLoai();
+        String manxb = sach.getNhaXuatBan();
 
         TacGiaBUS tacGiaBUS = new TacGiaBUS();
         TheLoaiBUS theLoaiBUS = new TheLoaiBUS();
+        NhaXuatBanBUS nxbbus = new NhaXuatBanBUS();
 
         ArrayList<TheLoaiDTO> listTheLoai = theLoaiBUS.getAllTheLoai();
         String[] arrTheLoai = listTheLoai.stream().map(TheLoaiDTO::getTenLoai).toArray(String[]::new);
@@ -387,6 +391,16 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
                 .orElse("Không xác định");
 
         this.cbxTacGia.setSelectedItem(tenTacGia);
+
+        ArrayList<NhaXuatBanDTO> listNXB = nxbbus.getAllNhaXuatBan();
+        String[] arrNhaXuatBan = listNXB.stream().map(NhaXuatBanDTO::getTenNXB).toArray(String[]::new);
+        this.cbxNXB.setArr(arrNhaXuatBan);
+        String tenNhaXuatBan = listNXB.stream()
+                .filter(nxb -> nxb.getMaNXB()
+                .equals(manxb))
+                .findFirst()
+                .map(NhaXuatBanDTO::getTenNXB).orElse("Không xác định!");
+        this.cbxNXB.setSelectedItem(tenNhaXuatBan);
 
         // Hiển thị giá bán từ sách được chọn
         this.txtDongia.setText(Integer.toString(sach.getGiaBan()));
@@ -483,7 +497,6 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
                 }
 
                 JOptionPane.showMessageDialog(this, "Nhập hàng thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-
 
                 // Chuyển về giao diện PhieuNhap và làm mới bảng
                 PhieuNhap phieuNhapPanel = new PhieuNhap(m, nvDto);

@@ -28,6 +28,7 @@ public class KhoSachDialog extends JDialog implements ActionListener {
         this.khoSachBUS = bus;
         this.khoSachDTO = dto;
         initComponents(type);
+        txtMaKho.setEditable(false);// <<< Dòng này giúp không cho sửa
     }
 
     private void initComponents(String type) {
@@ -40,6 +41,8 @@ public class KhoSachDialog extends JDialog implements ActionListener {
         jpTop.setBackground(Color.WHITE);
 
         txtMaKho = new JTextField();
+        txtMaKho.setEditable(false); //khong cho phep nhap ma
+
         txtTenKho = new JTextField();
         txtDiaChi = new JTextField();
         txtLoai = new JTextField();
@@ -62,6 +65,11 @@ public class KhoSachDialog extends JDialog implements ActionListener {
                 btnAdd = new ButtonCustom("Thêm", "success", 14);
                 btnAdd.addActionListener(this);
                 jpBottom.add(btnAdd);
+
+                // Set mã kho tự sinh lên txtMakho
+                String nextMa = khoSachBUS.getNextMaKho();
+                txtMaKho.setText(nextMa);
+                txtMaKho.setEditable(false); // Không cho sửa
             }
             case "update" -> {
                 btnUpdate = new ButtonCustom("Cập nhật", "success", 14);
@@ -75,6 +83,22 @@ public class KhoSachDialog extends JDialog implements ActionListener {
                     txtLoai.setText(khoSachDTO.getLoai());
                 }
             }
+            case "detail" -> {
+                if (khoSachDTO != null) {
+                    txtMaKho.setText(khoSachDTO.getMaKho());
+                    txtTenKho.setText(khoSachDTO.getTenKho());
+                    txtDiaChi.setText(khoSachDTO.getDiaChi());
+                    txtLoai.setText(khoSachDTO.getLoai());
+
+                    // Set các field thành không chỉnh sửa
+                    txtMaKho.setEditable(false);
+                    txtTenKho.setEditable(false);
+                    txtDiaChi.setEditable(false);
+                    txtLoai.setEditable(false);
+
+                }
+            }
+
         }
 
         btnCancel = new ButtonCustom("Hủy", "danger", 14);
@@ -91,33 +115,69 @@ public class KhoSachDialog extends JDialog implements ActionListener {
         Object source = e.getSource();
 
         if (source == btnAdd) {
-            KhoSachDTO newKho = new KhoSachDTO();
-            newKho.setMaKho(txtMaKho.getText());
-            newKho.setTenKho(txtTenKho.getText());
-            newKho.setDiaChi(txtDiaChi.getText());
-            newKho.setLoai(txtLoai.getText());
-            newKho.setTrangThai(1); // Mặc định là hoạt động
+            String tenKho = txtTenKho.getText().trim();
+            String diaChi = txtDiaChi.getText().trim();
+            String loai = txtLoai.getText().trim();
 
+            // Kiểm tra rỗng
+            if (tenKho.isEmpty() || diaChi.isEmpty() || loai.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Tạo mã kho mới
+            String maMoi = khoSachBUS.getNextMaKho();
+
+            // Tạo DTO
+            KhoSachDTO newKho = new KhoSachDTO();
+            newKho.setMaKho(maMoi);
+            newKho.setTenKho(tenKho);
+            newKho.setDiaChi(diaChi);
+            newKho.setLoai(loai);
+            newKho.setTrangThai(1); // trạng thái mặc định
+
+            // Gọi BUS thêm
             String result = khoSachBUS.addKhoSach(newKho);
+
             JOptionPane.showMessageDialog(this, result);
-            dispose();
+            if (result.equals("Thêm kho sách thành công")) {
+                dispose();
+            }
 
         } else if (source == btnUpdate) {
             if (khoSachDTO != null) {
-                khoSachDTO.setMaKho(txtMaKho.getText());
-                khoSachDTO.setTenKho(txtTenKho.getText());
-                khoSachDTO.setDiaChi(txtDiaChi.getText());
-                khoSachDTO.setLoai(txtLoai.getText());
-                khoSachDTO.setTrangThai(1); // Giữ trạng thái
+                String tenKho = txtTenKho.getText().trim();
+                String diaChi = txtDiaChi.getText().trim();
+                String loai = txtLoai.getText().trim();
+
+                if (tenKho.isEmpty() || diaChi.isEmpty() || loai.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // Gán lại dữ liệu
+                khoSachDTO.setTenKho(tenKho);
+                khoSachDTO.setDiaChi(diaChi);
+                khoSachDTO.setLoai(loai);
+                khoSachDTO.setTrangThai(1); // luôn đảm bảo trạng thái hoạt động
 
                 String result = khoSachBUS.updateKhoSach(khoSachDTO);
-                JOptionPane.showMessageDialog(this, result);
-                dispose();
+
+                if (result.equals("Cập nhật kho sách thành công")) {
+                    JOptionPane.showMessageDialog(this, result, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                    dispose();
+                } else {
+                    JOptionPane.showMessageDialog(this, result, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy kho sách!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
+
         } else if (source == btnCancel) {
             dispose();
         }
     }
+
 //
 //    public static void main(String[] args) {
 //        KhoSachBUS bus = new KhoSachBUS(); // Giả sử BUS đã được triển khai

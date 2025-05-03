@@ -3,8 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package dao;
+
 import Config.Constant;
 import dto.SachDTO;
+import java.beans.Statement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,20 +19,20 @@ import static junit.runner.Version.id;
  *
  * @author MZI
  */
-
 public class SachDAO implements DAOInterface<SachDTO> {
+
     Constant jdbc = new Constant();
 
     @Override
     public ArrayList<SachDTO> getALL() {
         //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-         ArrayList<SachDTO> list = new ArrayList<>();
+        ArrayList<SachDTO> list = new ArrayList<>();
         try {
             jdbc.openConnection();
             String query = "SELECT * FROM Sach WHERE trangThai = 1";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
             ResultSet rs = ps.executeQuery();
-            
+
             while (rs.next()) {
                 list.add(new SachDTO(
                         rs.getString("id"),
@@ -74,7 +76,6 @@ public class SachDAO implements DAOInterface<SachDTO> {
 
     @Override
     public boolean add(SachDTO sach) {
-        //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
         boolean result = false;
         try {
             jdbc.openConnection();
@@ -89,12 +90,12 @@ public class SachDAO implements DAOInterface<SachDTO> {
             ps.setInt(7, sach.getSoLuong());
             ps.setInt(8, sach.getTrangThai());
             ps.setString(9, sach.getMaKho());
-            
+
             if (ps.executeUpdate() > 0) {
                 result = true;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thêm nhà xuất bản: " + e.getMessage());
         } finally {
             jdbc.closeConnection();
         }
@@ -137,7 +138,7 @@ public class SachDAO implements DAOInterface<SachDTO> {
             ps.setInt(6, sach.getSoLuong());
             ps.setString(7, sach.getMaKho());
             ps.setString(8, sach.getId());
-            
+
             if (ps.executeUpdate() > 0) {
                 result = true;
             }
@@ -193,7 +194,7 @@ public class SachDAO implements DAOInterface<SachDTO> {
             ps.setString(2, "%" + searchContent + "%");
             ps.setString(3, "%" + searchContent + "%");
             ps.setString(4, "%" + searchContent + "%");
-            
+
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(new SachDTO(
@@ -216,4 +217,89 @@ public class SachDAO implements DAOInterface<SachDTO> {
         }
         return list;
     }
+
+    public SachDTO getByName(String tenSach) {
+        String query = "SELECT * FROM Sach WHERE tenSach LIKE ?";
+        SachDTO sach = null;
+
+        try {
+            jdbc.openConnection();
+            PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
+            ps.setString(1, "%" + tenSach + "%");
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                sach = new SachDTO(
+                        rs.getString("maSach"),
+                        rs.getString("tenSach"),
+                        rs.getString("theLoai"),
+                        rs.getString("tacGia"),
+                        rs.getString("nhaXuatBan"),
+                        rs.getInt("giaBan"),
+                        rs.getInt("soLuong"),
+                        rs.getInt("trangThai"),
+                        rs.getString("maKho"),
+                        rs.getString("hinhAnh")
+                );
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tìm sách theo tên: " + e.getMessage());
+        } finally {
+            jdbc.closeConnection();
+        }
+
+        return sach;
+    }
+
+//    public String getLastMaSach() {
+//        String lastMaSach = null;
+//        String sql = "SELECT TOP 1 maSach FROM Sach ORDER BY maSach DESC";
+//
+//        try (Connection jdbc = new Constant().getConnection();
+//             Statement stmt = connection.createStatement();
+//             ResultSet rs = stmt.executeQuery(sql)) {
+//
+//            if (rs.next()) {
+//                lastMaSach = rs.getString("maSach");
+//            }
+//
+//        } catch (SQLException e) {
+//            System.err.println("Lỗi khi lấy mã sách cuối cùng: " + e.getMessage());
+//        }
+//
+//        return lastMaSach;
+//    }
+    public String NextMaSach() {
+        String query = "SELECT id FROM Sach";
+        String newId = "S001";
+        int maxNum = 0;
+
+        try {
+            jdbc.openConnection();
+            PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String ma = rs.getString("maSach");
+                if (ma != null && ma.matches("^S\\d{3}$")) { // Đúng định dạng "Sxxx"
+                    int num = Integer.parseInt(ma.substring(1)); // Bỏ 'S'
+                    if (num > maxNum) {
+                        maxNum = num;
+                    }
+                }
+            }
+
+            // Tăng lên 1, format lại
+            newId = String.format("S%03d", maxNum + 1);
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi sinh mã sách mới: " + e.getMessage());
+        } finally {
+            jdbc.closeConnection();
+        }
+
+        return newId;
+    }
+
 }

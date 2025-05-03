@@ -3,17 +3,21 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package dao;
+
 import Config.Constant;
 import dto.TheLoaiDTO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.sql.SQLException;
+
 /**
  *
  * @author leduc
  */
 public class TheLoaiDAO implements DAOInterface<TheLoaiDTO> {
+
     Constant jdbc = new Constant();
 
     @Override
@@ -72,8 +76,8 @@ public class TheLoaiDAO implements DAOInterface<TheLoaiDTO> {
             if (ps.executeUpdate() > 0) {
                 result = true;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thêm nhà xuất bản: " + e.getMessage());
         } finally {
             jdbc.closeConnection();
         }
@@ -169,4 +173,54 @@ public class TheLoaiDAO implements DAOInterface<TheLoaiDTO> {
         }
         return list;
     }
+
+    public TheLoaiDTO getByName(String tenLoai) {
+        String query = "SELECT * FROM TheLoai WHERE tenLoai LIKE ?";
+        TheLoaiDTO theLoai = null;
+
+        try {
+            jdbc.openConnection();
+            PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
+            ps.setString(1, "%" + tenLoai + "%");
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                theLoai = new TheLoaiDTO();
+                theLoai.setMaLoai(rs.getString("maLoai"));
+                theLoai.setTenLoai(rs.getString("tenLoai"));
+                theLoai.setTrangThai(rs.getInt("trangThai"));
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tìm thể loại theo tên: " + e.getMessage());
+        } finally {
+            jdbc.closeConnection();
+        }
+
+        return theLoai;
+    }
+
+    public String nextMaLoai() {
+        String query = "SELECT MAX(maLoai) FROM TheLoai";
+        String newId = "TL01"; // Mặc định nếu bảng trống
+
+        try {
+            jdbc.openConnection();
+            PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next() && rs.getString(1) != null) {
+                String maxId = rs.getString(1); // VD: TL07
+                int num = Integer.parseInt(maxId.substring(2)) + 1;
+                newId = String.format("TL%02d", num); // VD: TL08
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi sinh mã thể loại mới: " + e.getMessage());
+        } finally {
+            jdbc.closeConnection();
+        }
+
+        return newId;
+    }
+
 }

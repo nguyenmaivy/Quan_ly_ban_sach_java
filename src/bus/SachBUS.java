@@ -22,12 +22,31 @@ public class SachBUS {
     }
 
     public String addSach(SachDTO sach) {
+        // Kiểm tra rỗng
+        if (sach.getTenSach().trim().isEmpty()
+                || sach.getTheLoai().trim().isEmpty()
+                || sach.getTacGia().trim().isEmpty()
+                || sach.getNhaXuatBan().trim().isEmpty()
+                || sach.getMaKho().trim().isEmpty()
+                || sach.getHinhAnh().trim().isEmpty()) {
+            return "Vui lòng nhập đầy đủ thông tin!";
+        }
+
+        // Kiểm tra số lượng và giá bán
+        if (sach.getSoLuong() <= 0 || sach.getGiaBan() <= 0) {
+            return "Giá bán và số lượng phải lớn hơn 0!";
+        }
+
+        // Kiểm tra trùng mã
         if (sachDAO.has(sach.getId())) {
             return "Mã sách đã tồn tại";
         }
+
+        // Thêm sách
         if (sachDAO.add(sach)) {
             return "Thêm sách thành công";
         }
+
         return "Thêm sách thất bại";
     }
 
@@ -39,20 +58,36 @@ public class SachBUS {
     }
 
     public String updateSach(SachDTO sach) {
-        if (sachDAO.update(sach)) {
-            return "Cập nhật sách thành công";
+        if (sach == null || sach.getId() == null || sach.getId().trim().isEmpty()) {
+            return "Mã sách không hợp lệ!";
         }
-        return "Cập sách thất bại";
+        boolean isUpdated = sachDAO.update(sach);
+
+        if (isUpdated) {
+            return "Cập nhật sách thành công!";
+        } else {
+            return "Cập nhật sách thất bại!";
+        }
     }
 
     public SachDTO getByID(String id) {
         return sachDAO.getByID(id);
     }
 
+    public String getNextMaSach() {
+        SachDAO dao = new SachDAO();
+        return dao.NextMaSach();
+    }
+
     public ArrayList<SachDTO> search(String searchContent) {
+        if (searchContent == null || searchContent.trim().isEmpty()) {
+            // Nếu không có nội dung tìm kiếm, trả về toàn bộ danh sách
+            return sachDAO.getALL();
+        }
         return sachDAO.search(searchContent);
     }
-    public String getTenSachByMa(String maSach){
+
+    public String getTenSachByMa(String maSach) {
         listSach = sachDAO.getALL();
         for (SachDTO sachDTO : listSach) {
             if (sachDTO.getId().equals(maSach)) {
@@ -61,4 +96,9 @@ public class SachBUS {
         }
         return "Không rõ";
     }
+
+    public SachDTO getByName(String tenSach) {
+        return null;
+    }
+
 }

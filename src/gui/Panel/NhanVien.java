@@ -13,15 +13,27 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class NhanVien extends JPanel implements ActionListener {
-    public JFrame owner = (JFrame) SwingUtilities.getWindowAncestor(this);
+
     PanelBorderRadius main, functionBar;
     JPanel contentCenter;
     JTable tblNhanVien;
@@ -63,7 +75,30 @@ public class NhanVien extends JPanel implements ActionListener {
         }
         functionBar.add(mainFunction);
 
-        search = new IntegratedSearch(new String[]{"Tất cả"});
+        search = new IntegratedSearch(new String[]{"Tất cả", "Mã Nhân viên", "Họ tên", "Địa chỉ", "Số điện thoại"});
+        search.txtSearchForm.addKeyListener(new KeyListener() {
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                searchData();
+            }
+        });
+
+        search.cbxChoose.addItemListener(new ItemListener() {
+
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                searchData();
+            }
+        });
         functionBar.add(search);
 
         contentCenter.add(functionBar, BorderLayout.NORTH);
@@ -135,6 +170,21 @@ public class NhanVien extends JPanel implements ActionListener {
                 JOptionPane.showMessageDialog(this, result);
                 loadDataTable();
             }
+        } else if (source == mainFunction.btn.get("detail")) {
+            int selectedRow = tblNhanVien.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một nhân viên để xem chi tiết ! ");
+                return;
+            }
+            String manv = tbModel.getValueAt(selectedRow, 0).toString();
+            NhanVienDTO nhanVien = nvBUS.getByID(manv);
+
+            if (nhanVien != null) {
+                NhanVienDialog dialog = new NhanVienDialog(nvBUS, (JFrame) SwingUtilities.getWindowAncestor(this), "Chi tiết Nhân Viên", true, "detail", nhanVien);
+
+            } else {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy nhân viên!");
+            }
         } else if (source == mainFunction.btn.get("export")) {
             boolean success = JTableExporter.exportJTableToExcel(tblNhanVien);
             if (success) {
@@ -160,4 +210,48 @@ public class NhanVien extends JPanel implements ActionListener {
             });
         }
     }
+
+    private void searchData() {
+        String keyword = search.txtSearchForm.getText().trim().toLowerCase();
+        String category = search.cbxChoose.getSelectedItem().toString();
+
+        NhanVienBUS nvBUS = new NhanVienBUS();
+        ArrayList<NhanVienDTO> list = nvBUS.getAllNhanVien();
+
+        tbModel.setRowCount(0); // Xóa dữ liệu cũ trên bảng
+
+        for (NhanVienDTO nv : list) {
+            String ma = (nv.getMaNV() != null) ? nv.getMaNV().toLowerCase() : "";
+            String ten = (nv.getTenNV() != null) ? nv.getTenNV().toLowerCase() : "";
+            String sdt = (nv.getSdt() != null) ? nv.getSdt().toLowerCase() : "";
+            String diachi = (nv.getDiaChi() != null) ? nv.getDiaChi().toLowerCase() : "";
+
+            boolean match = false;
+
+            switch (category) {
+                case "Tất cả":
+                    match = ma.contains(keyword) || ten.contains(keyword) || diachi.contains(keyword) || sdt.contains(keyword);
+                    break;
+                case "Mã Nhân viên":
+                    match = ma.contains(keyword);
+                    break;
+                case "Họ tên":
+                    match = ten.contains(keyword);
+                    break;
+                case "Địa chỉ":
+                    match = diachi.contains(keyword);
+                    break;
+                case "Số điện thoại":
+                    match = sdt.contains(keyword);
+                    break;
+            }
+
+            if (match) {
+                tbModel.addRow(new Object[]{
+                    nv.getMaNV(), nv.getTenNV(), nv.getGioiTinh(), nv.getDiaChi(), nv.getNgayVao(), nv.getSdt(), nv.getNgaySinh()
+                });
+            }
+        }
+    }
+
 }

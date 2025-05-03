@@ -19,9 +19,21 @@ import gui.Componet.Custom.PanelBorderRadius;
 import gui.Dialog.TheLoaiDialog;
 import gui.Main;
 import helper.JTableExporter;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.FileOutputStream;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.TableModel;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class TheLoai extends JPanel implements ActionListener {
-    public JFrame owner = (JFrame) SwingUtilities.getWindowAncestor(this);
+
     PanelBorderRadius main, functionBar;
     JPanel contentCenter;
     JTable tblTheLoai;
@@ -63,7 +75,31 @@ public class TheLoai extends JPanel implements ActionListener {
         }
         functionBar.add(mainFunction);
 
-        search = new IntegratedSearch(new String[]{"Tất cả"});
+        search = new IntegratedSearch(new String[]{"Tất cả", "Mã thể loại", "Tên thể loại"});
+        search.txtSearchForm.addKeyListener(new KeyListener() {
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                searchData();
+            }
+        });
+
+        search.cbxChoose.addItemListener(new ItemListener() {
+
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                searchData();  // Khi đổi tiêu chí tìm kiếm, cũng lọc lại
+            }
+        });
+
         functionBar.add(search);
 
         contentCenter.add(functionBar, BorderLayout.NORTH);
@@ -96,31 +132,33 @@ public class TheLoai extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
-        TheLoaiBUS tlBUS = new TheLoaiBUS();
+        TheLoaiBUS theLoaiBUS = new TheLoaiBUS(); // Dùng chung 1 đối tượng BUS
 
         if (source == mainFunction.btn.get("create")) {
-            TheLoaiDialog dialog = new TheLoaiDialog(tlBUS,
+            TheLoaiDialog dialog = new TheLoaiDialog(theLoaiBUS,
                     (JFrame) SwingUtilities.getWindowAncestor(this),
                     "Thêm Thể Loại", true, "create", null);
             loadDataTable();
+
         } else if (source == mainFunction.btn.get("update")) {
             int selectedRow = tblTheLoai.getSelectedRow();
             if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn một thể loại để cập nhật!");
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một thể loại để sửa!");
                 return;
             }
 
             String maLoai = tbModel.getValueAt(selectedRow, 0).toString();
-            TheLoaiDTO theLoai = tlBUS.getByID(maLoai);
+            TheLoaiDTO tl = theLoaiBUS.getByID(maLoai);
 
-            if (theLoai != null) {
-                TheLoaiDialog dialog = new TheLoaiDialog(tlBUS,
+            if (tl != null) {
+                TheLoaiDialog dialog = new TheLoaiDialog(theLoaiBUS,
                         (JFrame) SwingUtilities.getWindowAncestor(this),
-                        "Cập nhật Thể Loại", true, "update", theLoai);
+                        "Cập nhật Thể Loại", true, "update", tl);
                 loadDataTable();
             } else {
                 JOptionPane.showMessageDialog(this, "Không tìm thấy thể loại!");
             }
+
         } else if (source == mainFunction.btn.get("delete")) {
             int selectedRow = tblTheLoai.getSelectedRow();
             if (selectedRow == -1) {
@@ -131,10 +169,29 @@ public class TheLoai extends JPanel implements ActionListener {
             int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa thể loại này?", "Xác nhận", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 String maLoai = tbModel.getValueAt(selectedRow, 0).toString();
-                String result = tlBUS.deleteTheLoai(maLoai);
+                String result = theLoaiBUS.deleteTheLoai(maLoai);
                 JOptionPane.showMessageDialog(this, result);
                 loadDataTable();
             }
+
+        } else if (source == mainFunction.btn.get("detail")) {
+            int selectedRow = tblTheLoai.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một thể loại để xem chi tiết!");
+                return;
+            }
+
+            String maLoai = tbModel.getValueAt(selectedRow, 0).toString();
+            TheLoaiDTO tl = theLoaiBUS.getByID(maLoai);
+
+            if (tl != null) {
+                TheLoaiDialog dialog = new TheLoaiDialog(theLoaiBUS,
+                        (JFrame) SwingUtilities.getWindowAncestor(this),
+                        "Chi tiết Thể Loại", true, "detail", tl);
+            } else {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy thể loại!");
+            }
+
         } else if (source == mainFunction.btn.get("export")) {
             boolean success = JTableExporter.exportJTableToExcel(tblTheLoai);
             if (success) {
@@ -156,4 +213,37 @@ public class TheLoai extends JPanel implements ActionListener {
             });
         }
     }
+
+    private void searchData() {
+        String keyword = search.txtSearchForm.getText().trim().toLowerCase();
+        String category = search.cbxChoose.getSelectedItem().toString();
+
+        TheLoaiBUS theLoaiBUS = new TheLoaiBUS();
+        ArrayList<TheLoaiDTO> list = theLoaiBUS.getAllTheLoai();
+
+        tbModel.setRowCount(0); // Xoá dữ liệu bảng cũ
+
+        for (TheLoaiDTO tl : list) {
+            String ma = (tl.getMaLoai() != null) ? tl.getMaLoai().toLowerCase() : "";
+            String ten = (tl.getTenLoai() != null) ? tl.getTenLoai().toLowerCase() : "";
+
+            boolean match = switch (category) {
+                case "Tất cả" ->
+                    ma.contains(keyword) || ten.contains(keyword);
+                case "Mã thể loại" ->
+                    ma.contains(keyword);
+                case "Tên thể loại" ->
+                    ten.contains(keyword);
+                default ->
+                    false;
+            };
+
+            if (match) {
+                tbModel.addRow(new Object[]{
+                    tl.getMaLoai(), tl.getTenLoai()
+                });
+            }
+        }
+    }
+
 }
