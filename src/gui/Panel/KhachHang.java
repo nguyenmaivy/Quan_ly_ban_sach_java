@@ -65,6 +65,8 @@ public class KhachHang extends JPanel implements ActionListener {
 
         search = new IntegratedSearch(new String[]{"Tất cả"});
         functionBar.add(search);
+        search.txtSearchForm.addActionListener(this);
+
 
         contentCenter.add(functionBar, BorderLayout.NORTH);
 
@@ -144,6 +146,40 @@ public class KhachHang extends JPanel implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!");
             }
         }
+        
+        else if (source == search.txtSearchForm) {
+            String keyword = search.getTextField().getText().trim();
+            ArrayList<KhachHangDTO> result = khBUS.searchKhachHang(keyword);
+            tbModel.setRowCount(0);
+            for (KhachHangDTO kh : result) {
+                tbModel.addRow(new Object[]{
+                    kh.getMaKH(),
+                    kh.getTenKH(),
+                    kh.getSdt(),
+                    kh.getDiaChi()
+                });
+            }
+        }
+        
+        search.btnReset.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Xóa kết quả tìm kiếm
+                tbModel.setRowCount(0);
+
+                // Hiển thị lại toàn bộ danh sách khách hàng
+                ArrayList<KhachHangDTO> list = khBUS.getAllKhachHang();
+                for (KhachHangDTO kh : list) {
+                    tbModel.addRow(new Object[]{
+                        kh.getMaKH(),
+                        kh.getTenKH(),
+                        kh.getSdt(),
+                        kh.getDiaChi()
+                    });
+                }
+            }
+        });
+
     }
 
     private void loadDataTable() {
