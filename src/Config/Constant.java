@@ -8,9 +8,9 @@ import java.sql.DriverManager;
  */
 
 public class Constant {
-    private static final String DB_URL = "jdbc:sqlserver://MAIVYMECHIDEP\\MSSQLSERVER01:1433;databaseName=quanlybansach;encrypt=false;";
+    private static final String DB_URL = "jdbc:sqlserver://LAPTOP-SLAV9SET\\NGPHONGDEV:1433;databaseName=quanlybansach;encrypt=true;trustServerCertificate=true;";
     private static final String USERNAME = "sa";
-    private static final String PASSWORD = "26031980";
+    private static final String PASSWORD = "123";
 
     private Connection con;
     
@@ -46,6 +46,17 @@ public class Constant {
     
     //Hàm trả về đối tượng Connection
     public Connection getConnection() {
+         try{
+            // Đăng ký MySQL Driver với DriverManager (có nghĩa là ta có thể kết nối 2 database trong cùng 1 app này, chi tiết thì search ChatGPT)
+//            DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
+            con = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+//            System.out.println("Connection object: " + con); // Thêm dòng này
+            return con;
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
         return con;
     }
     
