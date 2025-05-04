@@ -65,7 +65,7 @@ public class KhachHang extends JPanel implements ActionListener {
 
         search = new IntegratedSearch(new String[]{"Tất cả"});
         functionBar.add(search);
-        search.txtSearchForm.addActionListener(this);
+        search.getTextField().addActionListener(this);
 
 
         contentCenter.add(functionBar, BorderLayout.NORTH);
