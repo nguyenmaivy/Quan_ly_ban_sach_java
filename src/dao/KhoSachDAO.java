@@ -83,7 +83,8 @@ public class KhoSachDAO implements DAOInterface<KhoSachDTO> {
                 result = true;
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thêm nhà xuất bản: " + e.getMessage());
+            System.err.println("Lỗi khi thêm Kho sách : " + e.getMessage());
+            result = false;
         } finally {
             jdbc.closeConnection();
         }
@@ -115,12 +116,13 @@ public class KhoSachDAO implements DAOInterface<KhoSachDTO> {
         boolean result = false;
         try {
             jdbc.openConnection();
-            String query = "UPDATE KhoSach SET tenKho = ?, diaChi = ?, loai = ? WHERE maKho = ?";
+            String query = "UPDATE KhoSach SET tenKho = ?, diaChi = ?, loai = ?, trangThai = ? WHERE maKho = ?";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
             ps.setString(1, kho.getTenKho());
             ps.setString(2, kho.getDiaChi());
             ps.setString(3, kho.getLoai());
-            ps.setString(4, kho.getMaKho());
+            ps.setInt(4, kho.getTrangThai());
+            ps.setString(5, kho.getMaKho());
 
             if (ps.executeUpdate() > 0) {
                 result = true;

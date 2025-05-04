@@ -118,25 +118,38 @@ public class NhanVienDAO implements DAOInterface<NhanVienDTO> {
     @Override
     public boolean update(NhanVienDTO nv) {
         boolean result = false;
-        
+
         // Kiểm tra trùng SĐT trước khi cập nhật
         if (isPhoneNumberExists(nv.getSdt(), nv.getMaNV())) {
             System.err.println("Số điện thoại đã tồn tại!");
             return false;
         }
+
         try {
             jdbc.openConnection();
-            String query = "UPDATE NhanVien SET tenNV = ?, gioiTinh = ?, diaChi = ?, ngayVao = ?, sdt = ?, ngaySinh = ? WHERE maNV = ?";
+            String query = "UPDATE NhanVien SET tenNV = ?, gioiTinh = ?, diaChi = ?, ngayVao = ?, sdt = ?, ngaySinh = ?, trangThai = ? WHERE maNV = ?";
             PreparedStatement ps = jdbc.getConnection().prepareStatement(query);
+
             ps.setString(1, nv.getTenNV());
             ps.setInt(2, nv.getGioiTinh());
             ps.setString(3, nv.getDiaChi());
-            ps.setDate(4, Date.valueOf(nv.getNgayVao()));
+
+            // Ngày vào & ngày sinh: kiểm tra null
+            if (nv.getNgayVao() != null)
+                ps.setDate(4, Date.valueOf(nv.getNgayVao()));
+            else
+                ps.setNull(4, java.sql.Types.DATE);
+
             ps.setString(5, nv.getSdt());
-            ps.setDate(6, Date.valueOf(nv.getNgaySinh()));
-            ps.setString(7, nv.getMaNV());
+
+            if (nv.getNgaySinh() != null)
+                ps.setDate(6, Date.valueOf(nv.getNgaySinh()));
+            else
+                ps.setNull(6, java.sql.Types.DATE);
             
-            
+            ps.setInt(7, nv.getTrangThai());
+            ps.setString(8, nv.getMaNV());
+
             if (ps.executeUpdate() > 0) {
                 result = true;
             }
@@ -145,8 +158,10 @@ public class NhanVienDAO implements DAOInterface<NhanVienDTO> {
         } finally {
             jdbc.closeConnection();
         }
+
         return result;
     }
+
     
     @Override
     public NhanVienDTO getByID(String id) {
