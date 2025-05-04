@@ -70,7 +70,7 @@ public class HoaDon extends JPanel implements ActionListener {
         panelFunctionBar.setLayout(new GridLayout(1, 2, 50, 0));
         panelFunctionBar.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        String[] actionStrings = {"create", "update", "delete", "detail", "export"};
+        String[] actionStrings = {"update", "delete", "detail", "export"};
         mainFunction = new MainFunction(SOMEBITS, "hoadon", actionStrings);
         for (String action : actionStrings) {
             mainFunction.btn.get(action).addActionListener(this);
@@ -137,13 +137,7 @@ public class HoaDon extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
         System.out.println("Action performed: " + command); // In ra action command
-        if (command.equals("THÊM")) {
-            System.out.println("Creating ChiTietHoaDonDialog..."); // In ra khi vào nhánh create
-            ChiTietHoaDonDialog dialog = new ChiTietHoaDonDialog(mainFrame, true, this, null, false);
-            System.out.println("ChiTietHoaDonDialog created."); // In ra sau khi tạo dialog
-            dialog.setVisible(true);
-            System.out.println("ChiTietHoaDonDialog setVisible(true)."); // In ra sau khi gọi setVisible
-        } else if (command.equals("SỬA")) {
+         if (command.equals("SỬA")) {
             int selectedRow = tableHoaDon.getSelectedRow();
             if (selectedRow >= 0) {
                 String soHD = (String) tableModelHoaDon.getValueAt(selectedRow, 0);
@@ -161,27 +155,34 @@ public class HoaDon extends JPanel implements ActionListener {
             } else {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn một hóa đơn để sửa.");
             }
-        } else if (command.equals("XÓA")) {
-            int selectedRow = tableHoaDon.getSelectedRow();
-            if (selectedRow >= 0) {
-                String soHD = (String) tableModelHoaDon.getValueAt(selectedRow, 0);
-                int option = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa hóa đơn " + soHD + "?", "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
-                if (option == JOptionPane.YES_OPTION) {
-                    try {
-                        if (hoaDonBUS.xoaHoaDon(soHD)) {
-                            JOptionPane.showMessageDialog(this, "Xóa hóa đơn thành công.");
-                            loadHoaDonData();
-                        } else {
-                            JOptionPane.showMessageDialog(this, "Xóa hóa đơn thất bại.");
+        }  else if (command.equals("XÓA")) {
+                int selectedRow = tableHoaDon.getSelectedRow();
+                if (selectedRow >= 0) {
+                    String soHD = (String) tableModelHoaDon.getValueAt(selectedRow, 0);
+                    int option = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn HỦY hóa đơn " + soHD + "?", "Xác nhận hủy", JOptionPane.YES_NO_OPTION);
+                    if (option == JOptionPane.YES_OPTION) {
+                        try {
+                            HoaDonDTO hoaDonToUpdate = hoaDonBUS.getByMaHD(soHD);
+                            if (hoaDonToUpdate != null) {
+                                hoaDonToUpdate.setTrangThai(0); // 0 là index của "Đã hủy"
+                                boolean success = hoaDonBUS.capNhatHoaDon(hoaDonToUpdate);
+                                if (success) {
+                                    JOptionPane.showMessageDialog(this, "Hủy hóa đơn thành công.");
+                                    loadHoaDonData(); // Tải lại dữ liệu để cập nhật trạng thái trên giao diện
+                                } else {
+                                    JOptionPane.showMessageDialog(this, "Hủy hóa đơn thất bại.");
+                                }
+                            } else {
+                                JOptionPane.showMessageDialog(this, "Không tìm thấy hóa đơn để hủy.");
+                            }
+                        } catch (SQLException ex) {
+                            JOptionPane.showMessageDialog(this, "Lỗi khi hủy hóa đơn: " + ex.getMessage());
                         }
-                    } catch (SQLException ex) {
-                        JOptionPane.showMessageDialog(this, "Lỗi khi xóa hóa đơn: " + ex.getMessage());
                     }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Vui lòng chọn một hóa đơn để hủy.");
                 }
-            } else {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn một hóa đơn để xóa.");
-            }
-        } else if (command.equals("CHI TIẾT")) {
+            } else if (command.equals("CHI TIẾT")) {
             int selectedRow = tableHoaDon.getSelectedRow();
             if (selectedRow >= 0) {
                 try {
