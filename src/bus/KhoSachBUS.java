@@ -28,8 +28,10 @@ public class KhoSachBUS {
        
         if(ksDAO.has(ks.getMaKho()))
             return "Mã kho đã tồn tại";
+        
         if(ksDAO.add(ks))
             return "Thêm sản phẩm vào kho thành công";
+        
         return "Thêm thất bại";
     }
     
@@ -44,7 +46,7 @@ public class KhoSachBUS {
             return "Mã nhà Kho không hợp lệ!";
         }
         if(ksDAO.update(ks))
-            return "Cập nhật kho sach thành công";
+            return "Cập nhật kho sách thành công";
         return "Cập nhật thất bại";
     }
     
