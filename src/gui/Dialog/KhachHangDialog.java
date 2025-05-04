@@ -67,6 +67,7 @@ public class KhachHangDialog extends JDialog implements ActionListener {
             case "create" -> {
                 btnAdd = new ButtonCustom("Thêm", "success", 14);
                 btnAdd.addActionListener(this);
+                txtMaKH.setText(khachHangBUS.generateMaKH());
                 jpBottom.add(btnAdd);
             }
             case "update" -> {
