@@ -27,8 +27,7 @@ public class HoaDonBUS {
         hoaDonDAO = new HoaDonDAO();
     }
 
-    public boolean themHoaDon(HoaDonDTO hoaDon) {
-        // Kiểm tra dữ liệu
+    public boolean themHoaDon(HoaDonDTO hoaDon) throws SQLException {
         if (hoaDon.getSoHD() == null || hoaDon.getSoHD().isEmpty()) {
             throw new IllegalArgumentException("Mã hóa đơn không được để trống.");
         }
@@ -44,7 +43,7 @@ public class HoaDonBUS {
         return hoaDonDAO.themHoaDon(hoaDon);
     }
 
-    public HoaDonDTO getByMaHD(String soHD) {
+    public HoaDonDTO getByMaHD(String soHD) throws SQLException {
         if (soHD == null || soHD.isEmpty()) {
             throw new IllegalArgumentException("Mã hóa đơn không được để trống.");
         }
@@ -52,7 +51,6 @@ public class HoaDonBUS {
     }
 
     public boolean capNhatTrangThaiHoaDon(String soHD, int trangThai) throws SQLException {
-        // Thêm logic nghiệp vụ (ví dụ: kiểm tra trạng thái hợp lệ)
         if (soHD == null || soHD.isEmpty()) {
             throw new IllegalArgumentException("Mã hóa đơn không được để trống.");
         }
@@ -63,17 +61,13 @@ public class HoaDonBUS {
     }
 
     public boolean xoaHoaDon(String soHD) throws SQLException {
-        // Logic nghiệp vụ: Kiểm tra mã hóa đơn
         if (soHD == null || soHD.isEmpty()) {
             throw new IllegalArgumentException("Mã hóa đơn không được để trống.");
         }
-
-        // Gọi DAO để xóa hóa đơn
         return hoaDonDAO.xoaHoaDon(soHD);
     }
 
     public boolean capNhatHoaDon(HoaDonDTO hoaDon) throws SQLException {
-        // Logic nghiệp vụ: Kiểm tra dữ liệu đầu vào
         if (hoaDon.getSoHD() == null || hoaDon.getSoHD().isEmpty()) {
             throw new IllegalArgumentException("Mã hóa đơn không được để trống.");
         }
@@ -86,75 +80,104 @@ public class HoaDonBUS {
         if (hoaDon.getTrangThai() < 0 || hoaDon.getTrangThai() > 1) {
             throw new IllegalArgumentException("Trạng thái không hợp lệ.");
         }
-
-        // Gọi DAO để cập nhật hóa đơn
         return hoaDonDAO.capNhatHoaDon(hoaDon);
     }
 
-    
-
-    public String generateSoHD() {
-        Random random = new Random();
-        int randomNumber = random.nextInt(1000000);
-        return String.format("HD%06d", randomNumber);
+    public List<HoaDonDTO> layDanhSachHoaDon() throws SQLException {
+        return hoaDonDAO.layDanhSachHoaDon();
     }
 
-//    public void xuatExcelHoaDon() throws SQLException, IOException {
-//        List<HoaDonDTO> danhSachHoaDon = layDanhSachHoaDon();
-//        if (danhSachHoaDon == null || danhSachHoaDon.isEmpty()) {
-//            JOptionPane.showMessageDialog(null, "Không có hóa đơn để xuất ra Excel.");
-//            return;
-//        }
-//
-//        Workbook workbook = new XSSFWorkbook();
-//        Sheet sheet = workbook.createSheet("Hóa Đơn");
-//
-//        // Tạo header row
-//        Row headerRow = sheet.createRow(0);
-//        String[] headers = {"Mã Hóa Đơn", "Ngày bán", "Trạng thái", "Tên Nhân viên"};
-//        for (int i = 0; i < headers.length; i++) {
-//            Cell cell = headerRow.createCell(i);
-//            cell.setCellValue(headers[i]);
-//        }
-//
-//        // Ghi dữ liệu hóa đơn vào các hàng
-//        int rowNum = 1;
-//        for (HoaDonDTO hoaDon : danhSachHoaDon) {
-//            Row row = sheet.createRow(rowNum++);
-//            Cell cell1 = row.createCell(0);
-//            cell1.setCellValue(hoaDon.getSoHD());
-//            Cell cell2 = row.createCell(1);
-//            cell2.setCellValue(hoaDon.getNgayBan().format(DATE_FORMATTER)); // Format ngày
-//            Cell cell3 = row.createCell(2);
-//            cell3.setCellValue(hoaDon.getTrangThai() == 1 ? "Đã thanh toán" : "Đã hủy");
-//            Cell cell4 = row.createCell(3);
-//        }
-//
-//        // Tự động điều chỉnh kích thước cột
-//        for (int i = 0; i < headers.length; i++) {
-//            sheet.autoSizeColumn(i);
-//        }
-//
-//        // Lưu workbook vào file
-//        try {
-//            JFileChooser fileChooser = new JFileChooser();
-//            fileChooser.setDialogTitle("Lưu file Excel");
-//            int userSelection = fileChooser.showSaveDialog(null); // Sử dụng null hoặc component cha thích hợp
-//
-//            if (userSelection == JFileChooser.APPROVE_OPTION) {
-//                java.io.File fileToSave = fileChooser.getSelectedFile();
-//                try ( FileOutputStream fileOut = new FileOutputStream(fileToSave + ".xlsx")) {
-//                    workbook.write(fileOut);
-//                    JOptionPane.showMessageDialog(null, "Xuất Excel thành công!");
-//                } catch (IOException e) {
-//                    throw new IOException("Lỗi khi ghi file Excel: " + e.getMessage(), e);
-//                } finally {
-//                    workbook.close();
-//                }
-//            }
-//
-//        } catch (IOException e) {
-//            throw new IOException("Lỗi khi xuất file Excel: " + e.getMessage(), e);
-//        }
-//    }
+    public List<HoaDonDTO> getAllHoaDon() throws SQLException {
+        return hoaDonDAO.layDanhSachHoaDon(); // gọi DAO để lấy danh sách
+    }
+
+    public String generateSoHD() throws SQLException {
+        String lastSoHD = hoaDonDAO.getLastSoHD(); // Lấy mã hóa đơn cuối cùng từ DAO
+        if (lastSoHD == null || lastSoHD.isEmpty()) {
+            return "HD01"; // Nếu chưa có hóa đơn nào, bắt đầu từ HD01
+        } else {
+            try {
+                int number = Integer.parseInt(lastSoHD.substring(2)); // Lấy phần số sau "HD"
+                number++;
+                return String.format("HD%02d", number); // Định dạng lại thành HDxx
+            } catch (NumberFormatException e) {
+                // Nếu mã cuối cùng không đúng định dạng, trả về một mã mặc định
+                return "HD01";
+            }
+        }
+    }
+    
+    public List<Object[]> layChiTietHoaDon(String soHD) throws SQLException {
+        return hoaDonDAO.layChiTietHoaDon(soHD);
+    }
+    
+    public String themHoaDonReturnID(HoaDonDTO hoaDon) throws SQLException {
+        return hoaDonDAO.themHoaDonReturnID(hoaDon);
+    }
+    
+    public boolean themNhieuChiTietHoaDon(List<Object[]> danhSachChiTiet) throws SQLException {
+        // Chuyển đổi danh sách Object[] thành danh sách DTO (nếu cần) hoặc
+        // truyền trực tiếp xuống DAO nếu DAO xử lý được Object[]
+        return hoaDonDAO.themNhieuChiTietHoaDon(danhSachChiTiet);
+    }
+
+    public void xuatExcelHoaDon() throws SQLException, IOException {
+        List<HoaDonDTO> danhSachHoaDon = layDanhSachHoaDon();
+        if (danhSachHoaDon == null || danhSachHoaDon.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Không có hóa đơn để xuất ra Excel.");
+            return;
+        }
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Hóa Đơn");
+
+        // Tạo header row
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"Mã Hóa Đơn", "Ngày bán", "Trạng thái", "Tên Nhân viên"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        // Ghi dữ liệu hóa đơn vào các hàng
+        int rowNum = 1;
+        for (HoaDonDTO hoaDon : danhSachHoaDon) {
+            Row row = sheet.createRow(rowNum++);
+            Cell cell1 = row.createCell(0);
+            cell1.setCellValue(hoaDon.getSoHD());
+            Cell cell2 = row.createCell(1);
+            cell2.setCellValue(hoaDon.getNgayBan().format(DATE_FORMATTER)); // Format ngày
+            Cell cell3 = row.createCell(2);
+            cell3.setCellValue(hoaDon.getTrangThai() == 1 ? "Đã thanh toán" : "Đã hủy");
+            Cell cell4 = row.createCell(3);
+            cell4.setCellValue(hoaDon.getTenNV());
+        }
+
+        // Tự động điều chỉnh kích thước cột
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Lưu workbook vào file
+        try {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Lưu file Excel");
+            int userSelection = fileChooser.showSaveDialog(null); // Sử dụng null hoặc component cha thích hợp
+
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                java.io.File fileToSave = fileChooser.getSelectedFile();
+                try (FileOutputStream fileOut = new FileOutputStream(fileToSave + ".xlsx")) {
+                    workbook.write(fileOut);
+                    JOptionPane.showMessageDialog(null, "Xuất Excel thành công!");
+                } catch (IOException e) {
+                    throw new IOException("Lỗi khi ghi file Excel: " + e.getMessage(), e);
+                } finally {
+                    workbook.close();
+                }
+            }
+
+        } catch (IOException e) {
+            throw new IOException("Lỗi khi xuất file Excel: " + e.getMessage(), e);
+        }
+    }
 }
