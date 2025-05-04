@@ -1,229 +1,325 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package gui.Dialog;
 
-import bus.ChiTietHoaDonBUS;
-import dto.ChiTietHoaDonDTO;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import bus.HoaDonBUS;
+import dto.HoaDonDTO;
+import gui.Componet.Custom.ButtonCustom;
+import gui.Panel.HoaDon;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 
 public class ChiTietHoaDonDialog extends JDialog implements ActionListener {
 
-    private JLabel lblSoHD, lblMaSach, lblSoLuongBan, lblGiaBan;
-    private JTextField txtSoHD, txtMaSach, txtSoLuongBan, txtGiaBan;
-    private JComboBox<String> cbMaSach; // Để hiển thị danh sách mã sách có sẵn.
-    private JPanel panelForm, panelButton;
-    private JButton btnLuu, btnHuy;
-    private ChiTietHoaDonBUS chiTietHoaDonBUS;
-    private DefaultTableModel tableModelChiTiet;
-    private JTable tableChiTiet;
-    private JScrollPane scrollPaneTable;
-    private boolean isUpdate = false;
-    private String soHDToUpdate;
+    private JLabel lblSoHD, lblNgayBan, lblMaNV, lblTrangThai;
+    private JTextField txtSoHD, txtNgayBan, txtMaNV;
+    private JComboBox<String> cbTrangThai;
+    private JPanel jpTop, jpCenter, jpBottom, jpDetailButtons;
+    private ButtonCustom btnLuu, btnHuy, btnThemCT, btnSuaCT, btnXoaCT;
+    private HoaDonBUS hoaDonBUS;
+    private HoaDon hoaDonPanel;
+    private HoaDonDTO hoaDonToEdit;
+    private boolean isEditMode = false;
+    private boolean isViewMode = false;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-    public ChiTietHoaDonDialog(Frame owner, boolean modal) {
-        super(owner, "Thêm Chi Tiết Hóa Đơn", modal);
-        initComponents();
-        layoutComponents();
-        addListeners();
-        this.soHDToUpdate = null;
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-    }
+    private JTable tblChiTiet;
+    private DefaultTableModel tblModelChiTiet;
+    private JScrollPane scrollPaneChiTiet;
+    private List<Object[]> danhSachChiTiet = new ArrayList<>();
 
-    public ChiTietHoaDonDialog(Frame owner, boolean modal, String soHD) {
-        super(owner, "Chi Tiết Hóa Đơn", modal);
-        this.isUpdate = true;
-        this.soHDToUpdate = soHD;
+    public ChiTietHoaDonDialog(Frame owner, boolean modal, HoaDon hoaDonPanel, HoaDonDTO hoaDonToEdit, boolean isViewMode) {
+        super(owner, isViewMode ? "Xem Chi Tiết Hóa Đơn" : "Chi Tiết Hóa Đơn", modal);
+        this.hoaDonPanel = hoaDonPanel;
+        this.hoaDonToEdit = hoaDonToEdit;
+        this.hoaDonBUS = new HoaDonBUS();
+        this.isViewMode = isViewMode;
         initComponents();
-        layoutComponents();
-        loadDataToUpdate(soHD);
-        addListeners();
+        if (hoaDonToEdit != null) {
+            isEditMode = !isViewMode;
+            loadHoaDonData();
+            loadChiTietHoaDon();
+            txtSoHD.setEditable(false);
+        } else {
+            try {
+                txtSoHD.setText(hoaDonBUS.generateSoHD());
+                txtSoHD.setEditable(false);
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Lỗi khi tạo mã hóa đơn: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        if (isViewMode) {
+            disableEditing();
+        }
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        pack();
+        setLocationRelativeTo(owner);
+        setVisible(false);
     }
 
     private void initComponents() {
-        chiTietHoaDonBUS = new ChiTietHoaDonBUS();
+        this.setSize(new Dimension(650, 500));
+        this.setLocationRelativeTo(null);
+        this.setLayout(new BorderLayout(0, 10));
 
-        lblSoHD = new JLabel("Số Hóa Đơn:");
-        lblMaSach = new JLabel("Mã Sách:");
-        lblSoLuongBan = new JLabel("Số Lượng Bán:");
-        lblGiaBan = new JLabel("Giá Bán:");
+        // Panel thông tin hóa đơn (phía trên)
+        jpTop = new JPanel(new GridLayout(4, 2, 10, 10));
+        jpTop.setBorder(new EmptyBorder(20, 20, 10, 20));
+        jpTop.setBackground(Color.WHITE);
 
-        txtSoHD = new JTextField(10);
-        txtMaSach = new JTextField(10);
-        txtSoLuongBan = new JTextField(10);
-        txtGiaBan = new JTextField(10);
-        cbMaSach = new JComboBox<>();
+        lblSoHD = new JLabel("Mã Hóa Đơn:");
+        lblNgayBan = new JLabel("Ngày Bán (dd-MM-yyyy):");
+        lblMaNV = new JLabel("Mã Nhân Viên:");
+        lblTrangThai = new JLabel("Trạng Thái:");
 
-        btnLuu = new JButton("Lưu");
-        btnHuy = new JButton("Hủy");
+        txtSoHD = new JTextField();
+        txtNgayBan = new JTextField();
+        txtMaNV = new JTextField();
+        cbTrangThai = new JComboBox<>(new String[]{"Đã hủy", "Đã thanh toán"});
 
-        panelForm = new JPanel(new GridBagLayout());
-        panelForm.setBackground(Color.WHITE);
-        panelButton = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        panelButton.setBackground(Color.WHITE);
+        txtSoHD.setEnabled(false);
 
-        tableModelChiTiet = new DefaultTableModel();
-        tableModelChiTiet.addColumn("Mã Sách");
-        tableModelChiTiet.addColumn("Số Lượng Bán");
-        tableModelChiTiet.addColumn("Giá Bán");
-        tableChiTiet = new JTable(tableModelChiTiet);
-        scrollPaneTable = new JScrollPane(tableChiTiet);
-        scrollPaneTable.setPreferredSize(new Dimension(400, 150));
-        tableChiTiet.setEnabled(false);
-    }
+        jpTop.add(lblSoHD);
+        jpTop.add(txtSoHD);
+        jpTop.add(lblNgayBan);
+        jpTop.add(txtNgayBan);
+        jpTop.add(lblMaNV);
+        jpTop.add(txtMaNV);
+        jpTop.add(lblTrangThai);
+        jpTop.add(cbTrangThai);
 
-    private void layoutComponents() {
-        setLayout(new BorderLayout());
-        panelForm.setBorder(new EmptyBorder(10, 10, 10, 10));
+        this.add(jpTop, BorderLayout.NORTH);
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        // Panel chi tiết hóa đơn (phía giữa)
+        jpCenter = new JPanel(new BorderLayout());
+        jpCenter.setBorder(new EmptyBorder(10, 20, 10, 20));
+        jpCenter.setBackground(Color.WHITE);
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        panelForm.add(lblSoHD, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        panelForm.add(txtSoHD, gbc);
+        tblModelChiTiet = new DefaultTableModel(new Object[]{"Mã Sách", "Số HĐ", "Số Lượng Bán", "Giá Bán"}, 0);
+        tblChiTiet = new JTable(tblModelChiTiet);
+        scrollPaneChiTiet = new JScrollPane(tblChiTiet);
+        jpCenter.add(scrollPaneChiTiet, BorderLayout.CENTER);
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        panelForm.add(lblMaSach, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        panelForm.add(cbMaSach, gbc);
+        jpDetailButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        jpDetailButtons.setBackground(Color.WHITE);
+        btnThemCT = new ButtonCustom("Thêm CT", "success", 12);
+        btnSuaCT = new ButtonCustom("Sửa CT", "warning", 12);
+        btnXoaCT = new ButtonCustom("Xóa CT", "danger", 12);
 
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        panelForm.add(lblSoLuongBan, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        panelForm.add(txtSoLuongBan, gbc);
+        btnThemCT.addActionListener(this);
+        btnSuaCT.addActionListener(this);
+        btnXoaCT.addActionListener(this);
 
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        panelForm.add(lblGiaBan, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 3;
-        panelForm.add(txtGiaBan, gbc);
+        jpDetailButtons.add(btnThemCT);
+        jpDetailButtons.add(btnSuaCT);
+        jpDetailButtons.add(btnXoaCT);
 
-        panelButton.add(btnLuu);
-        panelButton.add(btnHuy);
+        jpCenter.add(jpDetailButtons, BorderLayout.SOUTH);
 
-        add(panelForm, BorderLayout.NORTH);
-        add(scrollPaneTable, BorderLayout.CENTER);
-        add(panelButton, BorderLayout.SOUTH);
+        this.add(jpCenter, BorderLayout.CENTER);
 
-        pack();
-        setLocationRelativeTo(getOwner());
-    }
+        // Panel nút Lưu/Hủy (phía dưới)
+        jpBottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        jpBottom.setBackground(Color.WHITE);
+        jpBottom.setBorder(new EmptyBorder(10, 20, 20, 20));
 
-    private void addListeners() {
+        btnLuu = new ButtonCustom(isEditMode ? "Cập nhật" : "Lưu", "success", 14);
+        btnHuy = new ButtonCustom("Hủy", "danger", 14);
+
         btnLuu.addActionListener(this);
         btnHuy.addActionListener(this);
+
+        jpBottom.add(btnLuu);
+        jpBottom.add(btnHuy);
+
+        this.add(jpBottom, BorderLayout.SOUTH);
     }
 
-    
+    private void loadHoaDonData() {
+        if (hoaDonToEdit != null) {
+            txtSoHD.setText(hoaDonToEdit.getSoHD());
+            txtNgayBan.setText(hoaDonToEdit.getNgayBan() != null ? hoaDonToEdit.getNgayBan().format(DATE_FORMATTER) : "");
+            txtMaNV.setText(hoaDonToEdit.getMaNV());
+            cbTrangThai.setSelectedIndex(hoaDonToEdit.getTrangThai());
+        }
+    }
 
-    private void loadDataToUpdate(String soHD) {
-        try {
-            List<ChiTietHoaDonDTO> danhSachChiTiet = chiTietHoaDonBUS.layChiTietHoaDon(soHD);
-            if (danhSachChiTiet != null && !danhSachChiTiet.isEmpty()) {
-                txtSoHD.setText(danhSachChiTiet.get(0).getSoHD());
-                txtSoHD.setEditable(false);
-
-                // Load chi tiết vào bảng
-                tableModelChiTiet.setRowCount(0);
-                for (ChiTietHoaDonDTO ct : danhSachChiTiet) {
-                    tableModelChiTiet.addRow(new Object[]{ct.getMaSach(), ct.getSoLuongBan(), ct.getGiaBan()});
+    private void loadChiTietHoaDon() {
+        if (hoaDonToEdit != null) {
+            try {
+                List<Object[]> chiTietList = hoaDonBUS.layChiTietHoaDon(hoaDonToEdit.getSoHD());
+                tblModelChiTiet.setRowCount(0);
+                danhSachChiTiet.clear();
+                for (Object[] chiTiet : chiTietList) {
+                    tblModelChiTiet.addRow(new Object[]{chiTiet[0], chiTiet[1], chiTiet[2], chiTiet[3]}); // Đảm bảo đủ cột
+                    danhSachChiTiet.add(chiTiet);
                 }
-                //Set gia tri dau tien len form
-                cbMaSach.setSelectedItem(danhSachChiTiet.get(0).getMaSach());
-                txtSoLuongBan.setText(String.valueOf(danhSachChiTiet.get(0).getSoLuongBan()));
-                txtGiaBan.setText(String.valueOf(danhSachChiTiet.get(0).getGiaBan()));
-
-            } else {
-                JOptionPane.showMessageDialog(this, "Không tìm thấy chi tiết hóa đơn để cập nhật!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                dispose();
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Lỗi khi tải chi tiết hóa đơn: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-            Logger.getLogger(ChiTietHoaDonDialog.class.getName()).log(Level.SEVERE, null, ex);
+        } else {
+            tblModelChiTiet.setRowCount(0);
+            danhSachChiTiet.clear();
+        }
+    }
+
+    private void disableEditing() {
+        txtNgayBan.setEditable(false);
+        txtMaNV.setEditable(false);
+        cbTrangThai.setEnabled(false);
+        btnLuu.setEnabled(false);
+        btnThemCT.setEnabled(false);
+        btnSuaCT.setEnabled(false);
+        btnXoaCT.setEnabled(false);
+    }
+
+    private boolean validateInput() {
+        if (txtNgayBan.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập ngày bán.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        try {
+            LocalDate.parse(txtNgayBan.getText().trim(), DATE_FORMATTER);
+        } catch (DateTimeParseException e) {
+            JOptionPane.showMessageDialog(this, "Định dạng ngày không hợp lệ (dd-MM-yyyy).", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        if (txtMaNV.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập mã nhân viên.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
+    private void saveHoaDon() {
+        if (validateInput() && !isViewMode) {
+            HoaDonDTO hoaDon = new HoaDonDTO();
+            hoaDon.setSoHD(txtSoHD.getText()); // Lấy SoHD từ giao diện
+            try {
+                hoaDon.setNgayBan(LocalDate.parse(txtNgayBan.getText().trim(), DATE_FORMATTER));
+            } catch (DateTimeParseException e) {
+                JOptionPane.showMessageDialog(this, "Lỗi chuyển đổi ngày.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            hoaDon.setMaNV(txtMaNV.getText());
+            hoaDon.setTrangThai(cbTrangThai.getSelectedIndex());
+
+            List<Object[]> chiTietToSave = new ArrayList<>();
+            for (int i = 0; i < tblModelChiTiet.getRowCount(); i++) {
+                Object maSach = tblModelChiTiet.getValueAt(i, 0);
+                Object soHD = txtSoHD.getText(); // Lấy SoHD từ giao diện
+                Object soLuongBan = tblModelChiTiet.getValueAt(i, 2); // Lấy từ cột 2 ("Số Lượng Bán")
+                Object giaBan = tblModelChiTiet.getValueAt(i, 3);   // Lấy từ cột 3 ("Giá Bán")
+                if (maSach != null && soLuongBan != null && giaBan != null) {
+                    chiTietToSave.add(new Object[]{maSach, soHD, soLuongBan, giaBan});
+                } else {
+                    JOptionPane.showMessageDialog(this, "Vui lòng điền đầy đủ thông tin chi tiết hóa đơn.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+
+            try {
+                boolean success = false;
+                if (isEditMode) {
+                    success = hoaDonBUS.capNhatHoaDon(hoaDon);
+                    if (success) {
+                        // TODO: Cập nhật chi tiết hóa đơn
+                        JOptionPane.showMessageDialog(this, "Cập nhật hóa đơn thành công (chưa cập nhật chi tiết).");
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Cập nhật hóa đơn thất bại.");
+                    }
+                } else {
+                    // Thêm hóa đơn chính
+                    boolean hoaDonSuccess = hoaDonBUS.themHoaDon(hoaDon);
+                    if (hoaDonSuccess) {
+                        boolean chiTietSuccess = hoaDonBUS.themNhieuChiTietHoaDon(chiTietToSave);
+                        if (chiTietSuccess) {
+                            JOptionPane.showMessageDialog(this, "Thêm hóa đơn và chi tiết thành công.");
+                            success = true;
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Thêm hóa đơn thành công, nhưng có lỗi khi thêm chi tiết.");
+                            success = true; // Coi như thành công để reload hóa đơn chính
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Thêm hóa đơn thất bại.");
+                    }
+                }
+                if (success) {
+                    hoaDonPanel.reloadData();
+                    dispose();
+                }
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Lỗi khi lưu hóa đơn: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        } else if (isViewMode) {
             dispose();
         }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == btnLuu) {
-            saveChiTietHoaDon();
-        } else if (e.getSource() == btnHuy) {
+        Object source = e.getSource();
+        if (source == btnLuu) {
+            saveHoaDon();
+        } else if (source == btnHuy) {
             dispose();
+        } else if (source == btnThemCT) {
+            String soHDHienTai = txtSoHD.getText();
+            ThemChiTietDialog themCTDialog = new ThemChiTietDialog(this, true, soHDHienTai);
+            themCTDialog.setVisible(true);
+            Object[] newRow = themCTDialog.getChiTiet();
+            if (newRow != null) {
+                tblModelChiTiet.addRow(newRow);
+            }
+        } else if (source == btnSuaCT) {
+            int selectedRow = tblChiTiet.getSelectedRow();
+            if (selectedRow >= 0) {
+                Object[] currentRow = new Object[tblModelChiTiet.getColumnCount()];
+                for (int i = 0; i < currentRow.length; i++) {
+                    currentRow[i] = tblModelChiTiet.getValueAt(selectedRow, i);
+                }
+                ThemChiTietDialog suaCTDialog = new ThemChiTietDialog(this, true, currentRow);
+                suaCTDialog.setVisible(true);
+                Object[] updatedRow = suaCTDialog.getChiTiet();
+                if (updatedRow != null) {
+                    for (int i = 0; i < updatedRow.length; i++) {
+                        tblModelChiTiet.setValueAt(updatedRow[i], selectedRow, i);
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một chi tiết để sửa.");
+            }
+        } else if (source == btnXoaCT) {
+            int selectedRow = tblChiTiet.getSelectedRow();
+            if (selectedRow >= 0) {
+                tblModelChiTiet.removeRow(selectedRow);
+            } else {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một chi tiết để xóa.");
+            }
         }
     }
 
-   
-
-    private boolean validateInput() {
-        if (txtSoHD.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập số hóa đơn.", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        if (txtSoLuongBan.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập số lượng bán.", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        if (txtGiaBan.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập giá bán.", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-
-        try {
-            Integer.parseInt(txtSoLuongBan.getText());
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Số lượng bán phải là một số nguyên.", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-
-        try {
-            Integer.parseInt(txtGiaBan.getText());
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Giá bán phải là một số nguyên.", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-
-        return true;
+    public String getSoHD() {
+        return txtSoHD.getText();
     }
 
-    private void saveChiTietHoaDon() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    // Phương thức để thêm chi tiết từ ThemChiTietDialog
+    public void addChiTiet(Object[] chiTiet) {
+        tblModelChiTiet.addRow(chiTiet);
+    }
+
+    // Phương thức để lấy model của bảng chi tiết (có thể không cần thiết)
+    public DefaultTableModel getChiTietTableModel() {
+        return tblModelChiTiet;
     }
 }
-
