@@ -79,12 +79,10 @@ public class Sach extends JPanel implements ActionListener {
         search.txtSearchForm.addKeyListener(new KeyListener() {
 
             @Override
-            public void keyTyped(KeyEvent e) {
-            }
+            public void keyTyped(KeyEvent e) {}
 
             @Override
-            public void keyPressed(KeyEvent e) {
-            }
+            public void keyPressed(KeyEvent e) {}
 
             @Override
             public void keyReleased(KeyEvent e) {
@@ -99,7 +97,7 @@ public class Sach extends JPanel implements ActionListener {
                 searchData();  // Khi đổi tiêu chí tìm kiếm, cũng lọc lại
             }
         });
-
+        
         functionBar.add(search);
 
         contentCenter.add(functionBar, BorderLayout.NORTH);
@@ -113,7 +111,7 @@ public class Sach extends JPanel implements ActionListener {
         tblSach.setDefaultEditor(Object.class, null);
         scrollTable = new JScrollPane();
         tbModel = new DefaultTableModel();
-        String[] header = new String[]{"ID", "Tên Sách", "Thể Loại", "Tác Giả", "Nhà Xuất Bản", "Giá Bán", "Số Lượng", "Mã Kho"};
+        String[] header = new String[]{"ID", "Tên Sách", "Thể Loại", "Tác Giả", "Nhà Xuất Bản", "Giá Bán", "Số Lượng", "Mã Kho", "Hình ảnh"};
         tbModel.setColumnIdentifiers(header);
         tblSach.setModel(tbModel);
         scrollTable.setViewportView(tblSach);
@@ -127,6 +125,21 @@ public class Sach extends JPanel implements ActionListener {
 
         tblSach.setFocusable(false);
         main.add(scrollTable);
+        tblSach.setRowHeight(50); // Chiều cao hàng để đủ hiển thị ảnh
+        columnModel.getColumn(8).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+
+                if (value instanceof ImageIcon icon) {
+                    JLabel lbl = new JLabel(icon);
+                    lbl.setHorizontalAlignment(JLabel.CENTER);
+                    return lbl;
+                }
+
+                return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            }
+        });
     }
 
     @Override
@@ -171,7 +184,7 @@ public class Sach extends JPanel implements ActionListener {
                 JOptionPane.showMessageDialog(this, result);
                 loadDataTable();
             }
-        } else if (source == mainFunction.btn.get("detail")) {
+        }else if (source == mainFunction.btn.get("detail")) {
             int selectedRow = tblSach.getSelectedRow();
             if (selectedRow == -1) {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn một sách để xem chi tiết!");
@@ -183,18 +196,22 @@ public class Sach extends JPanel implements ActionListener {
 
             if (sach != null) {
                 SachDialog dialog = new SachDialog(
-                        sachBUS,
-                        (JFrame) SwingUtilities.getWindowAncestor(this),
-                        "Chi tiết Sách", true, "detail", sach
+                    sachBUS,
+                    (JFrame) SwingUtilities.getWindowAncestor(this),
+                    "Chi tiết Sách", true, "detail", sach
                 );
                 // Không cần load lại bảng vì chỉ xem chi tiết
             } else {
                 JOptionPane.showMessageDialog(this, "Không tìm thấy sách!");
             }
-        } else if (source == mainFunction.btn.get("export")) {
-            boolean success = JTableExporter.exportJTableToExcel(tblSach);
-            if (success) {
+        }
+        
+        else if (source == mainFunction.btn.get("export")) {
+            try {
+                JTableExporter.exportJTableToExcel(tblSach);
                 JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!");
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Xuất file thất bại: " + ex.getMessage());
             }
         }
     }
@@ -205,6 +222,17 @@ public class Sach extends JPanel implements ActionListener {
 
         tbModel.setRowCount(0);
         for (SachDTO s : list) {
+            
+            ImageIcon icon = null;
+            String path = "src/images/" + s.getHinhAnh();
+            java.io.File imgFile = new java.io.File(path);
+            
+            if (imgFile.exists()) {
+                icon = new ImageIcon(new ImageIcon(path).getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH));
+            } else {
+                icon = null; // hoặc new ImageIcon("src/images/default.png")
+            }
+            
             tbModel.addRow(new Object[]{
                 s.getId(),
                 s.getTenSach(),
@@ -213,11 +241,14 @@ public class Sach extends JPanel implements ActionListener {
                 s.getNhaXuatBan(),
                 s.getGiaBan(),
                 s.getSoLuong(),
-                s.getMaKho()
+                s.getMaKho(),
+                
+                icon
+                    
             });
         }
     }
-
+    
     private void searchData() {
         String keyword = search.txtSearchForm.getText().trim().toLowerCase();
         String category = search.cbxChoose.getSelectedItem().toString();
@@ -258,5 +289,66 @@ public class Sach extends JPanel implements ActionListener {
             }
         }
     }
+    
+    public class JTableExporter {
 
+        public static void exportJTableToExcel(JTable table) throws IOException {
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Danh sách sách");
+
+            TableModel model = table.getModel();
+
+            // Ghi tiêu đề cột
+            Row headerRow = sheet.createRow(0);
+            for (int col = 0; col < model.getColumnCount(); col++) {
+                Cell cell = headerRow.createCell(col);
+                cell.setCellValue(model.getColumnName(col));
+            }
+
+            // Ghi dữ liệu
+            for (int row = 0; row < model.getRowCount(); row++) {
+                Row excelRow = sheet.createRow(row + 1);
+                for (int col = 0; col < model.getColumnCount(); col++) {
+                    Cell cell = excelRow.createCell(col);
+                    Object value = model.getValueAt(row, col);
+                    cell.setCellValue(value != null ? value.toString() : "");
+                }
+            }
+
+            // Hộp thoại lưu file
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
+            fileChooser.setFileFilter(new FileNameExtensionFilter("Excel files", "xlsx"));
+
+            int userSelection = fileChooser.showSaveDialog(null);
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                String savePath = fileChooser.getSelectedFile().getAbsolutePath();
+                if (!savePath.toLowerCase().endsWith(".xlsx")) {
+                    savePath += ".xlsx";
+                }
+
+                try (FileOutputStream fileOut = new FileOutputStream(savePath)) {
+                    workbook.write(fileOut);
+                }
+            }
+
+            workbook.close();
+        }
+    }
+    
+    private ImageIcon createImageIcon(String fileName) {
+        if (fileName == null || fileName.trim().isEmpty()) return null;
+
+        String path = "src/images/" + fileName;
+        java.io.File imgFile = new java.io.File(path);
+
+        if (imgFile.exists()) {
+            ImageIcon icon = new ImageIcon(path);
+            Image scaled = icon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH); // ảnh nhỏ gọn
+            return new ImageIcon(scaled);
+        } else {
+            return null; // hoặc trả về ảnh mặc định
+        }
+    }
+    
 }
