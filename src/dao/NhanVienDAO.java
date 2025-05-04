@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.sql.SQLException;
 import java.sql.Date;
 import java.time.LocalDate;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -227,6 +228,33 @@ public class NhanVienDAO implements DAOInterface<NhanVienDTO> {
         }
 
         return newId;
+    }
+    
+     public String layTenTheoMa(String maNV) {
+        String sql = "SELECT TenNV FROM NHANVIEN WHERE MaNV = ?";
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            jdbc.openConnection(); // Mở kết nối
+
+            con = jdbc.getConnection();
+            if (con != null) {
+                pstmt = con.prepareStatement(sql);
+                pstmt.setString(1, maNV);
+                rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    return rs.getString("TenNV");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Không thể lấy kết nối đến CSDL!");
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Lỗi khi lấy tên nhân viên: " + e.getMessage());
+        } finally {
+            jdbc.closeConnection(); // Đóng kết nối
+        }
+        return "Không rõ";
     }
 
     @Override
