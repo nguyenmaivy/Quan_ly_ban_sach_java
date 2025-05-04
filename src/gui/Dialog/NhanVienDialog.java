@@ -254,20 +254,21 @@ public class NhanVienDialog extends JDialog implements ActionListener {
 
             String result = nhanVienBUS.updateNhanVien(nhanVienDTO);
 
-            if (result.equals("Cập nhật nhân viên thành công")) {
-                JOptionPane.showMessageDialog(this, result, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-                dispose();
+            JOptionPane.showMessageDialog(this, result,
+                    result.contains("thành công") ? "Thông báo" : "Lỗi",
+                    result.contains("thành công") ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+
+                if (result.equals("Cập nhật nhân viên thành công")) {
+                    dispose();
+                }
+
             } else {
-                JOptionPane.showMessageDialog(this, result, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Không tìm thấy nhân viên!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
 
-        } else {
-            JOptionPane.showMessageDialog(this, "Không tìm thấy nhân viên!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } else if (source == btnCancel) {
+            dispose();
         }
-
-            } else if (source == btnCancel) {
-                dispose();
-            }
     }
 
 }

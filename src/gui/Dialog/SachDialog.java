@@ -20,7 +20,7 @@ public class SachDialog extends JDialog implements ActionListener {
             txtGiaBan, txtSoLuong, txtMaKho, txtHinhAnh;
     private JPanel jpTop, jpBottom;
     private ButtonCustom btnAdd, btnUpdate, btnCancel;
-
+    private JButton btnChonAnh;
     private SachBUS sachBUS;
     private SachDTO sachDTO;
 
@@ -52,6 +52,29 @@ public class SachDialog extends JDialog implements ActionListener {
         txtSoLuong = new JTextField();
         txtMaKho = new JTextField();
         txtHinhAnh = new JTextField();
+        btnChonAnh = new JButton("Chọn ảnh");
+        btnChonAnh.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Hình ảnh", "jpg", "png", "jpeg", "webp"));
+                int result = fileChooser.showOpenDialog(null);
+
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    java.io.File selectedFile = fileChooser.getSelectedFile();
+                    String fileName = selectedFile.getName();
+                    txtHinhAnh.setText(fileName);  // Lưu tên file ảnh
+
+                    // Sao chép file vào thư mục src/images/
+                    try {
+                        java.nio.file.Path destination = java.nio.file.Paths.get("src/images/" + fileName);
+                        java.nio.file.Files.copy(selectedFile.toPath(), destination, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(null, "Lỗi khi sao chép ảnh vào thư mục!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
 
         jpTop.add(new JLabel("Mã sách:"));
         jpTop.add(txtId);
@@ -69,8 +92,11 @@ public class SachDialog extends JDialog implements ActionListener {
         jpTop.add(txtSoLuong);
         jpTop.add(new JLabel("Mã kho:"));
         jpTop.add(txtMaKho);
-        jpTop.add(new JLabel("Hình ảnh (URL hoặc tên file):"));
-        jpTop.add(txtHinhAnh);
+        jpTop.add(new JLabel("Hình ảnh (chọn từ máy):"));
+        JPanel panelHinhAnh = new JPanel(new BorderLayout());
+        panelHinhAnh.add(txtHinhAnh, BorderLayout.CENTER);
+        panelHinhAnh.add(btnChonAnh, BorderLayout.EAST);
+        jpTop.add(panelHinhAnh);
 
         jpBottom = new JPanel(new FlowLayout());
         jpBottom.setBackground(Color.WHITE);

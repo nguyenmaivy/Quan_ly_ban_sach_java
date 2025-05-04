@@ -140,9 +140,15 @@ public class KhoSachDialog extends JDialog implements ActionListener {
             String result = khoSachBUS.addKhoSach(newKho);
 
             JOptionPane.showMessageDialog(this, result);
-            if (result.equals("Thêm kho sách thành công")) {
+            if (result.equals("Thêm sản phẩm vào kho thành công")) {
                 dispose();
             }
+//            if (result.equals("Thêm sản phẩm vào kho thành công")) {
+//                //JOptionPane.showMessageDialog(this, result, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+//                dispose(); // đóng dialog khi thêm thành công
+//            } else {
+//                JOptionPane.showMessageDialog(this, result, "Lỗi", JOptionPane.ERROR_MESSAGE);
+//            }
 
         } else if (source == btnUpdate) {
             if (khoSachDTO != null) {
@@ -159,7 +165,7 @@ public class KhoSachDialog extends JDialog implements ActionListener {
                 khoSachDTO.setTenKho(tenKho);
                 khoSachDTO.setDiaChi(diaChi);
                 khoSachDTO.setLoai(loai);
-                khoSachDTO.setTrangThai(1); // luôn đảm bảo trạng thái hoạt động
+                //khoSachDTO.setTrangThai(1); // luôn đảm bảo trạng thái hoạt động
 
                 String result = khoSachBUS.updateKhoSach(khoSachDTO);
 
